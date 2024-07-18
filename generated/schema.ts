@@ -430,6 +430,19 @@ export class App extends Entity {
     this.set("votingEligibility", Value.fromBoolean(value));
   }
 
+  get poolBalance(): BigInt {
+    let value = this.get("poolBalance");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set poolBalance(value: BigInt) {
+    this.set("poolBalance", Value.fromBigInt(value));
+  }
+
   get poolDeposits(): BigInt {
     let value = this.get("poolDeposits");
     if (!value || value.kind == ValueKind.NULL) {

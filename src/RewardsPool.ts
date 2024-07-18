@@ -21,6 +21,7 @@ export function handleNewDeposit(event: NewDepositEvent): void {
     ev.depositor = fetchAccount(event.params.depositor).id
     ev.save()
 
+    app.poolBalance = app.poolBalance.plus(ev.amount)
     app.poolDeposits = app.poolDeposits.plus(ev.amount)
     app.save()
 }
@@ -39,6 +40,7 @@ export function handleTeamWithdrawal(event: TeamWithdrawalEvent): void {
     ev.by = fetchAccount(event.params.withdrawer).id
     ev.save()
 
+    app.poolBalance = app.poolBalance.minus(ev.amount)
     app.poolWithdrawals = app.poolWithdrawals.plus(ev.amount)
     app.save()
 }
@@ -57,6 +59,7 @@ export function handleRewardDistribution(event: RewardDistributedEvent): void {
     ev.by = fetchAccount(event.params.distributor).id
     ev.save()
 
+    app.poolBalance = app.poolBalance.minus(ev.amount)
     app.poolDistributions = app.poolDistributions.plus(ev.amount)
     app.save()
 }
