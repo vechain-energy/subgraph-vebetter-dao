@@ -1,0 +1,21 @@
+{
+  "name": "sample-subgraph",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "codegen": "graph codegen subgraph.yaml",
+    "build": "graph build subgraph.yaml",
+    "create-local": "graph create sample/vebetterdao --node http://127.0.0.1:8020",
+    "deploy-local": "graph deploy sample/vebetterdao --ipfs http://127.0.0.1:5001 --node http://127.0.0.1:8020 subgraph.yaml --version-label 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@graphprotocol/graph-cli": "^0.77.0",
+    "@graphprotocol/graph-ts": "^0.35.1",
+    "@openzeppelin/subgraphs": "^0.1.8-5"
+  }
+}

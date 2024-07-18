@@ -1,0 +1,464 @@
+type Round @entity {
+  id: ID!
+  voteStart: BigInt!
+  voteEnd: BigInt!
+  apps: [App!]!
+  allocations: [AllocationResult!]!
+  veDelegateAllocations: [AllocationResult!]!
+  statistic: RoundStatistic!
+  veDelegateStatistic: RoundStatistic!
+}
+
+type RoundStatistic @entity {
+  id: ID!
+  b3tr: BigDecimal!
+  b3trExact: BigInt!
+  vot3: BigDecimal!
+  vot3Exact: BigInt!
+  voters: BigInt!
+  votesCast: BigDecimal!
+  votesCastExact: BigInt!
+  weight: BigDecimal!
+  weightExact: BigInt!
+  totalRewardsClaimed: BigDecimal!
+  totalRewardsClaimedExact: BigInt!
+}
+
+type App @entity {
+  id: Bytes!
+  name: String
+  metadata: AppMetadata
+  metadataURI: String
+  votingEligibility: Boolean
+}
+
+type AppMetadata @entity {
+  id: ID!
+  title: String
+  description: String
+  externalUrl: String
+  logoUrl: String
+  bannerUrl: String
+}
+
+type AllocationResult @entity {
+  id: ID!
+  round: Round!
+  app: App!
+  voters: BigInt!
+  weight: BigDecimal!
+  weightExact: BigInt!
+  votesCast: BigDecimal!
+  votesCastExact: BigInt!
+}
+
+type AllocationVote @entity(immutable: true, timeseries: true) {
+  id: Int8!
+  voter: Account!
+  round: Round!
+  app: App!
+  weight: BigDecimal!
+  weightExact: BigInt!
+  qfWeight: BigDecimal!
+  qfWeightExact: BigInt!
+  timestamp: Timestamp!
+  transaction: Transaction!
+}
+
+type StatsAllocationVote @aggregation(intervals: ["hour", "day"], source: "AllocationVote") {
+  id: Int8!
+  timestamp: Timestamp!
+  app: App!
+  round: Round!
+  votes: BigInt! @aggregate(fn: "count", cumulative: false)
+  weight: BigDecimal! @aggregate(fn: "sum", arg: "weight", cumulative: true)
+  weightExact: BigInt! @aggregate(fn: "sum", arg: "weightExact", cumulative: true)
+  qfWeight: BigDecimal! @aggregate(fn: "sum", arg: "qfWeight", cumulative: true)
+  qfWeightExact: BigInt! @aggregate(fn: "sum", arg: "qfWeightExact", cumulative: true)
+}
+
+
+type RewardClaimed implements Event @entity(immutable: true) {
+  id: ID!
+  emitter: Account!
+  voter: Account!
+  round: Round!
+  reward: BigDecimal!
+  rewardExact: BigInt!
+  timestamp: BigInt!
+  transaction: Transaction!
+}
+
+type VeDelegateAccount @entity {
+  id: Bytes!
+  account: Account!
+  token: ERC721Token!
+}
+
+type Account @entity {
+  id: Bytes!
+  asVeDelegate: [ERC721Token!]! @derivedFrom(field: "poolAddress")
+  asERC721: ERC721Contract
+  AllocationVotes: [AllocationVote!]! @derivedFrom(field: "voter")
+  B3TRRewards: [RewardClaimed!] @derivedFrom(field: "voter")
+  ERC721tokens: [ERC721Token!]! @derivedFrom(field: "owner")
+  ERC721operatorOwner: [ERC721Operator!]! @derivedFrom(field: "owner")
+  ERC721operatorOperator: [ERC721Operator!]! @derivedFrom(field: "operator")
+  ERC721transferFromEvent: [ERC721Transfer!]! @derivedFrom(field: "from")
+  ERC721transferToEvent: [ERC721Transfer!]! @derivedFrom(field: "to")
+  asERC20: ERC20Contract
+  ERC20balances: [ERC20Balance!]! @derivedFrom(field: "account")
+  ERC20approvalsOwner: [ERC20Approval!]! @derivedFrom(field: "owner")
+  ERC20approvalsSpender: [ERC20Approval!]! @derivedFrom(field: "spender")
+  ERC20transferFromEvent: [ERC20Transfer!]! @derivedFrom(field: "from")
+  ERC20transferToEvent: [ERC20Transfer!]! @derivedFrom(field: "to")
+  asVoting: VotingContract
+  delegationFrom: [VoteDelegation!]! @derivedFrom(field: "delegator")
+  delegationTo: [VoteDelegation!]! @derivedFrom(field: "delegatee")
+  voteWeigth: [VoteWeight!]! @derivedFrom(field: "account")
+  delegateChangedEvent: [DelegateChanged!]! @derivedFrom(field: "delegator")
+  delegateChangedFromEvent: [DelegateChanged!]!
+    @derivedFrom(field: "fromDelegate")
+  delegateChangedToEvent: [DelegateChanged!]! @derivedFrom(field: "toDelegate")
+  delegateVotesChangedEvent: [DelegateVotesChanged!]!
+    @derivedFrom(field: "delegate")
+  asTimelock: Timelock
+  timelockedCalls: [TimelockCall!]! @derivedFrom(field: "target")
+  asGovernor: Governor
+  proposed: [Proposal!]! @derivedFrom(field: "proposer")
+  voted: [VoteReceipt!]! @derivedFrom(field: "voter")
+  proposedCalls: [ProposalCall!]! @derivedFrom(field: "target")
+  events: [Event!]! @derivedFrom(field: "emitter")
+}
+type ERC721Contract @entity(immutable: true) {
+  id: Bytes!
+  asAccount: Account!
+  supportsMetadata: Boolean
+  name: String
+  symbol: String
+  tokens: [ERC721Token!]! @derivedFrom(field: "contract")
+  operators: [ERC721Operator!]! @derivedFrom(field: "contract")
+  transfers: [ERC721Transfer!]! @derivedFrom(field: "contract")
+}
+type ERC721Token @entity {
+  id: ID!
+  contract: ERC721Contract!
+  identifier: BigInt!
+  owner: Account!
+  approval: Account!
+  uri: String
+  transfers: [ERC721Transfer!]! @derivedFrom(field: "token")
+  poolAddress: Account
+}
+type ERC721Operator @entity {
+  id: ID!
+  contract: ERC721Contract!
+  owner: Account!
+  operator: Account!
+  approved: Boolean!
+}
+type ERC721Transfer implements Event @entity(immutable: true) {
+  id: ID!
+  emitter: Account!
+  transaction: Transaction!
+  timestamp: BigInt!
+  contract: ERC721Contract!
+  token: ERC721Token!
+  from: Account!
+  to: Account!
+}
+type ERC20Contract @entity(immutable: true) {
+  id: Bytes!
+  asAccount: Account!
+  name: String
+  symbol: String
+  decimals: Int!
+  totalSupply: ERC20Balance!
+  balances: [ERC20Balance!]! @derivedFrom(field: "contract")
+  approvals: [ERC20Approval!]! @derivedFrom(field: "contract")
+  transfers: [ERC20Transfer!]! @derivedFrom(field: "contract")
+}
+type ERC20Balance @entity {
+  id: ID!
+  contract: ERC20Contract!
+  account: Account
+  value: BigDecimal!
+  valueExact: BigInt!
+  transferFromEvent: [ERC20Transfer!]! @derivedFrom(field: "fromBalance")
+  transferToEvent: [ERC20Transfer!]! @derivedFrom(field: "toBalance")
+}
+type ERC20Approval @entity {
+  id: ID!
+  contract: ERC20Contract!
+  owner: Account!
+  spender: Account!
+  value: BigDecimal!
+  valueExact: BigInt!
+}
+type ERC20Transfer implements Event @entity(immutable: true) {
+  id: ID!
+  emitter: Account!
+  transaction: Transaction!
+  timestamp: BigInt!
+  contract: ERC20Contract!
+  from: Account
+  fromBalance: ERC20Balance
+  to: Account
+  toBalance: ERC20Balance
+  value: BigDecimal!
+  valueExact: BigInt!
+}
+type VotingContract @entity(immutable: true) {
+  id: Bytes!
+  asAccount: Account!
+  totalWeight: VoteWeight!
+  weight: [VoteWeight!]! @derivedFrom(field: "contract")
+  delegation: [VoteDelegation!]! @derivedFrom(field: "contract")
+  delegateChangedEvent: [DelegateChanged!]! @derivedFrom(field: "contract")
+  delegateVotesChangedEvent: [DelegateVotesChanged!]!
+    @derivedFrom(field: "contract")
+}
+type VoteDelegation @entity {
+  id: ID!
+  contract: VotingContract!
+  delegator: Account!
+  delegatee: Account!
+  delegateChangedEvent: [DelegateChanged!]! @derivedFrom(field: "delegation")
+}
+type VoteWeight @entity {
+  id: ID!
+  contract: VotingContract!
+  account: Account
+  value: BigInt!
+  delegateVotesChangedEvent: [DelegateVotesChanged!]!
+    @derivedFrom(field: "voteWeight")
+}
+type DelegateChanged implements Event @entity(immutable: true) {
+  id: ID!
+  emitter: Account!
+  transaction: Transaction!
+  timestamp: BigInt!
+  delegation: VoteDelegation
+  contract: VotingContract!
+  delegator: Account!
+  fromDelegate: Account!
+  toDelegate: Account!
+}
+type DelegateVotesChanged implements Event @entity(immutable: true) {
+  id: ID!
+  emitter: Account!
+  transaction: Transaction!
+  timestamp: BigInt!
+  voteWeight: VoteWeight
+  contract: VotingContract!
+  delegate: Account!
+  oldValue: BigInt!
+  newValue: BigInt!
+}
+type Timelock @entity(immutable: true) {
+  id: Bytes!
+  asAccount: Account!
+  operations: [TimelockOperation!]! @derivedFrom(field: "contract")
+  scheduled: [TimelockOperationScheduled!]! @derivedFrom(field: "contract")
+  executed: [TimelockOperationExecuted!]! @derivedFrom(field: "contract")
+  cancelled: [TimelockOperationCancelled!]! @derivedFrom(field: "contract")
+  mindelaychange: [TimelockMinDelayChange!]! @derivedFrom(field: "contract")
+}
+enum TimelockStatus {
+  SCHEDULED
+  EXECUTED
+  CANCELED
+}
+type TimelockOperation @entity {
+  id: ID!
+  contract: Timelock!
+  status: TimelockStatus!
+  delay: BigInt!
+  timestamp: BigInt!
+  predecessor: TimelockOperation
+  calls: [TimelockCall!]! @derivedFrom(field: "operation")
+  scheduled: [TimelockOperationScheduled!]! @derivedFrom(field: "operation")
+  executed: [TimelockOperationExecuted!]! @derivedFrom(field: "operation")
+  cancelled: [TimelockOperationCancelled!]! @derivedFrom(field: "operation")
+}
+type TimelockCall @entity(immutable: true) {
+  id: ID!
+  operation: TimelockOperation!
+  index: BigInt!
+  target: Account!
+  value: BigDecimal!
+  data: Bytes!
+  scheduled: [TimelockOperationScheduled!]! @derivedFrom(field: "call")
+  executed: [TimelockOperationExecuted!]! @derivedFrom(field: "call")
+}
+type TimelockOperationScheduled implements Event @entity(immutable: true) {
+  id: ID!
+  emitter: Account!
+  transaction: Transaction!
+  timestamp: BigInt!
+  contract: Timelock!
+  operation: TimelockOperation!
+  call: TimelockCall!
+}
+type TimelockOperationExecuted implements Event @entity(immutable: true) {
+  id: ID!
+  emitter: Account!
+  transaction: Transaction!
+  timestamp: BigInt!
+  contract: Timelock!
+  operation: TimelockOperation!
+  call: TimelockCall!
+}
+type TimelockOperationCancelled implements Event @entity(immutable: true) {
+  id: ID!
+  emitter: Account!
+  transaction: Transaction!
+  timestamp: BigInt!
+  contract: Timelock!
+  operation: TimelockOperation!
+}
+type TimelockMinDelayChange implements Event @entity(immutable: true) {
+  id: ID!
+  emitter: Account!
+  transaction: Transaction!
+  timestamp: BigInt!
+  contract: Timelock!
+  delay: BigInt!
+}
+type Governor @entity(immutable: true) {
+  id: Bytes!
+  asAccount: Account!
+  mode: String
+  proposals: [Proposal!]! @derivedFrom(field: "governor")
+  proposalCreated: [ProposalCreated!]! @derivedFrom(field: "governor")
+  proposalQueued: [ProposalQueued!]! @derivedFrom(field: "governor")
+  proposalExecuted: [ProposalExecuted!]! @derivedFrom(field: "governor")
+  proposalCanceled: [ProposalCanceled!]! @derivedFrom(field: "governor")
+  votecast: [VoteCast!]! @derivedFrom(field: "governor")
+}
+type Proposal @entity {
+  id: ID!
+  governor: Governor!
+  proposalId: BigInt!
+  proposer: Account!
+  round: Round
+  descriptionUri: String
+  description: ProposalMetadata
+  canceled: Boolean!
+  queued: Boolean!
+  executed: Boolean!
+  calls: [ProposalCall!]! @derivedFrom(field: "proposal")
+  supports: [ProposalSupport!]! @derivedFrom(field: "proposal")
+  receipts: [VoteReceipt!]! @derivedFrom(field: "proposal")
+  proposalCreated: [ProposalCreated!]! @derivedFrom(field: "proposal")
+  proposalQueued: [ProposalQueued!]! @derivedFrom(field: "proposal")
+  proposalExecuted: [ProposalExecuted!]! @derivedFrom(field: "proposal")
+  proposalCanceled: [ProposalCanceled!]! @derivedFrom(field: "proposal")
+  votecast: [VoteCast!]! @derivedFrom(field: "proposal")
+  deposits: [ProposalDeposit!] @derivedFrom(field: "proposal")
+  depositCount: BigInt!
+  depositAmount: BigInt!
+  thresholdAmount: BigInt!
+}
+
+type ProposalMetadata @entity {
+  id: ID!
+  title: String
+  shortDescription: String
+  markdownDescription: String
+}
+
+type ProposalCall @entity(immutable: true) {
+  id: ID!
+  proposal: Proposal!
+  index: Int!
+  target: Account!
+  value: BigDecimal!
+  signature: String!
+  calldata: Bytes!
+}
+type ProposalSupport @entity(immutable: true) {
+  id: ID!
+  proposal: Proposal!
+  support: Int!
+  weight: BigInt!
+  votes: [VoteReceipt!]! @derivedFrom(field: "support")
+}
+type VoteReceipt @entity(immutable: true) {
+  id: ID!
+  proposal: Proposal!
+  voter: Account!
+  support: ProposalSupport!
+  weight: BigInt!
+  reason: String!
+  params: Bytes
+}
+type ProposalCreated implements Event @entity(immutable: true) {
+  id: ID!
+  emitter: Account!
+  transaction: Transaction!
+  timestamp: BigInt!
+  governor: Governor!
+  proposal: Proposal!
+  proposer: Account!
+}
+type ProposalQueued implements Event @entity(immutable: true) {
+  id: ID!
+  emitter: Account!
+  transaction: Transaction!
+  timestamp: BigInt!
+  governor: Governor!
+  proposal: Proposal!
+  eta: BigInt!
+}
+type ProposalExecuted implements Event @entity(immutable: true) {
+  id: ID!
+  emitter: Account!
+  transaction: Transaction!
+  timestamp: BigInt!
+  governor: Governor!
+  proposal: Proposal!
+}
+type ProposalCanceled implements Event @entity(immutable: true) {
+  id: ID!
+  emitter: Account!
+  transaction: Transaction!
+  timestamp: BigInt!
+  governor: Governor!
+  proposal: Proposal!
+}
+type VoteCast implements Event @entity(immutable: true) {
+  id: ID!
+  emitter: Account!
+  transaction: Transaction!
+  timestamp: BigInt!
+  governor: Governor!
+  proposal: Proposal!
+  support: ProposalSupport!
+  receipt: VoteReceipt!
+  voter: Account!
+}
+
+type ProposalDeposit implements Event @entity(immutable: true) {
+  id: ID!
+  transaction: Transaction!
+  emitter: Account!
+  timestamp: BigInt!
+  depositor: Account!
+  proposal: Proposal!
+  amount: BigInt!
+}
+
+interface Event {
+  id: ID!
+  transaction: Transaction!
+  emitter: Account!
+  timestamp: BigInt!
+}
+
+type Transaction @entity(immutable: true) {
+  id: ID!
+  timestamp: BigInt!
+  blockNumber: BigInt!
+  events: [Event!]! @derivedFrom(field: "transaction")
+}
