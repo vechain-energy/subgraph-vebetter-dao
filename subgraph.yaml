@@ -222,6 +222,30 @@ dataSources:
         - event: ProposalDeposit(indexed address,indexed uint256,uint256)
           handler: handleProposalDeposit
       file: ./src/Governor.ts
+  - kind: ethereum/contract
+    name: RewardsPool
+    network: mainnet
+    source:
+      address: "0x6Bee7DDab6c99d5B2Af0554EaEA484CE18F52631"
+      abi: RewardsPool
+      startBlock: 18868859
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - RewardsPool
+      abis:
+        - name: RewardsPool
+          file: ./abis/VeBetterDAO-x-2-earns-rewards-pool.json
+      eventHandlers:
+        - event: NewDeposit(uint256,indexed bytes32,indexed address)
+          handler: handleNewDeposit
+        - event: TeamWithdrawal(uint256,indexed bytes32,indexed address,address,string)
+          handler: handleTeamWithdrawal
+        - event: RewardDistributed(uint256,indexed bytes32,indexed address,string,indexed address)
+          handler: handleRewardDistribution
+      file: ./src/RewardsPool.ts
 templates:
   - kind: file/ipfs
     name: AppMetadata

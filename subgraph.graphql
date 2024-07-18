@@ -30,6 +30,12 @@ type App @entity {
   metadata: AppMetadata
   metadataURI: String
   votingEligibility: Boolean
+  poolDeposits: BigInt!
+  poolDepositEvent: [RewardPoolDeposit!]! @derivedFrom(field: "app")
+  poolWithdrawals: BigInt!
+  poolWithdrawEvent: [RewardPoolWithdraw!]! @derivedFrom(field: "app")
+  poolDistributions: BigInt!
+  poolDistributionEvent: [RewardPoolDistribution!]! @derivedFrom(field: "app")
 }
 
 type AppMetadata @entity {
@@ -461,4 +467,39 @@ type Transaction @entity(immutable: true) {
   timestamp: BigInt!
   blockNumber: BigInt!
   events: [Event!]! @derivedFrom(field: "transaction")
+}
+
+
+type RewardPoolDeposit implements Event @entity(immutable: true) {
+  id: ID!
+  transaction: Transaction!
+  emitter: Account!
+  timestamp: BigInt!
+  app: App!
+  amount: BigInt!
+  depositor: Account!
+}
+
+type RewardPoolWithdraw implements Event @entity(immutable: true) {
+  id: ID!
+  transaction: Transaction!
+  emitter: Account!
+  timestamp: BigInt!
+  app: App!
+  amount: BigInt!
+  by: Account!
+  to: Account!
+  reason: String!
+}
+
+type RewardPoolDistribution implements Event @entity(immutable: true) {
+  id: ID!
+  transaction: Transaction!
+  emitter: Account!
+  timestamp: BigInt!
+  app: App!
+  amount: BigInt!
+  by: Account!
+  to: Account!
+  proof: String!
 }
