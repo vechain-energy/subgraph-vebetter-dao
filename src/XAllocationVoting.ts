@@ -11,8 +11,6 @@ import { fetchApp } from './XApps'
 export function handleVoteCast(event: AllocationVoteCastEvent): void {
     const appCount = event.params.appsIds.length
     const roundId = event.params.roundId.toString()
-    const voterId = event.params.voter.toHexString()
-
     const veAccount = VeDelegateAccount.load(event.params.voter)
 
     const stats = fetchStatistic(roundId, "")
@@ -26,8 +24,8 @@ export function handleVoteCast(event: AllocationVoteCastEvent): void {
     for (let index = 0; index < appCount; index += 1) {
         const app = event.params.appsIds[index]
         const appId = app.toHexString()
-        const id = (parseInt(event.params.roundId.toString()) * 1000000 + parseInt(event.params.voter.toHexString(), 16) * 100 + index).toString()
-        const vote = new AllocationVote(id)
+        const id = (parseInt(event.block.number.toString()) * 10000000) + (parseInt(event.transaction.index.toString()) * 10000) + (parseInt(event.transactionLogIndex.toString()) * 100) + index
+        const vote = new AllocationVote(id.toString())
         const votesCast = event.params.voteWeights[index]
         const qfWeight = votesCast.sqrt()
         vote.voter = fetchAccount(event.params.voter).id
