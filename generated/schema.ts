@@ -430,21 +430,21 @@ export class App extends Entity {
     this.set("votingEligibility", Value.fromBoolean(value));
   }
 
-  get poolBalance(): BigInt {
+  get poolBalance(): BigDecimal {
     let value = this.get("poolBalance");
     if (!value || value.kind == ValueKind.NULL) {
       throw new Error("Cannot return null for a required field.");
     } else {
-      return value.toBigInt();
+      return value.toBigDecimal();
     }
   }
 
-  set poolBalance(value: BigInt) {
-    this.set("poolBalance", Value.fromBigInt(value));
+  set poolBalance(value: BigDecimal) {
+    this.set("poolBalance", Value.fromBigDecimal(value));
   }
 
-  get poolDeposits(): BigInt {
-    let value = this.get("poolDeposits");
+  get poolBalanceExact(): BigInt {
+    let value = this.get("poolBalanceExact");
     if (!value || value.kind == ValueKind.NULL) {
       throw new Error("Cannot return null for a required field.");
     } else {
@@ -452,8 +452,34 @@ export class App extends Entity {
     }
   }
 
-  set poolDeposits(value: BigInt) {
-    this.set("poolDeposits", Value.fromBigInt(value));
+  set poolBalanceExact(value: BigInt) {
+    this.set("poolBalanceExact", Value.fromBigInt(value));
+  }
+
+  get poolDeposits(): BigDecimal {
+    let value = this.get("poolDeposits");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigDecimal();
+    }
+  }
+
+  set poolDeposits(value: BigDecimal) {
+    this.set("poolDeposits", Value.fromBigDecimal(value));
+  }
+
+  get poolDepositsExact(): BigInt {
+    let value = this.get("poolDepositsExact");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set poolDepositsExact(value: BigInt) {
+    this.set("poolDepositsExact", Value.fromBigInt(value));
   }
 
   get poolDepositEvent(): RewardPoolDepositLoader {
@@ -464,8 +490,21 @@ export class App extends Entity {
     );
   }
 
-  get poolWithdrawals(): BigInt {
+  get poolWithdrawals(): BigDecimal {
     let value = this.get("poolWithdrawals");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigDecimal();
+    }
+  }
+
+  set poolWithdrawals(value: BigDecimal) {
+    this.set("poolWithdrawals", Value.fromBigDecimal(value));
+  }
+
+  get poolWithdrawalsExact(): BigInt {
+    let value = this.get("poolWithdrawalsExact");
     if (!value || value.kind == ValueKind.NULL) {
       throw new Error("Cannot return null for a required field.");
     } else {
@@ -473,8 +512,8 @@ export class App extends Entity {
     }
   }
 
-  set poolWithdrawals(value: BigInt) {
-    this.set("poolWithdrawals", Value.fromBigInt(value));
+  set poolWithdrawalsExact(value: BigInt) {
+    this.set("poolWithdrawalsExact", Value.fromBigInt(value));
   }
 
   get poolWithdrawEvent(): RewardPoolWithdrawLoader {
@@ -485,8 +524,21 @@ export class App extends Entity {
     );
   }
 
-  get poolDistributions(): BigInt {
+  get poolDistributions(): BigDecimal {
     let value = this.get("poolDistributions");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigDecimal();
+    }
+  }
+
+  set poolDistributions(value: BigDecimal) {
+    this.set("poolDistributions", Value.fromBigDecimal(value));
+  }
+
+  get poolDistributionsExact(): BigInt {
+    let value = this.get("poolDistributionsExact");
     if (!value || value.kind == ValueKind.NULL) {
       throw new Error("Cannot return null for a required field.");
     } else {
@@ -494,8 +546,8 @@ export class App extends Entity {
     }
   }
 
-  set poolDistributions(value: BigInt) {
-    this.set("poolDistributions", Value.fromBigInt(value));
+  set poolDistributionsExact(value: BigInt) {
+    this.set("poolDistributionsExact", Value.fromBigInt(value));
   }
 
   get poolDistributionEvent(): RewardPoolDistributionLoader {
@@ -821,6 +873,19 @@ export class AllocationVote extends Entity {
 
   set voter(value: Bytes) {
     this.set("voter", Value.fromBytes(value));
+  }
+
+  get voterId(): BigDecimal {
+    let value = this.get("voterId");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigDecimal();
+    }
+  }
+
+  set voterId(value: BigDecimal) {
+    this.set("voterId", Value.fromBigDecimal(value));
   }
 
   get round(): string {
@@ -5625,8 +5690,21 @@ export class RewardPoolDeposit extends Entity {
     this.set("app", Value.fromBytes(value));
   }
 
-  get amount(): BigInt {
+  get amount(): BigDecimal {
     let value = this.get("amount");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigDecimal();
+    }
+  }
+
+  set amount(value: BigDecimal) {
+    this.set("amount", Value.fromBigDecimal(value));
+  }
+
+  get amountExact(): BigInt {
+    let value = this.get("amountExact");
     if (!value || value.kind == ValueKind.NULL) {
       throw new Error("Cannot return null for a required field.");
     } else {
@@ -5634,8 +5712,8 @@ export class RewardPoolDeposit extends Entity {
     }
   }
 
-  set amount(value: BigInt) {
-    this.set("amount", Value.fromBigInt(value));
+  set amountExact(value: BigInt) {
+    this.set("amountExact", Value.fromBigInt(value));
   }
 
   get depositor(): Bytes {
@@ -5747,8 +5825,21 @@ export class RewardPoolWithdraw extends Entity {
     this.set("app", Value.fromBytes(value));
   }
 
-  get amount(): BigInt {
+  get amount(): BigDecimal {
     let value = this.get("amount");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigDecimal();
+    }
+  }
+
+  set amount(value: BigDecimal) {
+    this.set("amount", Value.fromBigDecimal(value));
+  }
+
+  get amountExact(): BigInt {
+    let value = this.get("amountExact");
     if (!value || value.kind == ValueKind.NULL) {
       throw new Error("Cannot return null for a required field.");
     } else {
@@ -5756,8 +5847,8 @@ export class RewardPoolWithdraw extends Entity {
     }
   }
 
-  set amount(value: BigInt) {
-    this.set("amount", Value.fromBigInt(value));
+  set amountExact(value: BigInt) {
+    this.set("amountExact", Value.fromBigInt(value));
   }
 
   get by(): Bytes {
@@ -5898,8 +5989,21 @@ export class RewardPoolDistribution extends Entity {
     this.set("app", Value.fromBytes(value));
   }
 
-  get amount(): BigInt {
+  get amount(): BigDecimal {
     let value = this.get("amount");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigDecimal();
+    }
+  }
+
+  set amount(value: BigDecimal) {
+    this.set("amount", Value.fromBigDecimal(value));
+  }
+
+  get amountExact(): BigInt {
+    let value = this.get("amountExact");
     if (!value || value.kind == ValueKind.NULL) {
       throw new Error("Cannot return null for a required field.");
     } else {
@@ -5907,8 +6011,8 @@ export class RewardPoolDistribution extends Entity {
     }
   }
 
-  set amount(value: BigInt) {
-    this.set("amount", Value.fromBigInt(value));
+  set amountExact(value: BigInt) {
+    this.set("amountExact", Value.fromBigInt(value));
   }
 
   get by(): Bytes {

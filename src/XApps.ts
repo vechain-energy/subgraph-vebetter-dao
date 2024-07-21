@@ -35,10 +35,15 @@ export function fetchApp(id: Bytes): App {
     let app = App.load(id)
     if (app == null) {
         app = new App(id)
-        app.poolBalance = constants.BIGINT_ZERO
-        app.poolDistributions = constants.BIGINT_ZERO
-        app.poolWithdrawals = constants.BIGINT_ZERO
-        app.poolDeposits = constants.BIGINT_ZERO
+        app.poolBalance = constants.BIGDECIMAL_ZERO
+        app.poolDistributions = constants.BIGDECIMAL_ZERO
+        app.poolWithdrawals = constants.BIGDECIMAL_ZERO
+        app.poolDeposits = constants.BIGDECIMAL_ZERO
+
+        app.poolBalanceExact = constants.BIGINT_ZERO
+        app.poolDistributionsExact = constants.BIGINT_ZERO
+        app.poolWithdrawalsExact = constants.BIGINT_ZERO
+        app.poolDepositsExact = constants.BIGINT_ZERO
         app.save()
     }
     return app

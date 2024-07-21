@@ -30,12 +30,16 @@ type App @entity {
   metadata: AppMetadata
   metadataURI: String
   votingEligibility: Boolean
-  poolBalance: BigInt!
-  poolDeposits: BigInt!
+  poolBalance: BigDecimal!
+  poolBalanceExact: BigInt!
+  poolDeposits: BigDecimal!
+  poolDepositsExact: BigInt!
   poolDepositEvent: [RewardPoolDeposit!]! @derivedFrom(field: "app")
-  poolWithdrawals: BigInt!
+  poolWithdrawals: BigDecimal!
+  poolWithdrawalsExact: BigInt!
   poolWithdrawEvent: [RewardPoolWithdraw!]! @derivedFrom(field: "app")
-  poolDistributions: BigInt!
+  poolDistributions: BigDecimal!
+  poolDistributionsExact: BigInt!
   poolDistributionEvent: [RewardPoolDistribution!]! @derivedFrom(field: "app")
 }
 
@@ -78,6 +82,7 @@ type StatsAllocationVote @aggregation(intervals: ["hour", "day"], source: "Alloc
   app: App!
   round: Round!
   votes: BigInt! @aggregate(fn: "count", cumulative: false)
+  voters: BigInt! @aggregate(fn: "count", cumulative: false, arg: "voterId")
   weight: BigDecimal! @aggregate(fn: "sum", arg: "weight", cumulative: true)
   weightExact: BigInt! @aggregate(fn: "sum", arg: "weightExact", cumulative: true)
   qfWeight: BigDecimal! @aggregate(fn: "sum", arg: "qfWeight", cumulative: true)
@@ -477,7 +482,8 @@ type RewardPoolDeposit implements Event @entity(immutable: true) {
   emitter: Account!
   timestamp: BigInt!
   app: App!
-  amount: BigInt!
+  amount: BigDecimal!
+  amountExact: BigInt!
   depositor: Account!
 }
 
@@ -487,7 +493,8 @@ type RewardPoolWithdraw implements Event @entity(immutable: true) {
   emitter: Account!
   timestamp: BigInt!
   app: App!
-  amount: BigInt!
+  amount: BigDecimal!
+  amountExact: BigInt!
   by: Account!
   to: Account!
   reason: String!
@@ -499,7 +506,8 @@ type RewardPoolDistribution implements Event @entity(immutable: true) {
   emitter: Account!
   timestamp: BigInt!
   app: App!
-  amount: BigInt!
+  amount: BigDecimal!
+  amountExact: BigInt!
   by: Account!
   to: Account!
   proof: String!
