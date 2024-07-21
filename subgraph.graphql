@@ -82,7 +82,6 @@ type StatsAllocationVote @aggregation(intervals: ["hour", "day"], source: "Alloc
   app: App!
   round: Round!
   votes: BigInt! @aggregate(fn: "count", cumulative: false)
-  voters: BigInt! @aggregate(fn: "count", cumulative: false, arg: "voterId")
   weight: BigDecimal! @aggregate(fn: "sum", arg: "weight", cumulative: true)
   weightExact: BigInt! @aggregate(fn: "sum", arg: "weightExact", cumulative: true)
   qfWeight: BigDecimal! @aggregate(fn: "sum", arg: "qfWeight", cumulative: true)
