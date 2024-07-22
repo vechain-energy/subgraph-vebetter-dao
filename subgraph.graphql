@@ -41,6 +41,8 @@ type App @entity {
   poolDistributions: BigDecimal!
   poolDistributionsExact: BigInt!
   poolDistributionEvent: [RewardPoolDistribution!]! @derivedFrom(field: "app")
+  createdAtBlockNumber: BigInt!
+  updatedAtBlockNumber: BigInt!
 }
 
 type AppMetadata @entity {

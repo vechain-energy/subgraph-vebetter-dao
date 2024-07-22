@@ -12,6 +12,8 @@ export function handleAppAdded(event: AppAddedEvent): void {
     const app = fetchApp(event.params.id)
     app.name = event.params.name
     app.votingEligibility = event.params.appAvailableForAllocationVoting
+    app.createdAtBlockNumber = event.block.number
+    app.updatedAtBlockNumber = event.block.number
     app.save()
 }
 
@@ -20,6 +22,7 @@ export function handleAppMetadataURIUpdated(event: AppMetadataURIUpdatedEvent): 
     const baseURI = XApps.bind(event.address).baseURI();
     app.metadata = event.params.newMetadataURI
     app.metadataURI = [baseURI, event.params.newMetadataURI].join('')
+    app.updatedAtBlockNumber = event.block.number
     app.save()
 
     AppMetadataTemplate.create(event.params.newMetadataURI)
@@ -28,6 +31,7 @@ export function handleAppMetadataURIUpdated(event: AppMetadataURIUpdatedEvent): 
 export function handleAppVotingEligibilityUpdated(event: VotingEligibilityUpdatedEvent): void {
     const app = fetchApp(event.params.appId)
     app.votingEligibility = event.params.isAvailable
+    app.updatedAtBlockNumber = event.block.number
     app.save()
 }
 
@@ -44,6 +48,8 @@ export function fetchApp(id: Bytes): App {
         app.poolDistributionsExact = constants.BIGINT_ZERO
         app.poolWithdrawalsExact = constants.BIGINT_ZERO
         app.poolDepositsExact = constants.BIGINT_ZERO
+        app.createdAtBlockNumber = constants.BIGINT_ZERO
+        app.updatedAtBlockNumber = constants.BIGINT_ZERO
         app.save()
     }
     return app

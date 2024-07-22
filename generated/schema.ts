@@ -557,6 +557,32 @@ export class App extends Entity {
       "poolDistributionEvent",
     );
   }
+
+  get createdAtBlockNumber(): BigInt {
+    let value = this.get("createdAtBlockNumber");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set createdAtBlockNumber(value: BigInt) {
+    this.set("createdAtBlockNumber", Value.fromBigInt(value));
+  }
+
+  get updatedAtBlockNumber(): BigInt {
+    let value = this.get("updatedAtBlockNumber");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set updatedAtBlockNumber(value: BigInt) {
+    this.set("updatedAtBlockNumber", Value.fromBigInt(value));
+  }
 }
 
 export class AppMetadata extends Entity {
