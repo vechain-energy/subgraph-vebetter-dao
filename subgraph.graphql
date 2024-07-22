@@ -370,6 +370,9 @@ type Proposal @entity {
   depositCount: BigInt!
   depositAmount: BigInt!
   thresholdAmount: BigInt!
+  voterCount: BigInt!
+  votesCast: BigInt!
+  weightCast: BigInt!
 }
 
 type ProposalMetadata @entity {
@@ -395,15 +398,18 @@ type ProposalSupport @entity(immutable: true) {
   weight: BigInt!
   votes: [VoteReceipt!]! @derivedFrom(field: "support")
 }
+
 type VoteReceipt @entity(immutable: true) {
   id: ID!
   proposal: Proposal!
   voter: Account!
   support: ProposalSupport!
   weight: BigInt!
+  power: BigInt!
   reason: String!
   params: Bytes
 }
+
 type ProposalCreated implements Event @entity(immutable: true) {
   id: ID!
   emitter: Account!

@@ -132,6 +132,7 @@ export function handleVoteCast(event: VoteCastEvent): void {
 	let receipt = fetchVoteReceipt(proposal, event.params.voter)
 	receipt.support = support.id
 	receipt.weight = event.params.weight
+	receipt.power = event.params.power
 	receipt.reason = event.params.reason
 	receipt.save()
 
@@ -142,9 +143,14 @@ export function handleVoteCast(event: VoteCastEvent): void {
 	ev.governor = governor.id
 	ev.proposal = receipt.proposal
 	ev.support = receipt.support
-	ev.receipt = receipt.id
+	ev.receipt = receipt.id.toString()
 	ev.voter = receipt.voter
 	ev.save()
+
+	proposal.voterCount = proposal.voterCount.plus(constants.BIGINT_ONE)
+	proposal.votesCast = proposal.votesCast.plus(receipt.weight)
+	proposal.weightCast = proposal.weightCast.plus(receipt.power)
+	proposal.save()
 }
 
 export function handleProposalDeposit(event: ProposalDepositEvent): void {

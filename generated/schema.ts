@@ -875,19 +875,6 @@ export class AllocationVote extends Entity {
     this.set("voter", Value.fromBytes(value));
   }
 
-  get voterId(): BigDecimal {
-    let value = this.get("voterId");
-    if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
-    } else {
-      return value.toBigDecimal();
-    }
-  }
-
-  set voterId(value: BigDecimal) {
-    this.set("voterId", Value.fromBigDecimal(value));
-  }
-
   get round(): string {
     let value = this.get("round");
     if (!value || value.kind == ValueKind.NULL) {
@@ -4375,6 +4362,45 @@ export class Proposal extends Entity {
   set thresholdAmount(value: BigInt) {
     this.set("thresholdAmount", Value.fromBigInt(value));
   }
+
+  get voterCount(): BigInt {
+    let value = this.get("voterCount");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set voterCount(value: BigInt) {
+    this.set("voterCount", Value.fromBigInt(value));
+  }
+
+  get votesCast(): BigInt {
+    let value = this.get("votesCast");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set votesCast(value: BigInt) {
+    this.set("votesCast", Value.fromBigInt(value));
+  }
+
+  get weightCast(): BigInt {
+    let value = this.get("weightCast");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set weightCast(value: BigInt) {
+    this.set("weightCast", Value.fromBigInt(value));
+  }
 }
 
 export class ProposalMetadata extends Entity {
@@ -4772,6 +4798,19 @@ export class VoteReceipt extends Entity {
 
   set weight(value: BigInt) {
     this.set("weight", Value.fromBigInt(value));
+  }
+
+  get power(): BigInt {
+    let value = this.get("power");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set power(value: BigInt) {
+    this.set("power", Value.fromBigInt(value));
   }
 
   get reason(): string {

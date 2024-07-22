@@ -59,6 +59,9 @@ export function fetchProposal(contract: Governor, proposalId: BigInt): Proposal 
 		proposal.depositCount = constants.BIGINT_ZERO
 		proposal.depositAmount = constants.BIGINT_ZERO
 		proposal.thresholdAmount = constants.BIGINT_ZERO
+		proposal.voterCount = constants.BIGINT_ZERO
+		proposal.votesCast = constants.BIGINT_ZERO
+		proposal.weightCast = constants.BIGINT_ZERO
 		proposal.proposer = fetchAccount(Address.zero()).id
 	}
 
