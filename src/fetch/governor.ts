@@ -90,6 +90,8 @@ export function fetchProposalSupport(proposal: Proposal, support: i32): Proposal
 		proposalSupport.proposal = proposal.id
 		proposalSupport.support = support
 		proposalSupport.weight = constants.BIGINT_ZERO
+		proposalSupport.power = constants.BIGINT_ZERO
+		proposalSupport.voter = constants.BIGINT_ZERO
 	}
 
 	return proposalSupport as ProposalSupport

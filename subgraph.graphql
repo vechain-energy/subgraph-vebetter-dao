@@ -76,18 +76,20 @@ type AllocationVote @entity(immutable: true, timeseries: true) {
   transaction: Transaction!
 }
 
-type StatsAllocationVote @aggregation(intervals: ["hour", "day"], source: "AllocationVote") {
+type StatsAllocationVote
+  @aggregation(intervals: ["hour", "day"], source: "AllocationVote") {
   id: Int8!
   timestamp: Timestamp!
   app: App!
   round: Round!
   votes: BigInt! @aggregate(fn: "count", cumulative: false)
   weight: BigDecimal! @aggregate(fn: "sum", arg: "weight", cumulative: true)
-  weightExact: BigInt! @aggregate(fn: "sum", arg: "weightExact", cumulative: true)
+  weightExact: BigInt!
+    @aggregate(fn: "sum", arg: "weightExact", cumulative: true)
   qfWeight: BigDecimal! @aggregate(fn: "sum", arg: "qfWeight", cumulative: true)
-  qfWeightExact: BigInt! @aggregate(fn: "sum", arg: "qfWeightExact", cumulative: true)
+  qfWeightExact: BigInt!
+    @aggregate(fn: "sum", arg: "qfWeightExact", cumulative: true)
 }
-
 
 type RewardClaimed implements Event @entity(immutable: true) {
   id: ID!
@@ -391,11 +393,13 @@ type ProposalCall @entity(immutable: true) {
   signature: String!
   calldata: Bytes!
 }
-type ProposalSupport @entity(immutable: true) {
+type ProposalSupport @entity {
   id: ID!
   proposal: Proposal!
   support: Int!
+  voter: BigInt!
   weight: BigInt!
+  power: BigInt!
   votes: [VoteReceipt!]! @derivedFrom(field: "support")
 }
 
@@ -479,7 +483,6 @@ type Transaction @entity(immutable: true) {
   blockNumber: BigInt!
   events: [Event!]! @derivedFrom(field: "transaction")
 }
-
 
 type RewardPoolDeposit implements Event @entity(immutable: true) {
   id: ID!

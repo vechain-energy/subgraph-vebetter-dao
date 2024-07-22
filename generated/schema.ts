@@ -4685,6 +4685,19 @@ export class ProposalSupport extends Entity {
     this.set("support", Value.fromI32(value));
   }
 
+  get voter(): BigInt {
+    let value = this.get("voter");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set voter(value: BigInt) {
+    this.set("voter", Value.fromBigInt(value));
+  }
+
   get weight(): BigInt {
     let value = this.get("weight");
     if (!value || value.kind == ValueKind.NULL) {
@@ -4696,6 +4709,19 @@ export class ProposalSupport extends Entity {
 
   set weight(value: BigInt) {
     this.set("weight", Value.fromBigInt(value));
+  }
+
+  get power(): BigInt {
+    let value = this.get("power");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set power(value: BigInt) {
+    this.set("power", Value.fromBigInt(value));
   }
 
   get votes(): VoteReceiptLoader {

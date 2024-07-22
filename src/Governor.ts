@@ -127,6 +127,9 @@ export function handleVoteCast(event: VoteCastEvent): void {
 	let governor = fetchGovernor(event.address)
 	let proposal = fetchProposal(governor, event.params.proposalId)
 	let support = fetchProposalSupport(proposal, event.params.support)
+	support.weight = support.weight.plus(event.params.weight)
+	support.power = support.power.plus(event.params.power)
+	support.voter = support.voter.plus(constants.BIGINT_ONE)
 	support.save()
 
 	let receipt = fetchVoteReceipt(proposal, event.params.voter)
