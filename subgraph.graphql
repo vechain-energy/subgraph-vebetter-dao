@@ -3,6 +3,7 @@ type Round @entity {
   voteStart: BigInt!
   voteEnd: BigInt!
   apps: [App!]!
+  proposals: [Proposal!]! @derivedFrom(field: "round")
   allocations: [AllocationResult!]!
   veDelegateAllocations: [AllocationResult!]!
   statistic: RoundStatistic!

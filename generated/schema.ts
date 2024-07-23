@@ -89,6 +89,10 @@ export class Round extends Entity {
     this.set("apps", Value.fromBytesArray(value));
   }
 
+  get proposals(): ProposalLoader {
+    return new ProposalLoader("Round", this.get("id")!.toString(), "proposals");
+  }
+
   get allocations(): Array<string> {
     let value = this.get("allocations");
     if (!value || value.kind == ValueKind.NULL) {
@@ -6146,6 +6150,24 @@ export class RewardPoolDistribution extends Entity {
   }
 }
 
+export class ProposalLoader extends Entity {
+  _entity: string;
+  _field: string;
+  _id: string;
+
+  constructor(entity: string, id: string, field: string) {
+    super();
+    this._entity = entity;
+    this._id = id;
+    this._field = field;
+  }
+
+  load(): Proposal[] {
+    let value = store.loadRelated(this._entity, this._id, this._field);
+    return changetype<Proposal[]>(value);
+  }
+}
+
 export class RewardPoolDepositLoader extends Entity {
   _entity: string;
   _field: string;
@@ -6431,24 +6453,6 @@ export class TimelockCallLoader extends Entity {
   load(): TimelockCall[] {
     let value = store.loadRelated(this._entity, this._id, this._field);
     return changetype<TimelockCall[]>(value);
-  }
-}
-
-export class ProposalLoader extends Entity {
-  _entity: string;
-  _field: string;
-  _id: string;
-
-  constructor(entity: string, id: string, field: string) {
-    super();
-    this._entity = entity;
-    this._id = id;
-    this._field = field;
-  }
-
-  load(): Proposal[] {
-    let value = store.loadRelated(this._entity, this._id, this._field);
-    return changetype<Proposal[]>(value);
   }
 }
 
