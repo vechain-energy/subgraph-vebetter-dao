@@ -44,6 +44,7 @@ type App @entity {
   poolDistributionEvent: [RewardPoolDistribution!]! @derivedFrom(field: "app")
   createdAtBlockNumber: BigInt!
   updatedAtBlockNumber: BigInt!
+  createdAt: BigInt!
 }
 
 type AppMetadata @entity {
@@ -116,6 +117,7 @@ type Account @entity {
   asVeDelegate: [ERC721Token!]! @derivedFrom(field: "poolAddress")
   asERC721: ERC721Contract
   AllocationVotes: [AllocationVote!]! @derivedFrom(field: "voter")
+  ProposalVotes: [VoteReceipt!]! @derivedFrom(field: "voter")
   B3TRRewards: [RewardClaimed!] @derivedFrom(field: "voter")
   ERC721tokens: [ERC721Token!]! @derivedFrom(field: "owner")
   ERC721operatorOwner: [ERC721Operator!]! @derivedFrom(field: "owner")

@@ -587,6 +587,19 @@ export class App extends Entity {
   set updatedAtBlockNumber(value: BigInt) {
     this.set("updatedAtBlockNumber", Value.fromBigInt(value));
   }
+
+  get createdAt(): BigInt {
+    let value = this.get("createdAt");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set createdAt(value: BigInt) {
+    this.set("createdAt", Value.fromBigInt(value));
+  }
 }
 
 export class AppMetadata extends Entity {
@@ -1284,6 +1297,14 @@ export class Account extends Entity {
       "Account",
       this.get("id")!.toBytes().toHexString(),
       "AllocationVotes",
+    );
+  }
+
+  get ProposalVotes(): VoteReceiptLoader {
+    return new VoteReceiptLoader(
+      "Account",
+      this.get("id")!.toBytes().toHexString(),
+      "ProposalVotes",
     );
   }
 
@@ -6258,6 +6279,24 @@ export class AllocationVoteLoader extends Entity {
   }
 }
 
+export class VoteReceiptLoader extends Entity {
+  _entity: string;
+  _field: string;
+  _id: string;
+
+  constructor(entity: string, id: string, field: string) {
+    super();
+    this._entity = entity;
+    this._id = id;
+    this._field = field;
+  }
+
+  load(): VoteReceipt[] {
+    let value = store.loadRelated(this._entity, this._id, this._field);
+    return changetype<VoteReceipt[]>(value);
+  }
+}
+
 export class RewardClaimedLoader extends Entity {
   _entity: string;
   _field: string;
@@ -6453,24 +6492,6 @@ export class TimelockCallLoader extends Entity {
   load(): TimelockCall[] {
     let value = store.loadRelated(this._entity, this._id, this._field);
     return changetype<TimelockCall[]>(value);
-  }
-}
-
-export class VoteReceiptLoader extends Entity {
-  _entity: string;
-  _field: string;
-  _id: string;
-
-  constructor(entity: string, id: string, field: string) {
-    super();
-    this._entity = entity;
-    this._id = id;
-    this._field = field;
-  }
-
-  load(): VoteReceipt[] {
-    let value = store.loadRelated(this._entity, this._id, this._field);
-    return changetype<VoteReceipt[]>(value);
   }
 }
 

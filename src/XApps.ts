@@ -14,6 +14,7 @@ export function handleAppAdded(event: AppAddedEvent): void {
     app.votingEligibility = event.params.appAvailableForAllocationVoting
     app.createdAtBlockNumber = event.block.number
     app.updatedAtBlockNumber = event.block.number
+    app.createdAt = event.block.timestamp
     app.save()
 }
 
@@ -50,6 +51,7 @@ export function fetchApp(id: Bytes): App {
         app.poolDepositsExact = constants.BIGINT_ZERO
         app.createdAtBlockNumber = constants.BIGINT_ZERO
         app.updatedAtBlockNumber = constants.BIGINT_ZERO
+        app.createdAt = constants.BIGINT_ZERO
         app.save()
     }
     return app
