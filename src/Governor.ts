@@ -7,6 +7,8 @@ import {
 	ProposalCanceled,
 	ProposalDeposit,
 	VoteCast,
+	VoteReceipt,
+	ProposalVote
 } from '../generated/schema'
 import { ProposalMetadata as ProposalMetadataTemplate } from '../generated/templates'
 
@@ -34,8 +36,7 @@ import {
 	fetchGovernor,
 	fetchProposal,
 	fetchProposalCall,
-	fetchProposalSupport,
-	fetchVoteReceipt,
+	fetchProposalSupport
 } from './fetch/governor'
 import { fetchRound } from './XAllocationVoting'
 
@@ -131,12 +132,24 @@ export function handleVoteCast(event: VoteCastEvent): void {
 	support.voter = support.voter.plus(constants.BIGINT_ONE)
 	support.save()
 
-	let receipt = fetchVoteReceipt(proposal, event.params.voter)
+	const receiptId = ((event.block.number.toI64() * 10000000) + (event.transaction.index.toI64() * 10000) + event.transactionLogIndex.toI64()).toString()
+	const receipt = new VoteReceipt(receiptId)
+	receipt.proposal = proposal.id
+	receipt.voter = fetchAccount(event.params.voter).id
 	receipt.support = support.id
 	receipt.weight = event.params.weight
 	receipt.power = event.params.power
 	receipt.reason = event.params.reason
 	receipt.save()
+
+	const proposalVote = new ProposalVote(receiptId)
+	proposalVote.timestamp = event.block.timestamp.toI64()
+	proposalVote.proposal = receipt.proposal
+	proposalVote.voter = receipt.voter
+	proposalVote.support = receipt.support
+	proposalVote.weight = receipt.weight
+	proposalVote.power = receipt.power
+	proposalVote.save()
 
 	let ev = new VoteCast(events.id(event))
 	ev.emitter = governor.id

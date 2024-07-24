@@ -1,14 +1,10 @@
-import {
-	Address,
-	BigInt,
-} from '@graphprotocol/graph-ts'
+import { Address, BigInt } from '@graphprotocol/graph-ts'
 
 import {
 	Governor,
 	Proposal,
 	ProposalCall,
 	ProposalSupport,
-	VoteReceipt,
 } from '../../generated/schema'
 
 
@@ -95,17 +91,4 @@ export function fetchProposalSupport(proposal: Proposal, support: i32): Proposal
 	}
 
 	return proposalSupport as ProposalSupport
-}
-
-export function fetchVoteReceipt(proposal: Proposal, voter: Address): VoteReceipt {
-	let id = proposal.id.concat('/').concat(voter.toHex())
-	let receipt = VoteReceipt.load(id)
-
-	if (receipt == null) {
-		receipt = new VoteReceipt(id)
-		receipt.proposal = proposal.id
-		receipt.voter = fetchAccount(voter).id
-	}
-
-	return receipt as VoteReceipt
 }

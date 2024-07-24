@@ -420,6 +420,27 @@ type VoteReceipt @entity(immutable: true) {
   params: Bytes
 }
 
+type ProposalVote @entity(immutable: true, timeseries: true) {
+  id: Int8!
+  timestamp: Timestamp!
+  proposal: Proposal!
+  voter: Account!
+  support: ProposalSupport!
+  weight: BigInt!
+  power: BigInt!
+}
+
+type StatsProposalVote
+  @aggregation(intervals: ["hour", "day"], source: "ProposalVote") {
+  id: Int8!
+  timestamp: Timestamp!
+  proposal: Proposal!
+  support: ProposalSupport!
+  weight: BigInt! @aggregate(fn: "sum", arg: "weight", cumulative: true)
+  power: BigDecimal! @aggregate(fn: "sum", arg: "power", cumulative: true)
+  voters: BigInt! @aggregate(fn: "count", cumulative: true)
+}
+
 type ProposalCreated implements Event @entity(immutable: true) {
   id: ID!
   emitter: Account!
