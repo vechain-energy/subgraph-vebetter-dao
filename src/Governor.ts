@@ -16,8 +16,7 @@ import {
 	ProposalExecuted as ProposalExecutedEvent,
 	ProposalCanceled as ProposalCanceledEvent,
 	ProposalDeposit as ProposalDepositEvent,
-	VoteCast as VoteCastEvent,
-	DepositThresholdSet as DepositThresholdSetEvent
+	VoteCast as VoteCastEvent
 } from '../generated/governor/Governor'
 
 import {

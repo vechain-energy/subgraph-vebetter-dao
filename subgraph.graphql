@@ -42,6 +42,7 @@ type App @entity {
   poolDistributions: BigDecimal!
   poolDistributionsExact: BigInt!
   poolDistributionEvent: [RewardPoolDistribution!]! @derivedFrom(field: "app")
+  sustainabilityProof: [SustainabilityProof!]! @derivedFrom(field: "app")
   createdAtBlockNumber: BigInt!
   updatedAtBlockNumber: BigInt!
   createdAt: BigInt!
@@ -523,5 +524,66 @@ type RewardPoolDistribution implements Event @entity(immutable: true) {
   amountExact: BigInt!
   by: Account!
   to: Account!
-  proof: String!
+  proof: SustainabilityProof
+}
+
+type AppSustainability @entity(immutable: true, timeseries: true) {
+  id: Int8!
+  app: App!
+  timestamp: Timestamp!
+  carbon: BigInt!
+  water: BigInt!
+  energy: BigInt!
+  wasteMass: BigInt!
+  wasteItems: BigInt!
+  people: BigInt!
+  biodiversity: BigInt!
+}
+
+type StatsAppSustainability
+  @aggregation(intervals: ["hour", "day"], source: "AppSustainability") {
+  id: Int8!
+  timestamp: Timestamp!
+  app: App!
+
+  actions: BigInt! @aggregate(fn: "count", cumulative: false)
+  carbon: BigInt! @aggregate(fn: "sum", arg: "carbon", cumulative: false)
+  water: BigInt! @aggregate(fn: "sum", arg: "water", cumulative: false)
+  energy: BigInt! @aggregate(fn: "sum", arg: "energy", cumulative: false)
+  wasteMass: BigInt! @aggregate(fn: "sum", arg: "wasteMass", cumulative: false)
+  wasteItems: BigInt!
+    @aggregate(fn: "sum", arg: "wasteItems", cumulative: false)
+  people: BigInt! @aggregate(fn: "sum", arg: "people", cumulative: false)
+  biodiversity: BigInt!
+    @aggregate(fn: "sum", arg: "biodiversity", cumulative: false)
+
+  actionsTotal: BigInt! @aggregate(fn: "count", cumulative: true)
+  carbonTotal: BigInt! @aggregate(fn: "sum", arg: "carbon", cumulative: true)
+  waterTotal: BigInt! @aggregate(fn: "sum", arg: "water", cumulative: true)
+  energyTotal: BigInt! @aggregate(fn: "sum", arg: "energy", cumulative: true)
+  wasteMassTotal: BigInt!
+    @aggregate(fn: "sum", arg: "wasteMass", cumulative: true)
+  wasteItemsTotal: BigInt!
+    @aggregate(fn: "sum", arg: "wasteItems", cumulative: true)
+  peopleTotal: BigInt! @aggregate(fn: "sum", arg: "people", cumulative: true)
+  biodiversityTotal: BigInt!
+    @aggregate(fn: "sum", arg: "biodiversity", cumulative: true)
+}
+
+type SustainabilityProof @entity(immutable: true) {
+  id: ID!
+  timestamp: Timestamp!
+  app: App!
+  proofType: String
+  proofData: String
+  description: String
+  additionalInfo: String
+  carbon: BigInt!
+  water: BigInt!
+  energy: BigInt!
+  wasteMass: BigInt!
+  wasteItems: BigInt!
+  people: BigInt!
+  biodiversity: BigInt!
+  transaction: Transaction!
 }

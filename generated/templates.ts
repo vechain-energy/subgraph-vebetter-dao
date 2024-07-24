@@ -21,3 +21,13 @@ export class ProposalMetadata extends DataSourceTemplate {
     DataSourceTemplate.createWithContext("ProposalMetadata", [cid], context);
   }
 }
+
+export class SustainabilityProof extends DataSourceTemplate {
+  static create(cid: string): void {
+    DataSourceTemplate.create("SustainabilityProof", [cid]);
+  }
+
+  static createWithContext(cid: string, context: DataSourceContext): void {
+    DataSourceTemplate.createWithContext("SustainabilityProof", [cid], context);
+  }
+}

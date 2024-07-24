@@ -562,6 +562,14 @@ export class App extends Entity {
     );
   }
 
+  get sustainabilityProof(): SustainabilityProofLoader {
+    return new SustainabilityProofLoader(
+      "App",
+      this.get("id")!.toBytes().toHexString(),
+      "sustainabilityProof",
+    );
+  }
+
   get createdAtBlockNumber(): BigInt {
     let value = this.get("createdAtBlockNumber");
     if (!value || value.kind == ValueKind.NULL) {
@@ -6157,8 +6165,217 @@ export class RewardPoolDistribution extends Entity {
     this.set("to", Value.fromBytes(value));
   }
 
-  get proof(): string {
+  get proof(): string | null {
     let value = this.get("proof");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set proof(value: string | null) {
+    if (!value) {
+      this.unset("proof");
+    } else {
+      this.set("proof", Value.fromString(<string>value));
+    }
+  }
+}
+
+export class AppSustainability extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id != null, "Cannot save AppSustainability entity without an ID");
+    if (id) {
+      assert(
+        id.kind == ValueKind.STRING,
+        `Entities of type AppSustainability must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`,
+      );
+      store.set("AppSustainability", id.toString(), this);
+    }
+  }
+
+  static loadInBlock(id: string): AppSustainability | null {
+    return changetype<AppSustainability | null>(
+      store.get_in_block("AppSustainability", id),
+    );
+  }
+
+  static load(id: string): AppSustainability | null {
+    return changetype<AppSustainability | null>(
+      store.get("AppSustainability", id),
+    );
+  }
+
+  get id(): i64 {
+    let value = this.get("id");
+    if (!value || value.kind == ValueKind.NULL) {
+      return 0;
+    } else {
+      return value.toI64();
+    }
+  }
+
+  set id(value: i64) {
+    this.set("id", Value.fromI64(value));
+  }
+
+  get app(): Bytes {
+    let value = this.get("app");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set app(value: Bytes) {
+    this.set("app", Value.fromBytes(value));
+  }
+
+  get timestamp(): i64 {
+    let value = this.get("timestamp");
+    if (!value || value.kind == ValueKind.NULL) {
+      return 0;
+    } else {
+      return value.toTimestamp();
+    }
+  }
+
+  set timestamp(value: i64) {
+    this.set("timestamp", Value.fromTimestamp(value));
+  }
+
+  get carbon(): BigInt {
+    let value = this.get("carbon");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set carbon(value: BigInt) {
+    this.set("carbon", Value.fromBigInt(value));
+  }
+
+  get water(): BigInt {
+    let value = this.get("water");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set water(value: BigInt) {
+    this.set("water", Value.fromBigInt(value));
+  }
+
+  get energy(): BigInt {
+    let value = this.get("energy");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set energy(value: BigInt) {
+    this.set("energy", Value.fromBigInt(value));
+  }
+
+  get wasteMass(): BigInt {
+    let value = this.get("wasteMass");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set wasteMass(value: BigInt) {
+    this.set("wasteMass", Value.fromBigInt(value));
+  }
+
+  get wasteItems(): BigInt {
+    let value = this.get("wasteItems");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set wasteItems(value: BigInt) {
+    this.set("wasteItems", Value.fromBigInt(value));
+  }
+
+  get people(): BigInt {
+    let value = this.get("people");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set people(value: BigInt) {
+    this.set("people", Value.fromBigInt(value));
+  }
+
+  get biodiversity(): BigInt {
+    let value = this.get("biodiversity");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set biodiversity(value: BigInt) {
+    this.set("biodiversity", Value.fromBigInt(value));
+  }
+}
+
+export class SustainabilityProof extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id != null, "Cannot save SustainabilityProof entity without an ID");
+    if (id) {
+      assert(
+        id.kind == ValueKind.STRING,
+        `Entities of type SustainabilityProof must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`,
+      );
+      store.set("SustainabilityProof", id.toString(), this);
+    }
+  }
+
+  static loadInBlock(id: string): SustainabilityProof | null {
+    return changetype<SustainabilityProof | null>(
+      store.get_in_block("SustainabilityProof", id),
+    );
+  }
+
+  static load(id: string): SustainabilityProof | null {
+    return changetype<SustainabilityProof | null>(
+      store.get("SustainabilityProof", id),
+    );
+  }
+
+  get id(): string {
+    let value = this.get("id");
     if (!value || value.kind == ValueKind.NULL) {
       throw new Error("Cannot return null for a required field.");
     } else {
@@ -6166,8 +6383,206 @@ export class RewardPoolDistribution extends Entity {
     }
   }
 
-  set proof(value: string) {
-    this.set("proof", Value.fromString(value));
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get timestamp(): i64 {
+    let value = this.get("timestamp");
+    if (!value || value.kind == ValueKind.NULL) {
+      return 0;
+    } else {
+      return value.toTimestamp();
+    }
+  }
+
+  set timestamp(value: i64) {
+    this.set("timestamp", Value.fromTimestamp(value));
+  }
+
+  get app(): Bytes {
+    let value = this.get("app");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set app(value: Bytes) {
+    this.set("app", Value.fromBytes(value));
+  }
+
+  get proofType(): string | null {
+    let value = this.get("proofType");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set proofType(value: string | null) {
+    if (!value) {
+      this.unset("proofType");
+    } else {
+      this.set("proofType", Value.fromString(<string>value));
+    }
+  }
+
+  get proofData(): string | null {
+    let value = this.get("proofData");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set proofData(value: string | null) {
+    if (!value) {
+      this.unset("proofData");
+    } else {
+      this.set("proofData", Value.fromString(<string>value));
+    }
+  }
+
+  get description(): string | null {
+    let value = this.get("description");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set description(value: string | null) {
+    if (!value) {
+      this.unset("description");
+    } else {
+      this.set("description", Value.fromString(<string>value));
+    }
+  }
+
+  get additionalInfo(): string | null {
+    let value = this.get("additionalInfo");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set additionalInfo(value: string | null) {
+    if (!value) {
+      this.unset("additionalInfo");
+    } else {
+      this.set("additionalInfo", Value.fromString(<string>value));
+    }
+  }
+
+  get carbon(): BigInt {
+    let value = this.get("carbon");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set carbon(value: BigInt) {
+    this.set("carbon", Value.fromBigInt(value));
+  }
+
+  get water(): BigInt {
+    let value = this.get("water");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set water(value: BigInt) {
+    this.set("water", Value.fromBigInt(value));
+  }
+
+  get energy(): BigInt {
+    let value = this.get("energy");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set energy(value: BigInt) {
+    this.set("energy", Value.fromBigInt(value));
+  }
+
+  get wasteMass(): BigInt {
+    let value = this.get("wasteMass");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set wasteMass(value: BigInt) {
+    this.set("wasteMass", Value.fromBigInt(value));
+  }
+
+  get wasteItems(): BigInt {
+    let value = this.get("wasteItems");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set wasteItems(value: BigInt) {
+    this.set("wasteItems", Value.fromBigInt(value));
+  }
+
+  get people(): BigInt {
+    let value = this.get("people");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set people(value: BigInt) {
+    this.set("people", Value.fromBigInt(value));
+  }
+
+  get biodiversity(): BigInt {
+    let value = this.get("biodiversity");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set biodiversity(value: BigInt) {
+    this.set("biodiversity", Value.fromBigInt(value));
+  }
+
+  get transaction(): string {
+    let value = this.get("transaction");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toString();
+    }
+  }
+
+  set transaction(value: string) {
+    this.set("transaction", Value.fromString(value));
   }
 }
 
@@ -6240,6 +6655,24 @@ export class RewardPoolDistributionLoader extends Entity {
   load(): RewardPoolDistribution[] {
     let value = store.loadRelated(this._entity, this._id, this._field);
     return changetype<RewardPoolDistribution[]>(value);
+  }
+}
+
+export class SustainabilityProofLoader extends Entity {
+  _entity: string;
+  _field: string;
+  _id: string;
+
+  constructor(entity: string, id: string, field: string) {
+    super();
+    this._entity = entity;
+    this._id = id;
+    this._field = field;
+  }
+
+  load(): SustainabilityProof[] {
+    let value = store.loadRelated(this._entity, this._id, this._field);
+    return changetype<SustainabilityProof[]>(value);
   }
 }
 

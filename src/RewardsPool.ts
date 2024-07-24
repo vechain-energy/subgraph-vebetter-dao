@@ -3,10 +3,13 @@ import {
     TeamWithdrawal as TeamWithdrawalEvent,
     RewardDistributed as RewardDistributedEvent,
 } from '../generated/RewardsPool/RewardsPool'
-import { RewardPoolDeposit, RewardPoolWithdraw, RewardPoolDistribution } from '../generated/schema'
-import { events, transactions, decimals } from '@amxx/graphprotocol-utils'
+import { RewardPoolDeposit, RewardPoolWithdraw, RewardPoolDistribution, SustainabilityProof, AppSustainability } from '../generated/schema'
+import { events, transactions, decimals, constants } from '@amxx/graphprotocol-utils'
+import { DataSourceContext, JSONValueKind, Value, json, Bytes, dataSource, JSONValue, TypedMap, bigInt } from '@graphprotocol/graph-ts'
 import { fetchApp } from './XApps'
 import { fetchAccount } from '@openzeppelin/subgraphs/src/fetch/account'
+import { SustainabilityProof as SustainabilityProofTemplate } from '../generated/templates'
+
 
 
 export function handleNewDeposit(event: NewDepositEvent): void {
@@ -48,7 +51,7 @@ export function handleTeamWithdrawal(event: TeamWithdrawalEvent): void {
     app.poolWithdrawalsExact = app.poolWithdrawalsExact.plus(ev.amountExact)
     app.poolBalance = decimals.toDecimals(app.poolBalanceExact, 18)
     app.poolWithdrawals = decimals.toDecimals(app.poolWithdrawalsExact, 18)
-   app.save()
+    app.save()
 }
 
 export function handleRewardDistribution(event: RewardDistributedEvent): void {
@@ -61,7 +64,29 @@ export function handleRewardDistribution(event: RewardDistributedEvent): void {
     ev.app = app.id
     ev.amountExact = event.params.amount
     ev.amount = decimals.toDecimals(event.params.amount, 18)
-    ev.proof = event.params.proof
+    const sustainabilityId = ((event.block.number.toI64() * 10000000) + (event.transaction.index.toI64() * 10000) + (event.transactionLogIndex.toI64() * 100)).toString()
+    if (event.params.proof.startsWith("ipfs://")) {
+        const context = new DataSourceContext()
+        context.set('timestamp', Value.fromI64(event.block.timestamp.toI64()))
+        context.set('transaction', Value.fromString(transactions.log(event).id))
+        context.set('appId', Value.fromBytes(app.id))
+        context.set('sustainabilityId', Value.fromString(sustainabilityId))
+        SustainabilityProofTemplate.createWithContext(event.params.proof, context)
+        ev.proof = event.params.proof
+    }
+    else if (event.params.proof) {
+        let proofData = json.try_fromString(event.params.proof)
+        if (!proofData.isError && proofData.value.kind == JSONValueKind.OBJECT) {
+            const proof = generateSustainabilityProofFromJson(transactions.log(event).id, proofData.value.toObject())
+            proof.timestamp = event.block.timestamp.toI64()
+            proof.app = app.id
+            proof.transaction = transactions.log(event).id
+            proof.save()
+
+            updateAppSustainability(sustainabilityId, proof)
+            ev.proof = proof.id
+        }
+    }
     ev.to = fetchAccount(event.params.receiver).id
     ev.by = fetchAccount(event.params.distributor).id
     ev.save()
@@ -71,4 +96,72 @@ export function handleRewardDistribution(event: RewardDistributedEvent): void {
     app.poolBalance = decimals.toDecimals(app.poolBalanceExact, 18)
     app.poolDistributions = decimals.toDecimals(app.poolDistributionsExact, 18)
     app.save()
+}
+
+
+
+export function handleSustainabilityProof(content: Bytes, context: DataSourceContext): void {
+    const jsonData = json.try_fromBytes(content)
+    if (jsonData.isError || jsonData.value.kind !== JSONValueKind.OBJECT) { return }
+    const proof = generateSustainabilityProofFromJson(dataSource.stringParam(), jsonData.value.toObject())
+    proof.timestamp = context.get('timestamp')!.toI64()
+    proof.transaction = context.get('transaction')!.toString()
+    proof.app = context.get('appId')!.toBytes()
+    proof.save()
+
+    updateAppSustainability(context.get('sustainabilityId')!.toString(), proof)
+}
+
+
+function generateSustainabilityProofFromJson(id: string, proofObject: TypedMap<string, JSONValue>): SustainabilityProof {
+    const proof = new SustainabilityProof(id)
+
+    proof.carbon = constants.BIGINT_ZERO
+    proof.water = constants.BIGINT_ZERO
+    proof.energy = constants.BIGINT_ZERO
+    proof.wasteMass = constants.BIGINT_ZERO
+    proof.wasteItems = constants.BIGINT_ZERO
+    proof.people = constants.BIGINT_ZERO
+    proof.biodiversity = constants.BIGINT_ZERO
+
+    if (proofObject.isSet("proof") && proofObject.get("proof")!.kind === JSONValueKind.OBJECT) {
+        const proofData = proofObject.get("proof")!.toObject()
+        if (proofData.isSet('proof_type')) { proof.proofType = proofData.get("proof_type")!.toString() }
+        if (proofData.isSet('proof_data')) { proof.proofType = proofData.get("proof_data")!.toString() }
+    }
+
+    if (proofObject.isSet("metadata") && proofObject.get("metadata")!.kind === JSONValueKind.OBJECT) {
+        const metadata = proofObject.get("metadata")!.toObject()
+        if (metadata.isSet('description')) { proof.description = metadata.get("description")!.toString() }
+        if (metadata.isSet('additional_info')) { proof.additionalInfo = metadata.get("additional_info")!.toString() }
+    }
+
+    if (proofObject.isSet("impact") && proofObject.get("impact")!.kind === JSONValueKind.OBJECT) {
+        const impact = proofObject.get("impact")!.toObject()
+
+        if (impact.isSet('carbon') && impact.get('carbon')!.kind === JSONValueKind.STRING) { proof.carbon = bigInt.fromString(impact.get('carbon')!.toString()) }
+        if (impact.isSet('water') && impact.get('water')!.kind === JSONValueKind.STRING) { proof.water = bigInt.fromString(impact.get('water')!.toString()) }
+        if (impact.isSet('energy') && impact.get('energy')!.kind === JSONValueKind.STRING) { proof.energy = bigInt.fromString(impact.get('energy')!.toString()) }
+        if (impact.isSet('waste_mass') && impact.get('waste_mass')!.kind === JSONValueKind.STRING) { proof.wasteMass = bigInt.fromString(impact.get('waste_mass')!.toString()) }
+        if (impact.isSet('waste_items') && impact.get('waste_items')!.kind === JSONValueKind.STRING) { proof.wasteItems = bigInt.fromString(impact.get('waste_items')!.toString()) }
+        if (impact.isSet('people') && impact.get('people')!.kind === JSONValueKind.STRING) { proof.people = bigInt.fromString(impact.get('people')!.toString()) }
+        if (impact.isSet('biodiversity') && impact.get('biodiversity')!.kind === JSONValueKind.STRING) { proof.biodiversity = bigInt.fromString(impact.get('biodiversity')!.toString()) }
+    }
+
+    return proof
+}
+
+
+function updateAppSustainability(sustainabilityId: string, proof: SustainabilityProof): void {
+    const appSustainability = new AppSustainability(sustainabilityId)
+    appSustainability.carbon = proof.carbon
+    appSustainability.water = proof.water
+    appSustainability.energy = proof.energy
+    appSustainability.wasteMass = proof.wasteMass
+    appSustainability.wasteItems = proof.wasteItems
+    appSustainability.people = proof.people
+    appSustainability.biodiversity = proof.biodiversity
+    appSustainability.timestamp = proof.timestamp
+    appSustainability.app = proof.app
+    appSustainability.save()
 }

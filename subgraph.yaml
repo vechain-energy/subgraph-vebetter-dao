@@ -273,3 +273,16 @@ templates:
       abis:
         - name: Governor
           file: ./abis/VeBetterDAO-b3tr-governor.json
+  - kind: file/ipfs
+    name: SustainabilityProof
+    network: mainnet
+    mapping:
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      file: ./src/RewardsPool.ts
+      handler: handleSustainabilityProof
+      entities:
+        - SustainabilityProof
+      abis:
+        - name: RewardsPool
+          file: ./abis/VeBetterDAO-x-2-earns-rewards-pool.json
