@@ -166,6 +166,7 @@ export function handleVoteCast(event: VoteCastEvent): void {
 	proposal.votesCast = proposal.votesCast.plus(receipt.weight)
 	proposal.weightCast = proposal.weightCast.plus(receipt.power)
 	proposal.save()
+	log.info('VoteReceipt prop.save', [])
 }
 
 export function handleProposalDeposit(event: ProposalDepositEvent): void {
