@@ -5047,6 +5047,32 @@ export class ProposalVote extends Entity {
   set power(value: BigInt) {
     this.set("power", Value.fromBigInt(value));
   }
+
+  get totalWeightCast(): BigInt {
+    let value = this.get("totalWeightCast");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set totalWeightCast(value: BigInt) {
+    this.set("totalWeightCast", Value.fromBigInt(value));
+  }
+
+  get totalPowerCast(): BigInt {
+    let value = this.get("totalPowerCast");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set totalPowerCast(value: BigInt) {
+    this.set("totalPowerCast", Value.fromBigInt(value));
+  }
 }
 
 export class ProposalCreated extends Entity {

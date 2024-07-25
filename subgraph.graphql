@@ -428,6 +428,8 @@ type ProposalVote @entity(immutable: true, timeseries: true) {
   support: ProposalSupport!
   weight: BigInt!
   power: BigInt!
+  totalWeightCast: BigInt!
+  totalPowerCast: BigInt!
 }
 
 type StatsProposalVote
@@ -439,6 +441,8 @@ type StatsProposalVote
   weight: BigInt! @aggregate(fn: "sum", arg: "weight", cumulative: true)
   power: BigDecimal! @aggregate(fn: "sum", arg: "power", cumulative: true)
   voters: BigInt! @aggregate(fn: "count", cumulative: true)
+  totalWeightCast: BigInt! @aggregate(fn: "max", arg: "totalWeightCast")
+  totalPowerCast: BigInt! @aggregate(fn: "max", arg: "totalPowerCast")
 }
 
 type ProposalCreated implements Event @entity(immutable: true) {

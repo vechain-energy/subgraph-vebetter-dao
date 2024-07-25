@@ -141,16 +141,6 @@ export function handleVoteCast(event: VoteCastEvent): void {
 	receipt.power = event.params.power
 	receipt.reason = event.params.reason
 	receipt.save()
-
-	const proposalVote = new ProposalVote(receiptId)
-	proposalVote.timestamp = event.block.timestamp.toI64()
-	proposalVote.proposal = receipt.proposal
-	proposalVote.voter = receipt.voter
-	proposalVote.support = receipt.support
-	proposalVote.weight = receipt.weight
-	proposalVote.power = receipt.power
-	proposalVote.save()
-
 	let ev = new VoteCast(events.id(event))
 	ev.emitter = governor.id
 	ev.transaction = transactions.log(event).id
@@ -166,6 +156,17 @@ export function handleVoteCast(event: VoteCastEvent): void {
 	proposal.votesCast = proposal.votesCast.plus(receipt.weight)
 	proposal.weightCast = proposal.weightCast.plus(receipt.power)
 	proposal.save()
+
+	const proposalVote = new ProposalVote(receiptId)
+	proposalVote.timestamp = event.block.timestamp.toI64()
+	proposalVote.proposal = receipt.proposal
+	proposalVote.voter = receipt.voter
+	proposalVote.support = receipt.support
+	proposalVote.weight = receipt.weight
+	proposalVote.power = receipt.power
+	proposalVote.totalPowerCast = proposal.weightCast
+	proposalVote.totalWeightCast = proposal.votesCast
+	proposalVote.save()
 }
 
 export function handleProposalDeposit(event: ProposalDepositEvent): void {
