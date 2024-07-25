@@ -127,7 +127,7 @@ function generateSustainabilityProofFromJson(id: string, proofObject: TypedMap<s
     if (proofObject.isSet("proof") && proofObject.get("proof")!.kind === JSONValueKind.OBJECT) {
         const proofData = proofObject.get("proof")!.toObject()
         if (proofData.isSet('proof_type')) { proof.proofType = proofData.get("proof_type")!.toString() }
-        if (proofData.isSet('proof_data')) { proof.proofType = proofData.get("proof_data")!.toString() }
+        if (proofData.isSet('proof_data')) { proof.proofData = proofData.get("proof_data")!.toString() }
     }
 
     if (proofObject.isSet("metadata") && proofObject.get("metadata")!.kind === JSONValueKind.OBJECT) {
