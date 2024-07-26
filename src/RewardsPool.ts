@@ -65,28 +65,36 @@ export function handleRewardDistribution(event: RewardDistributedEvent): void {
     ev.amountExact = event.params.amount
     ev.amount = decimals.toDecimals(event.params.amount, 18)
     const sustainabilityId = ((event.block.number.toI64() * 10000000) + (event.transaction.index.toI64() * 10000) + (event.transactionLogIndex.toI64() * 100)).toString()
-    if (event.params.proof.startsWith("ipfs://")) {
-        const context = new DataSourceContext()
-        context.set('timestamp', Value.fromI64(event.block.timestamp.toI64()))
-        context.set('transaction', Value.fromString(transactions.log(event).id))
-        context.set('appId', Value.fromBytes(app.id))
-        context.set('sustainabilityId', Value.fromString(sustainabilityId))
-        SustainabilityProofTemplate.createWithContext(event.params.proof, context)
-        ev.proof = event.params.proof
-    }
-    else if (event.params.proof) {
-        let proofData = json.try_fromString(event.params.proof)
-        if (!proofData.isError && proofData.value.kind == JSONValueKind.OBJECT) {
-            const proof = generateSustainabilityProofFromJson(transactions.log(event).id, proofData.value.toObject())
-            proof.timestamp = event.block.timestamp.toI64()
-            proof.app = app.id
-            proof.transaction = transactions.log(event).id
-            proof.save()
 
-            updateAppSustainability(sustainabilityId, proof)
-            ev.proof = proof.id
+    /**
+     * the first valid proof is available with block #19145969
+     * ignore all data before
+     */
+    if (event.block.number.toI64() >= 19145969) {
+        if (event.params.proof.startsWith("ipfs://")) {
+            const context = new DataSourceContext()
+            context.set('timestamp', Value.fromI64(event.block.timestamp.toI64()))
+            context.set('transaction', Value.fromString(transactions.log(event).id))
+            context.set('appId', Value.fromBytes(app.id))
+            context.set('sustainabilityId', Value.fromString(sustainabilityId))
+            SustainabilityProofTemplate.createWithContext(event.params.proof, context)
+            ev.proof = event.params.proof
+        }
+        else if (event.params.proof) {
+            let proofData = json.try_fromString(event.params.proof)
+            if (!proofData.isError && proofData.value.kind == JSONValueKind.OBJECT) {
+                const proof = generateSustainabilityProofFromJson(transactions.log(event).id, proofData.value.toObject())
+                proof.timestamp = event.block.timestamp.toI64()
+                proof.app = app.id
+                proof.transaction = transactions.log(event).id
+                proof.save()
+
+                updateAppSustainability(sustainabilityId, proof)
+                ev.proof = proof.id
+            }
         }
     }
+
     ev.to = fetchAccount(event.params.receiver).id
     ev.by = fetchAccount(event.params.distributor).id
     ev.save()
