@@ -2,7 +2,7 @@ import { json, Bytes, dataSource } from '@graphprotocol/graph-ts'
 import { ProposalMetadata } from '../generated/schema'
 
 export function handleDescription(content: Bytes): void {
-    let metadata = new ProposalMetadata(dataSource.stringParam())
+    const metadata = new ProposalMetadata(dataSource.stringParam())
     const value = json.fromBytes(content).toObject()
     if (value) {
         const title = value.get('title')

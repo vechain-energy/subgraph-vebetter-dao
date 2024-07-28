@@ -2,7 +2,7 @@
 import {
     RewardClaimed as RewardClaimedEvent
 } from '../generated/rewarder/Rewarder'
-import { RewardClaimed, RoundStatistic, VeDelegateAccount } from '../generated/schema'
+import { RewardClaimed, VeDelegateAccount } from '../generated/schema'
 import { decimals, transactions } from '@amxx/graphprotocol-utils'
 import { fetchRound, fetchStatistic } from './XAllocationVoting'
 import { fetchAccount } from '@openzeppelin/subgraphs/src/fetch/account'
