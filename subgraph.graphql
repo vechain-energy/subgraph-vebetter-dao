@@ -593,7 +593,6 @@ type StatsAppSustainability
   id: Int8!
   timestamp: Timestamp!
   app: App!
-  account: Account!
 
   actions: BigInt! @aggregate(fn: "count", cumulative: false)
   rewards: BigInt! @aggregate(fn: "sum", arg: "reward", cumulative: false)
