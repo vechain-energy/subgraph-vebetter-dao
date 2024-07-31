@@ -148,6 +148,7 @@ type Account @entity {
   voted: [VoteReceipt!]! @derivedFrom(field: "voter")
   proposedCalls: [ProposalCall!]! @derivedFrom(field: "target")
   events: [Event!]! @derivedFrom(field: "emitter")
+  sustainability: AccountSustainability @derivedFrom(field: "account")
 }
 type ERC721Contract @entity(immutable: true) {
   id: Bytes!
@@ -555,7 +556,21 @@ type RewardPoolDistribution implements Event @entity(immutable: true) {
 type AppSustainability @entity(immutable: true, timeseries: true) {
   id: Int8!
   app: App!
+  account: Account!
   timestamp: Timestamp!
+  carbon: BigInt!
+  water: BigInt!
+  energy: BigInt!
+  wasteMass: BigInt!
+  wasteItems: BigInt!
+  people: BigInt!
+  biodiversity: BigInt!
+}
+
+type AccountSustainability @entity {
+  id: ID!
+  app: App!
+  account: Account!
   carbon: BigInt!
   water: BigInt!
   energy: BigInt!
@@ -570,6 +585,7 @@ type StatsAppSustainability
   id: Int8!
   timestamp: Timestamp!
   app: App!
+  account: Account!
 
   actions: BigInt! @aggregate(fn: "count", cumulative: false)
   carbon: BigInt! @aggregate(fn: "sum", arg: "carbon", cumulative: false)
@@ -599,6 +615,7 @@ type SustainabilityProof @entity(immutable: true) {
   id: ID!
   timestamp: Timestamp!
   app: App!
+  account: Account!
   proofType: String
   proofData: String
   description: String

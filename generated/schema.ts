@@ -1559,6 +1559,14 @@ export class Account extends Entity {
       "proposedCalls",
     );
   }
+
+  get sustainability(): AccountSustainabilityLoader {
+    return new AccountSustainabilityLoader(
+      "Account",
+      this.get("id")!.toBytes().toHexString(),
+      "sustainability",
+    );
+  }
 }
 
 export class ERC721Contract extends Entity {
@@ -6385,6 +6393,19 @@ export class AppSustainability extends Entity {
     this.set("app", Value.fromBytes(value));
   }
 
+  get account(): Bytes {
+    let value = this.get("account");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set account(value: Bytes) {
+    this.set("account", Value.fromBytes(value));
+  }
+
   get timestamp(): i64 {
     let value = this.get("timestamp");
     if (!value || value.kind == ValueKind.NULL) {
@@ -6396,6 +6417,170 @@ export class AppSustainability extends Entity {
 
   set timestamp(value: i64) {
     this.set("timestamp", Value.fromTimestamp(value));
+  }
+
+  get carbon(): BigInt {
+    let value = this.get("carbon");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set carbon(value: BigInt) {
+    this.set("carbon", Value.fromBigInt(value));
+  }
+
+  get water(): BigInt {
+    let value = this.get("water");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set water(value: BigInt) {
+    this.set("water", Value.fromBigInt(value));
+  }
+
+  get energy(): BigInt {
+    let value = this.get("energy");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set energy(value: BigInt) {
+    this.set("energy", Value.fromBigInt(value));
+  }
+
+  get wasteMass(): BigInt {
+    let value = this.get("wasteMass");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set wasteMass(value: BigInt) {
+    this.set("wasteMass", Value.fromBigInt(value));
+  }
+
+  get wasteItems(): BigInt {
+    let value = this.get("wasteItems");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set wasteItems(value: BigInt) {
+    this.set("wasteItems", Value.fromBigInt(value));
+  }
+
+  get people(): BigInt {
+    let value = this.get("people");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set people(value: BigInt) {
+    this.set("people", Value.fromBigInt(value));
+  }
+
+  get biodiversity(): BigInt {
+    let value = this.get("biodiversity");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set biodiversity(value: BigInt) {
+    this.set("biodiversity", Value.fromBigInt(value));
+  }
+}
+
+export class AccountSustainability extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(
+      id != null,
+      "Cannot save AccountSustainability entity without an ID",
+    );
+    if (id) {
+      assert(
+        id.kind == ValueKind.STRING,
+        `Entities of type AccountSustainability must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`,
+      );
+      store.set("AccountSustainability", id.toString(), this);
+    }
+  }
+
+  static loadInBlock(id: string): AccountSustainability | null {
+    return changetype<AccountSustainability | null>(
+      store.get_in_block("AccountSustainability", id),
+    );
+  }
+
+  static load(id: string): AccountSustainability | null {
+    return changetype<AccountSustainability | null>(
+      store.get("AccountSustainability", id),
+    );
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toString();
+    }
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get app(): Bytes {
+    let value = this.get("app");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set app(value: Bytes) {
+    this.set("app", Value.fromBytes(value));
+  }
+
+  get account(): Bytes {
+    let value = this.get("account");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set account(value: Bytes) {
+    this.set("account", Value.fromBytes(value));
   }
 
   get carbon(): BigInt {
@@ -6557,6 +6742,19 @@ export class SustainabilityProof extends Entity {
 
   set app(value: Bytes) {
     this.set("app", Value.fromBytes(value));
+  }
+
+  get account(): Bytes {
+    let value = this.get("account");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set account(value: Bytes) {
+    this.set("account", Value.fromBytes(value));
   }
 
   get proofType(): string | null {
@@ -7089,6 +7287,24 @@ export class ProposalCallLoader extends Entity {
   load(): ProposalCall[] {
     let value = store.loadRelated(this._entity, this._id, this._field);
     return changetype<ProposalCall[]>(value);
+  }
+}
+
+export class AccountSustainabilityLoader extends Entity {
+  _entity: string;
+  _field: string;
+  _id: string;
+
+  constructor(entity: string, id: string, field: string) {
+    super();
+    this._entity = entity;
+    this._id = id;
+    this._field = field;
+  }
+
+  load(): AccountSustainability[] {
+    let value = store.loadRelated(this._entity, this._id, this._field);
+    return changetype<AccountSustainability[]>(value);
   }
 }
 

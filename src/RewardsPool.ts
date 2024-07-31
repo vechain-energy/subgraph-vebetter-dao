@@ -3,7 +3,7 @@ import {
     TeamWithdrawal as TeamWithdrawalEvent,
     RewardDistributed as RewardDistributedEvent,
 } from '../generated/RewardsPool/RewardsPool'
-import { RewardPoolDeposit, RewardPoolWithdraw, RewardPoolDistribution, SustainabilityProof, AppSustainability } from '../generated/schema'
+import { RewardPoolDeposit, RewardPoolWithdraw, RewardPoolDistribution, SustainabilityProof, AppSustainability, AccountSustainability } from '../generated/schema'
 import { events, transactions, decimals, constants } from '@amxx/graphprotocol-utils'
 import { DataSourceContext, JSONValueKind, Value, json, Bytes, dataSource, JSONValue, TypedMap, bigInt } from '@graphprotocol/graph-ts'
 import { fetchApp } from './XApps'
@@ -64,6 +64,9 @@ export function handleRewardDistribution(event: RewardDistributedEvent): void {
     ev.app = app.id
     ev.amountExact = event.params.amount
     ev.amount = decimals.toDecimals(event.params.amount, 18)
+    ev.to = fetchAccount(event.params.receiver).id
+    ev.by = fetchAccount(event.params.distributor).id
+
     const sustainabilityId = ((event.block.number.toI64() * 10000000) + (event.transaction.index.toI64() * 10000) + (event.transactionLogIndex.toI64() * 100)).toString()
 
     /**
@@ -76,6 +79,7 @@ export function handleRewardDistribution(event: RewardDistributedEvent): void {
             context.set('timestamp', Value.fromI64(event.block.timestamp.toI64()))
             context.set('transaction', Value.fromString(transactions.log(event).id))
             context.set('appId', Value.fromBytes(app.id))
+            context.set('accountId', Value.fromBytes(ev.to))
             context.set('sustainabilityId', Value.fromString(sustainabilityId))
             SustainabilityProofTemplate.createWithContext(event.params.proof, context)
             ev.proof = event.params.proof
@@ -86,17 +90,17 @@ export function handleRewardDistribution(event: RewardDistributedEvent): void {
                 const proof = generateSustainabilityProofFromJson(transactions.log(event).id, proofData.value.toObject())
                 proof.timestamp = event.block.timestamp.toI64()
                 proof.app = app.id
+                proof.account = ev.to
                 proof.transaction = transactions.log(event).id
                 proof.save()
 
                 updateAppSustainability(sustainabilityId, proof)
+                updateAccountSustainability(proof)
                 ev.proof = proof.id
             }
         }
     }
 
-    ev.to = fetchAccount(event.params.receiver).id
-    ev.by = fetchAccount(event.params.distributor).id
     ev.save()
 
     app.poolBalanceExact = app.poolBalanceExact.minus(ev.amountExact)
@@ -114,10 +118,12 @@ export function handleSustainabilityProof(content: Bytes, context: DataSourceCon
     const proof = generateSustainabilityProofFromJson(dataSource.stringParam(), jsonData.value.toObject())
     proof.timestamp = context.get('timestamp')!.toI64()
     proof.transaction = context.get('transaction')!.toString()
+    proof.account = context.get('accountId')!.toBytes()
     proof.app = context.get('appId')!.toBytes()
     proof.save()
 
     updateAppSustainability(context.get('sustainabilityId')!.toString(), proof)
+    updateAccountSustainability(proof)
 }
 
 
@@ -171,5 +177,33 @@ function updateAppSustainability(sustainabilityId: string, proof: Sustainability
     appSustainability.biodiversity = proof.biodiversity
     appSustainability.timestamp = proof.timestamp
     appSustainability.app = proof.app
+    appSustainability.account = proof.account
+    appSustainability.save()
+}
+
+function updateAccountSustainability(proof: SustainabilityProof): void {
+    const id = [proof.account.toHexString(), proof.app.toHexString()].join('/')
+    let appSustainability = AccountSustainability.load(id)
+
+    if (appSustainability == null) {
+        appSustainability = new AccountSustainability(id)
+        appSustainability.carbon = constants.BIGINT_ZERO
+        appSustainability.water = constants.BIGINT_ZERO
+        appSustainability.energy = constants.BIGINT_ZERO
+        appSustainability.wasteMass = constants.BIGINT_ZERO
+        appSustainability.wasteItems = constants.BIGINT_ZERO
+        appSustainability.people = constants.BIGINT_ZERO
+        appSustainability.biodiversity = constants.BIGINT_ZERO
+        appSustainability.account = proof.account
+        appSustainability.app = proof.app
+    }
+
+    appSustainability.carbon = appSustainability.carbon.plus(proof.carbon)
+    appSustainability.water = appSustainability.water.plus(proof.water)
+    appSustainability.energy = appSustainability.energy.plus(proof.energy)
+    appSustainability.wasteMass = appSustainability.wasteMass.plus(proof.wasteMass)
+    appSustainability.wasteItems = appSustainability.wasteItems.plus(proof.wasteItems)
+    appSustainability.people = appSustainability.people.plus(proof.people)
+    appSustainability.biodiversity = appSustainability.biodiversity.plus(proof.biodiversity)
     appSustainability.save()
 }
