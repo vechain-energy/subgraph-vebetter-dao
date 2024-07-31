@@ -6,7 +6,6 @@ features:
 schema:
   file: subgraph.graphql
 dataSources:
-
   # ERC20 Token Handling
   - kind: ethereum/contract
     name: b3tr
@@ -263,6 +262,31 @@ dataSources:
           handler: handleProposalDeposit
       file: ./src/Governor.ts
 
+  # Account: vet.domains names
+  - kind: ethereum/contract
+    name: vetDomains
+    network: mainnet
+    source:
+      startBlock: 17600000
+      abi: Resolver
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      file: ./src/vetDomains.ts
+      entities:
+        - AddrChanged
+        - NameChanged
+      abis:
+        - name: Resolver
+          file: ./abis/vetDomains-PublicResolver.json
+        - name: ResolveUtils
+          file: ./abis/vetDomains-ResolveUtils.json
+      eventHandlers:
+        - event: "AddrChanged(indexed bytes32,address)"
+          handler: handleAddrChanged
+        - event: "NameChanged(indexed bytes32,string)"
+          handler: handleNameChanged
 templates:
   - kind: file/ipfs
     name: AppMetadata

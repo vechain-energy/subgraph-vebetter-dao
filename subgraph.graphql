@@ -113,8 +113,14 @@ type VeDelegateAccount @entity {
   token: ERC721Token!
 }
 
+type VetDomainsNames @entity {
+  id: String!
+  address: Bytes!
+}
+
 type Account @entity {
   id: Bytes!
+  name: String
   asVeDelegate: [ERC721Token!]! @derivedFrom(field: "poolAddress")
   asERC721: ERC721Contract
   AllocationVotes: [AllocationVote!]! @derivedFrom(field: "voter")
@@ -558,6 +564,7 @@ type AppSustainability @entity(immutable: true, timeseries: true) {
   app: App!
   account: Account!
   timestamp: Timestamp!
+  reward: BigInt!
   carbon: BigInt!
   water: BigInt!
   energy: BigInt!
@@ -570,6 +577,7 @@ type AppSustainability @entity(immutable: true, timeseries: true) {
 type AccountSustainability @entity {
   id: ID!
   app: App!
+  receivedRewards: BigInt!
   account: Account!
   carbon: BigInt!
   water: BigInt!
@@ -588,6 +596,7 @@ type StatsAppSustainability
   account: Account!
 
   actions: BigInt! @aggregate(fn: "count", cumulative: false)
+  rewards: BigInt! @aggregate(fn: "sum", arg: "reward", cumulative: false)
   carbon: BigInt! @aggregate(fn: "sum", arg: "carbon", cumulative: false)
   water: BigInt! @aggregate(fn: "sum", arg: "water", cumulative: false)
   energy: BigInt! @aggregate(fn: "sum", arg: "energy", cumulative: false)
@@ -627,5 +636,6 @@ type SustainabilityProof @entity(immutable: true) {
   wasteItems: BigInt!
   people: BigInt!
   biodiversity: BigInt!
+  reward: BigInt!
   transaction: Transaction!
 }

@@ -1234,6 +1234,61 @@ export class VeDelegateAccount extends Entity {
   }
 }
 
+export class VetDomainsNames extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id != null, "Cannot save VetDomainsNames entity without an ID");
+    if (id) {
+      assert(
+        id.kind == ValueKind.STRING,
+        `Entities of type VetDomainsNames must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`,
+      );
+      store.set("VetDomainsNames", id.toString(), this);
+    }
+  }
+
+  static loadInBlock(id: string): VetDomainsNames | null {
+    return changetype<VetDomainsNames | null>(
+      store.get_in_block("VetDomainsNames", id),
+    );
+  }
+
+  static load(id: string): VetDomainsNames | null {
+    return changetype<VetDomainsNames | null>(store.get("VetDomainsNames", id));
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toString();
+    }
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get address(): Bytes {
+    let value = this.get("address");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set address(value: Bytes) {
+    this.set("address", Value.fromBytes(value));
+  }
+}
+
 export class Account extends Entity {
   constructor(id: Bytes) {
     super();
@@ -1273,6 +1328,23 @@ export class Account extends Entity {
 
   set id(value: Bytes) {
     this.set("id", Value.fromBytes(value));
+  }
+
+  get name(): string | null {
+    let value = this.get("name");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set name(value: string | null) {
+    if (!value) {
+      this.unset("name");
+    } else {
+      this.set("name", Value.fromString(<string>value));
+    }
   }
 
   get asVeDelegate(): ERC721TokenLoader {
@@ -6419,6 +6491,19 @@ export class AppSustainability extends Entity {
     this.set("timestamp", Value.fromTimestamp(value));
   }
 
+  get reward(): BigInt {
+    let value = this.get("reward");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set reward(value: BigInt) {
+    this.set("reward", Value.fromBigInt(value));
+  }
+
   get carbon(): BigInt {
     let value = this.get("carbon");
     if (!value || value.kind == ValueKind.NULL) {
@@ -6568,6 +6653,19 @@ export class AccountSustainability extends Entity {
 
   set app(value: Bytes) {
     this.set("app", Value.fromBytes(value));
+  }
+
+  get receivedRewards(): BigInt {
+    let value = this.get("receivedRewards");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set receivedRewards(value: BigInt) {
+    this.set("receivedRewards", Value.fromBigInt(value));
   }
 
   get account(): Bytes {
@@ -6914,6 +7012,19 @@ export class SustainabilityProof extends Entity {
 
   set biodiversity(value: BigInt) {
     this.set("biodiversity", Value.fromBigInt(value));
+  }
+
+  get reward(): BigInt {
+    let value = this.get("reward");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set reward(value: BigInt) {
+    this.set("reward", Value.fromBigInt(value));
   }
 
   get transaction(): string {
