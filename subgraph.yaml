@@ -6,100 +6,8 @@ features:
 schema:
   file: subgraph.graphql
 dataSources:
-  - kind: ethereum/contract
-    name: rewarder
-    network: mainnet
-    source:
-      address: "0x838A33AF756a6366f93e201423E1425f67eC0Fa7"
-      abi: Rewarder
-      startBlock: 18868867
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.7
-      language: wasm/assemblyscript
-      entities:
-        - Rewarder
-      abis:
-        - name: Rewarder
-          file: ./abis/VeBetterDAO-voter-rewards.json
-        - name: IERC20
-          file: ./node_modules/@openzeppelin/contracts/build/contracts/IERC20Metadata.json
-      eventHandlers:
-        - event: RewardClaimed(indexed uint256,indexed address,uint256)
-          handler: handleReward
-      file: ./src/Rewarder.ts
-  - kind: ethereum/contract
-    name: xallocationvoting
-    network: mainnet
-    source:
-      address: "0x89A00Bb0947a30FF95BEeF77a66AEdE3842Fe5B7"
-      abi: XAllocationVoting
-      startBlock: 18868869
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.7
-      language: wasm/assemblyscript
-      entities:
-        - XAllocationVoting
-      abis:
-        - name: XAllocationVoting
-          file: ./abis/VeBetterDAO-allocations-voting.json
-      eventHandlers:
-        - event: AllocationVoteCast(indexed address,indexed uint256,bytes32[],uint256[])
-          handler: handleVoteCast
-        - event: RoundCreated(uint256,address,uint256,uint256,bytes32[])
-          handler: handleRoundCreated
-      file: ./src/XAllocationVoting.ts
-  - kind: ethereum/contract
-    name: x2earnapps
-    network: mainnet
-    source:
-      address: "0x8392B7CCc763dB03b47afcD8E8f5e24F9cf0554D"
-      abi: XApps
-      startBlock: 18868857
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.7
-      language: wasm/assemblyscript
-      entities:
-        - XApps
-      abis:
-        - name: XApps
-          file: ./abis/VeBetterDAO-x-2-earns-apps.json
-      eventHandlers:
-        - event: AppAdded(indexed bytes32,address,string,bool)
-          handler: handleAppAdded
-        - event: AppMetadataURIUpdated(indexed bytes32,string,string)
-          handler: handleAppMetadataURIUpdated
-        - event: VotingEligibilityUpdated(indexed bytes32,bool)
-          handler: handleAppVotingEligibilityUpdated
-      file: ./src/XApps.ts
-  - kind: ethereum/contract
-    name: erc721
-    network: mainnet
-    source:
-      address: "0xfc32a9895C78CE00A1047d602Bd81Ea8134CC32b"
-      abi: IVeDelegate
-      startBlock: 18877630
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.7
-      language: wasm/assemblyscript
-      entities:
-        - ERC721Contract
-      abis:
-        - name: IERC721
-          file: ./node_modules/@openzeppelin/contracts/build/contracts/IERC721Metadata.json
-        - name: IVeDelegate
-          file: ./abis/VeDelegate.json
-      eventHandlers:
-        - event: Approval(indexed address,indexed address,indexed uint256)
-          handler: handleApproval
-        - event: ApprovalForAll(indexed address,indexed address,bool)
-          handler: handleApprovalForAll
-        - event: Transfer(indexed address,indexed address,indexed uint256)
-          handler: handleTransfer
-      file: ./src/VeDelegate-ERC721.ts
+
+  # ERC20 Token Handling
   - kind: ethereum/contract
     name: b3tr
     network: mainnet
@@ -144,6 +52,134 @@ dataSources:
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransfer
       file: ./src/erc20.ts
+
+  # Vote, Reward & Round handling
+  - kind: ethereum/contract
+    name: rewarder
+    network: mainnet
+    source:
+      address: "0x838A33AF756a6366f93e201423E1425f67eC0Fa7"
+      abi: Rewarder
+      startBlock: 18868867
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Rewarder
+      abis:
+        - name: Rewarder
+          file: ./abis/VeBetterDAO-voter-rewards.json
+        - name: IERC20
+          file: ./node_modules/@openzeppelin/contracts/build/contracts/IERC20Metadata.json
+      eventHandlers:
+        - event: RewardClaimed(indexed uint256,indexed address,uint256)
+          handler: handleReward
+      file: ./src/Rewarder.ts
+  - kind: ethereum/contract
+    name: xallocationvoting
+    network: mainnet
+    source:
+      address: "0x89A00Bb0947a30FF95BEeF77a66AEdE3842Fe5B7"
+      abi: XAllocationVoting
+      startBlock: 18868869
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - XAllocationVoting
+      abis:
+        - name: XAllocationVoting
+          file: ./abis/VeBetterDAO-allocations-voting.json
+      eventHandlers:
+        - event: AllocationVoteCast(indexed address,indexed uint256,bytes32[],uint256[])
+          handler: handleVoteCast
+        - event: RoundCreated(uint256,address,uint256,uint256,bytes32[])
+          handler: handleRoundCreated
+      file: ./src/XAllocationVoting.ts
+
+  # App Information
+  - kind: ethereum/contract
+    name: x2earnapps
+    network: mainnet
+    source:
+      address: "0x8392B7CCc763dB03b47afcD8E8f5e24F9cf0554D"
+      abi: XApps
+      startBlock: 18868857
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - XApps
+      abis:
+        - name: XApps
+          file: ./abis/VeBetterDAO-x-2-earns-apps.json
+      eventHandlers:
+        - event: AppAdded(indexed bytes32,address,string,bool)
+          handler: handleAppAdded
+        - event: AppMetadataURIUpdated(indexed bytes32,string,string)
+          handler: handleAppMetadataURIUpdated
+        - event: VotingEligibilityUpdated(indexed bytes32,bool)
+          handler: handleAppVotingEligibilityUpdated
+      file: ./src/XApps.ts
+
+  # X2Apps: Allocations
+  - kind: ethereum/contract
+    name: RewardsPool
+    network: mainnet
+    source:
+      address: "0x6Bee7DDab6c99d5B2Af0554EaEA484CE18F52631"
+      abi: RewardsPool
+      startBlock: 18868859
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - RewardsPool
+      abis:
+        - name: RewardsPool
+          file: ./abis/VeBetterDAO-x-2-earns-rewards-pool.json
+      eventHandlers:
+        - event: NewDeposit(uint256,indexed bytes32,indexed address)
+          handler: handleNewDeposit
+        - event: TeamWithdrawal(uint256,indexed bytes32,indexed address,address,string)
+          handler: handleTeamWithdrawal
+        - event: RewardDistributed(uint256,indexed bytes32,indexed address,string,indexed address)
+          handler: handleRewardDistribution
+      file: ./src/RewardsPool.ts
+
+  # veDelegate.vet Wallets
+  - kind: ethereum/contract
+    name: erc721
+    network: mainnet
+    source:
+      address: "0xfc32a9895C78CE00A1047d602Bd81Ea8134CC32b"
+      abi: IVeDelegate
+      startBlock: 18877630
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - ERC721Contract
+      abis:
+        - name: IERC721
+          file: ./node_modules/@openzeppelin/contracts/build/contracts/IERC721Metadata.json
+        - name: IVeDelegate
+          file: ./abis/VeDelegate.json
+      eventHandlers:
+        - event: Approval(indexed address,indexed address,indexed uint256)
+          handler: handleApproval
+        - event: ApprovalForAll(indexed address,indexed address,bool)
+          handler: handleApprovalForAll
+        - event: Transfer(indexed address,indexed address,indexed uint256)
+          handler: handleTransfer
+      file: ./src/VeDelegate-ERC721.ts
+
+  # Gov: VOT3 Delegation
   - kind: ethereum/contract
     name: voting
     network: mainnet
@@ -166,6 +202,8 @@ dataSources:
         - event: DelegateVotesChanged(indexed address,uint256,uint256)
           handler: handleDelegateVotesChanged
       file: ./node_modules/@openzeppelin/subgraphs/src/datasources/voting.ts
+
+  # Gov: Call Handling
   - kind: ethereum/contract
     name: timelock
     network: mainnet
@@ -192,6 +230,8 @@ dataSources:
         - event: MinDelayChange(uint256,uint256)
           handler: handleMinDelayChange
       file: ./node_modules/@openzeppelin/subgraphs/src/datasources/timelock.ts
+
+  # Gov: Proposals
   - kind: ethereum/contract
     name: governor
     network: mainnet
@@ -222,30 +262,7 @@ dataSources:
         - event: ProposalDeposit(indexed address,indexed uint256,uint256)
           handler: handleProposalDeposit
       file: ./src/Governor.ts
-  - kind: ethereum/contract
-    name: RewardsPool
-    network: mainnet
-    source:
-      address: "0x6Bee7DDab6c99d5B2Af0554EaEA484CE18F52631"
-      abi: RewardsPool
-      startBlock: 18868859
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.7
-      language: wasm/assemblyscript
-      entities:
-        - RewardsPool
-      abis:
-        - name: RewardsPool
-          file: ./abis/VeBetterDAO-x-2-earns-rewards-pool.json
-      eventHandlers:
-        - event: NewDeposit(uint256,indexed bytes32,indexed address)
-          handler: handleNewDeposit
-        - event: TeamWithdrawal(uint256,indexed bytes32,indexed address,address,string)
-          handler: handleTeamWithdrawal
-        - event: RewardDistributed(uint256,indexed bytes32,indexed address,string,indexed address)
-          handler: handleRewardDistribution
-      file: ./src/RewardsPool.ts
+
 templates:
   - kind: file/ipfs
     name: AppMetadata
