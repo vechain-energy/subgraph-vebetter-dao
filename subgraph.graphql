@@ -234,6 +234,20 @@ type ERC20Transfer implements Event @entity(immutable: true) {
   value: BigDecimal!
   valueExact: BigInt!
 }
+type VeDelegateTransfer implements Event @entity(immutable: true) {
+  id: ID!
+  isDeposit: Boolean!
+  emitter: Account!
+  transaction: Transaction!
+  timestamp: BigInt!
+  contract: ERC20Contract!
+  from: Account
+  fromBalance: ERC20Balance
+  to: Account
+  toBalance: ERC20Balance
+  value: BigDecimal!
+  valueExact: BigInt!
+}
 type VotingContract @entity(immutable: true) {
   id: Bytes!
   asAccount: Account!

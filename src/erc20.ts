@@ -5,6 +5,7 @@ import {
 import {
 	ERC20Transfer,
 	VeDelegateAccount,
+	VeDelegateTransfer
 } from '../generated/schema'
 
 import {
@@ -39,7 +40,8 @@ export function handleTransfer(event: TransferEvent): void {
 	ev.value = decimals.toDecimals(event.params.value, contract.decimals)
 	ev.valueExact = event.params.value
 
-
+	let isVeDelegateTransferReceiver = false
+	let isVeDelegateTransferSender = false
 	if (event.params.from == Address.zero()) {
 		let totalSupply = fetchERC20Balance(contract, null)
 		totalSupply.valueExact = totalSupply.valueExact.plus(event.params.value)
@@ -52,9 +54,9 @@ export function handleTransfer(event: TransferEvent): void {
 		balance.value = decimals.toDecimals(balance.valueExact, contract.decimals)
 		balance.save()
 
-
 		const veFrom = VeDelegateAccount.load(event.params.from)
 		if (veFrom != null) {
+			isVeDelegateTransferSender = true
 			const tvl = fetchStatistic("tvl", "vedelegate")
 			if (contract.symbol == 'B3TR') {
 				tvl.b3trExact = tvl.b3trExact.minus(event.params.value)
@@ -85,6 +87,7 @@ export function handleTransfer(event: TransferEvent): void {
 
 		const veTo = VeDelegateAccount.load(event.params.to)
 		if (veTo != null) {
+			isVeDelegateTransferReceiver = true
 			const tvl = fetchStatistic("tvl", "vedelegate")
 			if (contract.symbol == 'B3TR') {
 				tvl.b3trExact = tvl.b3trExact.plus(event.params.value)
@@ -101,6 +104,10 @@ export function handleTransfer(event: TransferEvent): void {
 		ev.toBalance = balance.id
 	}
 	ev.save()
+
+	if (isVeDelegateTransferReceiver || isVeDelegateTransferSender) {
+		cloneErc20ToVeDelegateTransfer(ev, isVeDelegateTransferReceiver)
+	}
 }
 
 export function handleApproval(event: ApprovalEvent): void {
@@ -112,4 +119,21 @@ export function handleApproval(event: ApprovalEvent): void {
 	approval.valueExact = event.params.value
 	approval.value = decimals.toDecimals(event.params.value, contract.decimals)
 	approval.save()
+}
+
+
+function cloneErc20ToVeDelegateTransfer(transfer: ERC20Transfer, isDeposit: boolean): void {
+	const vdTransfer = new VeDelegateTransfer(`${transfer.id}-vd`)
+	vdTransfer.isDeposit = isDeposit
+	vdTransfer.emitter = transfer.emitter
+	vdTransfer.transaction = transfer.transaction
+	vdTransfer.timestamp = transfer.timestamp
+	vdTransfer.contract = transfer.contract
+	vdTransfer.from = transfer.from
+	vdTransfer.fromBalance = transfer.fromBalance
+	vdTransfer.to = transfer.to
+	vdTransfer.toBalance = transfer.toBalance
+	vdTransfer.value = transfer.value
+	vdTransfer.valueExact = transfer.valueExact
+	vdTransfer.save()
 }
