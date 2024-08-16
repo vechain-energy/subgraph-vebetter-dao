@@ -1,6 +1,6 @@
 This subgraph indexes different data from VeChain's VeBetterDAO:
 
-1. B3TR and VOT3 Tokens with OpenZeppelin's ERC20 Template
+1. B3TR, VOT3 and veB3TR Tokens with OpenZeppelin's ERC20 Template
 2. Government contracts based on OpenZeppelin's voting, timelock, and governor templates
 3. Rounds, with information about:
     - Allocation Votes
@@ -9,6 +9,7 @@ This subgraph indexes different data from VeChain's VeBetterDAO:
 5. Proposals including their IPFS Metadata
 6. veDelegate.vet Token Bound Accounts (NFTs + Account Abstraction Wallets)
 7. Timeseries of Allocation votes by app and round
+8. Sustainability Proofs including Timeseries of impacts
 
 The data provided offers information about:
 
@@ -17,6 +18,8 @@ The data provided offers information about:
 3. App Allocation Voting Behavior
 4. Insight into a subset of veDelegate.vet behavior
 5. Proposal Metadata
+6. Insight into Sustainability Proofs
+7. Balance and activity of users (single or all tokens aggregated)
 
 The subgraph is deployed publicly on: https://graph.vet/subgraphs/name/vebetter/dao  
 It powers the statistic pages on https://veDelegate.vet/stats 
