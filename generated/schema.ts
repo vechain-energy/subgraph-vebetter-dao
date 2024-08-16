@@ -1461,11 +1461,11 @@ export class Account extends Entity {
     );
   }
 
-  get VBDbalances(): VBDBalanceLoader {
+  get VBDbalance(): VBDBalanceLoader {
     return new VBDBalanceLoader(
       "Account",
       this.get("id")!.toBytes().toHexString(),
-      "VBDbalances",
+      "VBDbalance",
     );
   }
 
