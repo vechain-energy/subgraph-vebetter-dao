@@ -133,6 +133,7 @@ type Account @entity {
   ERC721transferToEvent: [ERC721Transfer!]! @derivedFrom(field: "to")
   asERC20: ERC20Contract
   ERC20balances: [ERC20Balance!]! @derivedFrom(field: "account")
+  VBDbalances: [VBDBalance!]! @derivedFrom(field: "account")
   ERC20approvalsOwner: [ERC20Approval!]! @derivedFrom(field: "owner")
   ERC20approvalsSpender: [ERC20Approval!]! @derivedFrom(field: "spender")
   ERC20transferFromEvent: [ERC20Transfer!]! @derivedFrom(field: "from")
@@ -203,6 +204,12 @@ type ERC20Contract @entity(immutable: true) {
   balances: [ERC20Balance!]! @derivedFrom(field: "contract")
   approvals: [ERC20Approval!]! @derivedFrom(field: "contract")
   transfers: [ERC20Transfer!]! @derivedFrom(field: "contract")
+}
+type VBDBalance @entity {
+  id: ID!
+  account: Account
+  value: BigDecimal!
+  valueExact: BigInt!
 }
 type ERC20Balance @entity {
   id: ID!

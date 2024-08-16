@@ -3,6 +3,7 @@ import {
 } from '@graphprotocol/graph-ts'
 
 import {
+	VBDBalance,
 	ERC20Transfer,
 	VeDelegateAccount,
 	VeDelegateTransfer
@@ -24,11 +25,16 @@ import {
 } from '../node_modules/@openzeppelin/subgraphs/src/fetch/account'
 
 import {
+	Account as OZAccount,
+} from '../node_modules/@openzeppelin/subgraphs/generated/schema'
+
+import {
 	fetchERC20,
 	fetchERC20Balance,
 	fetchERC20Approval,
 } from '../node_modules/@openzeppelin/subgraphs/src/fetch/erc20'
 import { fetchStatistic } from './XAllocationVoting'
+import { constants } from '@amxx/graphprotocol-utils'
 
 export function handleTransfer(event: TransferEvent): void {
 	let contract = fetchERC20(event.address)
@@ -54,6 +60,11 @@ export function handleTransfer(event: TransferEvent): void {
 		balance.value = decimals.toDecimals(balance.valueExact, contract.decimals)
 		balance.save()
 
+		const vbdBalance = fetchVBDBalance(from)
+		vbdBalance.valueExact = vbdBalance.valueExact.minus(event.params.value)
+		vbdBalance.value = decimals.toDecimals(vbdBalance.valueExact, contract.decimals)
+		vbdBalance.save()
+
 		const veFrom = VeDelegateAccount.load(event.params.from)
 		if (veFrom != null) {
 			isVeDelegateTransferSender = true
@@ -78,12 +89,26 @@ export function handleTransfer(event: TransferEvent): void {
 		totalSupply.valueExact = totalSupply.valueExact.minus(event.params.value)
 		totalSupply.value = decimals.toDecimals(totalSupply.valueExact, contract.decimals)
 		totalSupply.save()
+
+
+		const vbdBalance = fetchVBDBalance(null)
+		vbdBalance.valueExact = vbdBalance.valueExact.minus(event.params.value)
+		vbdBalance.value = decimals.toDecimals(vbdBalance.valueExact, contract.decimals)
+		vbdBalance.save()
+
 	} else {
 		let to = fetchAccount(event.params.to)
 		let balance = fetchERC20Balance(contract, to)
 		balance.valueExact = balance.valueExact.plus(event.params.value)
 		balance.value = decimals.toDecimals(balance.valueExact, contract.decimals)
 		balance.save()
+
+
+		const vbdBalance = fetchVBDBalance(to)
+		vbdBalance.valueExact = vbdBalance.valueExact.plus(event.params.value)
+		vbdBalance.value = decimals.toDecimals(vbdBalance.valueExact, contract.decimals)
+		vbdBalance.save()
+
 
 		const veTo = VeDelegateAccount.load(event.params.to)
 		if (veTo != null) {
@@ -136,4 +161,22 @@ function cloneErc20ToVeDelegateTransfer(transfer: ERC20Transfer, isDeposit: bool
 	vdTransfer.value = transfer.value
 	vdTransfer.valueExact = transfer.valueExact
 	vdTransfer.save()
+}
+
+
+
+
+function fetchVBDBalance(account: OZAccount | null): VBDBalance {
+	let id      = account ? account.id.toHex() : 'totalSupply'
+	let balance = VBDBalance.load(id)
+
+	if (balance == null) {
+		balance                 = new VBDBalance(id)
+		balance.account         = account ? account.id : null
+		balance.value           = constants.BIGDECIMAL_ZERO
+		balance.valueExact      = constants.BIGINT_ZERO
+		balance.save()
+	}
+
+	return balance
 }
