@@ -51,6 +51,28 @@ dataSources:
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransfer
       file: ./src/erc20.ts
+  - kind: ethereum/contract
+    name: veb3tr
+    network: mainnet
+    source:
+      address: "0x420dFe6B7Bc605Ce61E9839c8c0E745870A6CDE0"
+      abi: IERC20
+      startBlock: 19249195
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - ERC20Contract
+      abis:
+        - name: IERC20
+          file: ./node_modules/@openzeppelin/contracts/build/contracts/IERC20Metadata.json
+      eventHandlers:
+        - event: Approval(indexed address,indexed address,uint256)
+          handler: handleApproval
+        - event: Transfer(indexed address,indexed address,uint256)
+          handler: handleTransfer
+      file: ./src/erc20.ts
 
   # Vote, Reward & Round handling
   - kind: ethereum/contract
