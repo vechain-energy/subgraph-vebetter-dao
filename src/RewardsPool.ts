@@ -157,13 +157,13 @@ function generateSustainabilityProofFromJson(id: string, proofObject: TypedMap<s
     if (proofObject.isSet("impact") && proofObject.get("impact")!.kind === JSONValueKind.OBJECT) {
         const impact = proofObject.get("impact")!.toObject()
 
-        if (impact.isSet('carbon') && impact.get('carbon')!.kind === JSONValueKind.STRING) { proof.carbon = bigInt.fromString(impact.get('carbon')!.toString()) }
-        if (impact.isSet('water') && impact.get('water')!.kind === JSONValueKind.STRING) { proof.water = bigInt.fromString(impact.get('water')!.toString()) }
-        if (impact.isSet('energy') && impact.get('energy')!.kind === JSONValueKind.STRING) { proof.energy = bigInt.fromString(impact.get('energy')!.toString()) }
-        if (impact.isSet('waste_mass') && impact.get('waste_mass')!.kind === JSONValueKind.STRING) { proof.wasteMass = bigInt.fromString(impact.get('waste_mass')!.toString()) }
-        if (impact.isSet('waste_items') && impact.get('waste_items')!.kind === JSONValueKind.STRING) { proof.wasteItems = bigInt.fromString(impact.get('waste_items')!.toString()) }
-        if (impact.isSet('people') && impact.get('people')!.kind === JSONValueKind.STRING) { proof.people = bigInt.fromString(impact.get('people')!.toString()) }
-        if (impact.isSet('biodiversity') && impact.get('biodiversity')!.kind === JSONValueKind.STRING) { proof.biodiversity = bigInt.fromString(impact.get('biodiversity')!.toString()) }
+        if (impact.isSet('carbon') && impact.get('carbon')!.kind === JSONValueKind.STRING && isDigitsOnly(impact.get('carbon')!.toString())) { proof.carbon = bigInt.fromString(impact.get('carbon')!.toString()) }
+        if (impact.isSet('water') && impact.get('water')!.kind === JSONValueKind.STRING && isDigitsOnly(impact.get('water')!.toString())) { proof.water = bigInt.fromString(impact.get('water')!.toString()) }
+        if (impact.isSet('energy') && impact.get('energy')!.kind === JSONValueKind.STRING && isDigitsOnly(impact.get('energy')!.toString())) { proof.energy = bigInt.fromString(impact.get('energy')!.toString()) }
+        if (impact.isSet('waste_mass') && impact.get('waste_mass')!.kind === JSONValueKind.STRING && isDigitsOnly(impact.get('waste_mass')!.toString())) { proof.wasteMass = bigInt.fromString(impact.get('waste_mass')!.toString()) }
+        if (impact.isSet('waste_items') && impact.get('waste_items')!.kind === JSONValueKind.STRING && isDigitsOnly(impact.get('waste_items')!.toString())) { proof.wasteItems = bigInt.fromString(impact.get('waste_items')!.toString()) }
+        if (impact.isSet('people') && impact.get('people')!.kind === JSONValueKind.STRING && isDigitsOnly(impact.get('people')!.toString())) { proof.people = bigInt.fromString(impact.get('people')!.toString()) }
+        if (impact.isSet('biodiversity') && impact.get('biodiversity')!.kind === JSONValueKind.STRING && isDigitsOnly(impact.get('biodiversity')!.toString())) { proof.biodiversity = bigInt.fromString(impact.get('biodiversity')!.toString()) }
     }
 
     return proof
@@ -215,3 +215,14 @@ function updateAccountSustainability(proof: SustainabilityProof): void {
     accountSustainability.biodiversity = accountSustainability.biodiversity.plus(proof.biodiversity)
     accountSustainability.save()
 }
+
+export function isDigitsOnly(s: string): boolean {
+    for (let i = 0; i < s.length; i++) {
+      let charCode = s.charCodeAt(i);
+      if (charCode < 48 || charCode > 57) { // charCode 48 = '0', 57 = '9'
+        return false;
+      }
+    }
+    return true;
+  }
+  
