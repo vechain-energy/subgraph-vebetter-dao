@@ -593,6 +593,8 @@ type AppSustainability @entity(immutable: true, timeseries: true) {
   wasteItems: BigInt!
   people: BigInt!
   biodiversity: BigInt!
+  plastic: BigInt!
+  timber: BigInt!
 }
 
 type AccountSustainability @entity {
@@ -607,6 +609,8 @@ type AccountSustainability @entity {
   wasteItems: BigInt!
   people: BigInt!
   biodiversity: BigInt!
+  plastic: BigInt!
+  timber: BigInt!
 }
 
 type StatsAppSustainability
@@ -626,6 +630,8 @@ type StatsAppSustainability
   people: BigInt! @aggregate(fn: "sum", arg: "people", cumulative: false)
   biodiversity: BigInt!
     @aggregate(fn: "sum", arg: "biodiversity", cumulative: false)
+  plastic: BigInt! @aggregate(fn: "sum", arg: "plastic", cumulative: false)
+  timber: BigInt! @aggregate(fn: "sum", arg: "timber", cumulative: false)
 
   actionsTotal: BigInt! @aggregate(fn: "count", cumulative: true)
   carbonTotal: BigInt! @aggregate(fn: "sum", arg: "carbon", cumulative: true)
@@ -638,6 +644,8 @@ type StatsAppSustainability
   peopleTotal: BigInt! @aggregate(fn: "sum", arg: "people", cumulative: true)
   biodiversityTotal: BigInt!
     @aggregate(fn: "sum", arg: "biodiversity", cumulative: true)
+  plasticTotal: BigInt! @aggregate(fn: "sum", arg: "plastic", cumulative: true)
+  timberTotal: BigInt! @aggregate(fn: "sum", arg: "timber", cumulative: true)
 }
 
 type SustainabilityProof @entity(immutable: true) {
@@ -656,6 +664,8 @@ type SustainabilityProof @entity(immutable: true) {
   wasteItems: BigInt!
   people: BigInt!
   biodiversity: BigInt!
+  plastic: BigInt!
+  timber: BigInt!
   reward: BigInt!
   transaction: Transaction!
 }

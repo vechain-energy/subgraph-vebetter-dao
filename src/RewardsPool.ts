@@ -141,6 +141,8 @@ function generateSustainabilityProofFromJson(id: string, proofObject: TypedMap<s
     proof.wasteItems = constants.BIGINT_ZERO
     proof.people = constants.BIGINT_ZERO
     proof.biodiversity = constants.BIGINT_ZERO
+    proof.plastic = constants.BIGINT_ZERO
+    proof.timber = constants.BIGINT_ZERO
 
     if (proofObject.isSet("proof") && proofObject.get("proof")!.kind === JSONValueKind.OBJECT) {
         const proofData = proofObject.get("proof")!.toObject()
@@ -164,6 +166,8 @@ function generateSustainabilityProofFromJson(id: string, proofObject: TypedMap<s
         if (impact.isSet('waste_items') && impact.get('waste_items')!.kind === JSONValueKind.STRING && isDigitsOnly(impact.get('waste_items')!.toString())) { proof.wasteItems = bigInt.fromString(impact.get('waste_items')!.toString()) }
         if (impact.isSet('people') && impact.get('people')!.kind === JSONValueKind.STRING && isDigitsOnly(impact.get('people')!.toString())) { proof.people = bigInt.fromString(impact.get('people')!.toString()) }
         if (impact.isSet('biodiversity') && impact.get('biodiversity')!.kind === JSONValueKind.STRING && isDigitsOnly(impact.get('biodiversity')!.toString())) { proof.biodiversity = bigInt.fromString(impact.get('biodiversity')!.toString()) }
+        if (impact.isSet('plastic') && impact.get('plastic')!.kind === JSONValueKind.STRING && isDigitsOnly(impact.get('plastic')!.toString())) { proof.plastic = bigInt.fromString(impact.get('plastic')!.toString()) }
+        if (impact.isSet('timber') && impact.get('timber')!.kind === JSONValueKind.STRING && isDigitsOnly(impact.get('timber')!.toString())) { proof.timber = bigInt.fromString(impact.get('timber')!.toString()) }
     }
 
     return proof
@@ -180,6 +184,8 @@ function updateAppSustainability(sustainabilityId: string, proof: Sustainability
     appSustainability.wasteItems = proof.wasteItems
     appSustainability.people = proof.people
     appSustainability.biodiversity = proof.biodiversity
+    appSustainability.plastic = proof.plastic
+    appSustainability.timber = proof.timber
     appSustainability.timestamp = proof.timestamp
     appSustainability.app = proof.app
     appSustainability.account = proof.account
@@ -201,6 +207,8 @@ function updateAccountSustainability(proof: SustainabilityProof): void {
         accountSustainability.wasteItems = constants.BIGINT_ZERO
         accountSustainability.people = constants.BIGINT_ZERO
         accountSustainability.biodiversity = constants.BIGINT_ZERO
+        accountSustainability.plastic = constants.BIGINT_ZERO
+        accountSustainability.timber = constants.BIGINT_ZERO
         accountSustainability.account = proof.account
         accountSustainability.app = proof.app
     }
@@ -213,6 +221,8 @@ function updateAccountSustainability(proof: SustainabilityProof): void {
     accountSustainability.wasteItems = accountSustainability.wasteItems.plus(proof.wasteItems)
     accountSustainability.people = accountSustainability.people.plus(proof.people)
     accountSustainability.biodiversity = accountSustainability.biodiversity.plus(proof.biodiversity)
+    accountSustainability.plastic = accountSustainability.plastic.plus(proof.plastic)
+    accountSustainability.timber = accountSustainability.timber.plus(proof.timber)
     accountSustainability.save()
 }
 
