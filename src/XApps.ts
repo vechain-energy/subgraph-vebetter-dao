@@ -52,6 +52,7 @@ export function fetchApp(id: Bytes): App {
         app.createdAtBlockNumber = constants.BIGINT_ZERO
         app.updatedAtBlockNumber = constants.BIGINT_ZERO
         app.createdAt = constants.BIGINT_ZERO
+        app.participantsCount = constants.BIGINT_ZERO
         app.save()
     }
     return app

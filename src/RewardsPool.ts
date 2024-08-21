@@ -3,7 +3,7 @@ import {
     TeamWithdrawal as TeamWithdrawalEvent,
     RewardDistributed as RewardDistributedEvent,
 } from '../generated/RewardsPool/RewardsPool'
-import { RewardPoolDeposit, RewardPoolWithdraw, RewardPoolDistribution, SustainabilityProof, AppSustainability, AccountSustainability } from '../generated/schema'
+import { App, RewardPoolDeposit, RewardPoolWithdraw, RewardPoolDistribution, SustainabilityProof, AppSustainability, AccountSustainability } from '../generated/schema'
 import { events, transactions, decimals, constants } from '@amxx/graphprotocol-utils'
 import { DataSourceContext, JSONValueKind, Value, json, Bytes, dataSource, JSONValue, TypedMap, bigInt } from '@graphprotocol/graph-ts'
 import { fetchApp } from './XApps'
@@ -73,6 +73,7 @@ export function handleRewardDistribution(event: RewardDistributedEvent): void {
      * the first valid proof is available with block #19145969
      * ignore all data before
      */
+    let isNewParticipant = false
     if (event.block.number.toI64() >= 19145969) {
         if (event.params.proof.startsWith("ipfs://")) {
             const context = new DataSourceContext()
@@ -97,7 +98,7 @@ export function handleRewardDistribution(event: RewardDistributedEvent): void {
                 proof.save()
 
                 updateAppSustainability(sustainabilityId, proof)
-                updateAccountSustainability(proof)
+                isNewParticipant = updateAccountSustainability(proof)
                 ev.proof = proof.id
             }
         }
@@ -109,6 +110,11 @@ export function handleRewardDistribution(event: RewardDistributedEvent): void {
     app.poolDistributionsExact = app.poolDistributionsExact.plus(ev.amountExact)
     app.poolBalance = decimals.toDecimals(app.poolBalanceExact, 18)
     app.poolDistributions = decimals.toDecimals(app.poolDistributionsExact, 18)
+
+    if (isNewParticipant) {
+        app.participantsCount = app.participantsCount.plus(constants.BIGINT_ONE)
+    }
+
     app.save()
 }
 
@@ -126,7 +132,12 @@ export function handleSustainabilityProof(content: Bytes, context: DataSourceCon
     proof.save()
 
     updateAppSustainability(context.get('sustainabilityId')!.toString(), proof)
-    updateAccountSustainability(proof)
+    const isNewParticipant = updateAccountSustainability(proof)
+    if (isNewParticipant) {
+        const app = App.load(proof.app)!
+        app.participantsCount = app.participantsCount.plus(constants.BIGINT_ONE)
+        app.save()
+    }
 }
 
 
@@ -189,12 +200,17 @@ function updateAppSustainability(sustainabilityId: string, proof: Sustainability
     appSustainability.timestamp = proof.timestamp
     appSustainability.app = proof.app
     appSustainability.account = proof.account
+
+    const app = App.load(proof.app)!
+    appSustainability.participantsCount = app.participantsCount
+
     appSustainability.save()
 }
 
-function updateAccountSustainability(proof: SustainabilityProof): void {
+function updateAccountSustainability(proof: SustainabilityProof): boolean {
     const id = [proof.account.toHexString(), proof.app.toHexString()].join('/')
     let accountSustainability = AccountSustainability.load(id)
+    let isNewParticipant = false
 
     if (accountSustainability == null) {
         accountSustainability = new AccountSustainability(id)
@@ -211,6 +227,8 @@ function updateAccountSustainability(proof: SustainabilityProof): void {
         accountSustainability.timber = constants.BIGINT_ZERO
         accountSustainability.account = proof.account
         accountSustainability.app = proof.app
+
+        isNewParticipant = true
     }
 
     accountSustainability.receivedRewards = accountSustainability.receivedRewards.plus(proof.reward)
@@ -224,15 +242,16 @@ function updateAccountSustainability(proof: SustainabilityProof): void {
     accountSustainability.plastic = accountSustainability.plastic.plus(proof.plastic)
     accountSustainability.timber = accountSustainability.timber.plus(proof.timber)
     accountSustainability.save()
+
+    return isNewParticipant
 }
 
 export function isDigitsOnly(s: string): boolean {
     for (let i = 0; i < s.length; i++) {
-      let charCode = s.charCodeAt(i);
-      if (charCode < 48 || charCode > 57) { // charCode 48 = '0', 57 = '9'
-        return false;
-      }
+        let charCode = s.charCodeAt(i);
+        if (charCode < 48 || charCode > 57) { // charCode 48 = '0', 57 = '9'
+            return false;
+        }
     }
     return true;
-  }
-  
+}
