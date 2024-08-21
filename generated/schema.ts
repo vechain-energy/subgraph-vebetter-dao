@@ -2358,6 +2358,32 @@ export class VBDBalance extends Entity {
     }
   }
 
+  get convertedB3tr(): BigDecimal {
+    let value = this.get("convertedB3tr");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigDecimal();
+    }
+  }
+
+  set convertedB3tr(value: BigDecimal) {
+    this.set("convertedB3tr", Value.fromBigDecimal(value));
+  }
+
+  get convertedB3trExact(): BigInt {
+    let value = this.get("convertedB3trExact");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set convertedB3trExact(value: BigInt) {
+    this.set("convertedB3trExact", Value.fromBigInt(value));
+  }
+
   get value(): BigDecimal {
     let value = this.get("value");
     if (!value || value.kind == ValueKind.NULL) {
