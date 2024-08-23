@@ -647,6 +647,21 @@ type RewardPoolDistribution implements Event @entity(immutable: true) {
   proof: SustainabilityProof
 }
 
+type RewardPoolTransfer implements Event @entity(immutable: true) {
+  id: ID!
+  transaction: Transaction!
+  emitter: Account!
+  timestamp: BigInt!
+  app: App!
+  amount: BigDecimal!
+  amountExact: BigInt!
+  from: Account!
+  to: Account!
+  deposit: RewardPoolDeposit
+  withdraw: RewardPoolWithdraw
+  distribution: RewardPoolDistribution
+}
+
 """
 Sustainability Proofs
 """

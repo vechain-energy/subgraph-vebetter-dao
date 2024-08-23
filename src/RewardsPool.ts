@@ -3,9 +3,9 @@ import {
     TeamWithdrawal as TeamWithdrawalEvent,
     RewardDistributed as RewardDistributedEvent,
 } from '../generated/RewardsPool/RewardsPool'
-import { App, RewardPoolDeposit, RewardPoolWithdraw, RewardPoolDistribution, SustainabilityProof, AppSustainability, AccountSustainability } from '../generated/schema'
+import { App,RewardPoolTransfer, RewardPoolDeposit, RewardPoolWithdraw, RewardPoolDistribution, SustainabilityProof, AppSustainability, AccountSustainability } from '../generated/schema'
 import { events, transactions, decimals, constants } from '@amxx/graphprotocol-utils'
-import { DataSourceContext, JSONValueKind, Value, json, Bytes, dataSource, JSONValue, TypedMap, bigInt } from '@graphprotocol/graph-ts'
+import { DataSourceContext, JSONValueKind, Value, json, Bytes, dataSource, JSONValue, TypedMap, bigInt, Address } from '@graphprotocol/graph-ts'
 import { fetchApp } from './XApps'
 import { fetchAccount } from '@openzeppelin/subgraphs/src/fetch/account'
 import { SustainabilityProof as SustainabilityProofTemplate } from '../generated/templates'
@@ -24,6 +24,18 @@ export function handleNewDeposit(event: NewDepositEvent): void {
     ev.amount = decimals.toDecimals(event.params.amount, 18)
     ev.depositor = fetchAccount(event.params.depositor).id
     ev.save()
+
+    const transfer = new RewardPoolTransfer(['transfer', events.id(event)].join('/'))
+    transfer.emitter = ev.emitter
+    transfer.transaction = ev.transaction
+    transfer.timestamp = ev.timestamp
+    transfer.app = ev.app
+    transfer.amountExact = ev.amountExact
+    transfer.amount = ev.amount
+    transfer.from = ev.depositor
+    transfer.to = Address.zero()
+    transfer.deposit = ev.id
+    transfer.save()
 
     app.poolBalanceExact = app.poolBalanceExact.plus(ev.amountExact)
     app.poolDepositsExact = app.poolDepositsExact.plus(ev.amountExact)
@@ -46,6 +58,18 @@ export function handleTeamWithdrawal(event: TeamWithdrawalEvent): void {
     ev.to = fetchAccount(event.params.teamWallet).id
     ev.by = fetchAccount(event.params.withdrawer).id
     ev.save()
+
+    const transfer = new RewardPoolTransfer(['transfer', events.id(event)].join('/'))
+    transfer.emitter = ev.emitter
+    transfer.transaction = ev.transaction
+    transfer.timestamp = ev.timestamp
+    transfer.app = ev.app
+    transfer.amountExact = ev.amountExact
+    transfer.amount = ev.amount
+    transfer.from = ev.by
+    transfer.to = ev.to
+    transfer.withdraw = ev.id
+    transfer.save()
 
     app.poolBalanceExact = app.poolBalanceExact.minus(ev.amountExact)
     app.poolWithdrawalsExact = app.poolWithdrawalsExact.plus(ev.amountExact)
@@ -105,6 +129,18 @@ export function handleRewardDistribution(event: RewardDistributedEvent): void {
     }
 
     ev.save()
+
+    const transfer = new RewardPoolTransfer(['transfer', events.id(event)].join('/'))
+    transfer.emitter = ev.emitter
+    transfer.transaction = ev.transaction
+    transfer.timestamp = ev.timestamp
+    transfer.app = ev.app
+    transfer.amountExact = ev.amountExact
+    transfer.amount = ev.amount
+    transfer.from = ev.by
+    transfer.to = ev.to
+    transfer.distribution = ev.id
+    transfer.save()
 
     app.poolBalanceExact = app.poolBalanceExact.minus(ev.amountExact)
     app.poolDistributionsExact = app.poolDistributionsExact.plus(ev.amountExact)
