@@ -3,12 +3,14 @@ import {
     TeamWithdrawal as TeamWithdrawalEvent,
     RewardDistributed as RewardDistributedEvent,
 } from '../generated/RewardsPool/RewardsPool'
-import { App,RewardPoolTransfer, RewardPoolDeposit, RewardPoolWithdraw, RewardPoolDistribution, SustainabilityProof, AppSustainability, AccountSustainability } from '../generated/schema'
+import { App, AppRoundSummary, RewardPoolTransfer, RewardPoolDeposit, RewardPoolWithdraw, RewardPoolDistribution, SustainabilityProof, AppSustainability, AccountSustainability, Round, AppRoundWithdrawalReason } from '../generated/schema'
 import { events, transactions, decimals, constants } from '@amxx/graphprotocol-utils'
 import { DataSourceContext, JSONValueKind, Value, json, Bytes, dataSource, JSONValue, TypedMap, bigInt, Address } from '@graphprotocol/graph-ts'
 import { fetchApp } from './XApps'
 import { fetchAccount } from '@openzeppelin/subgraphs/src/fetch/account'
+import { fetchRound } from './XAllocationVoting'
 import { SustainabilityProof as SustainabilityProofTemplate } from '../generated/templates'
+import { XAllocationVoting } from '../generated/RewardsPool/XAllocationVoting'
 
 
 
@@ -23,6 +25,7 @@ export function handleNewDeposit(event: NewDepositEvent): void {
     ev.amountExact = event.params.amount
     ev.amount = decimals.toDecimals(event.params.amount, 18)
     ev.depositor = fetchAccount(event.params.depositor).id
+    ev.round = getCurrentRound().id
     ev.save()
 
     const transfer = new RewardPoolTransfer(['transfer', events.id(event)].join('/'))
@@ -35,7 +38,9 @@ export function handleNewDeposit(event: NewDepositEvent): void {
     transfer.from = ev.depositor
     transfer.to = Address.zero()
     transfer.deposit = ev.id
+    transfer.round = ev.round
     transfer.save()
+    updateAppRoundSummary(transfer)
 
     app.poolBalanceExact = app.poolBalanceExact.plus(ev.amountExact)
     app.poolDepositsExact = app.poolDepositsExact.plus(ev.amountExact)
@@ -57,6 +62,7 @@ export function handleTeamWithdrawal(event: TeamWithdrawalEvent): void {
     ev.reason = event.params.reason
     ev.to = fetchAccount(event.params.teamWallet).id
     ev.by = fetchAccount(event.params.withdrawer).id
+    ev.round = getCurrentRound().id
     ev.save()
 
     const transfer = new RewardPoolTransfer(['transfer', events.id(event)].join('/'))
@@ -69,7 +75,9 @@ export function handleTeamWithdrawal(event: TeamWithdrawalEvent): void {
     transfer.from = ev.by
     transfer.to = ev.to
     transfer.withdraw = ev.id
+    transfer.round = ev.round
     transfer.save()
+    updateAppRoundSummary(transfer)
 
     app.poolBalanceExact = app.poolBalanceExact.minus(ev.amountExact)
     app.poolWithdrawalsExact = app.poolWithdrawalsExact.plus(ev.amountExact)
@@ -90,6 +98,7 @@ export function handleRewardDistribution(event: RewardDistributedEvent): void {
     ev.amount = decimals.toDecimals(event.params.amount, 18)
     ev.to = fetchAccount(event.params.receiver).id
     ev.by = fetchAccount(event.params.distributor).id
+    ev.round = getCurrentRound().id
 
     const sustainabilityId = ((event.block.number.toI64() * 10000000) + (event.transaction.index.toI64() * 10000) + (event.transactionLogIndex.toI64() * 100)).toString()
 
@@ -107,6 +116,7 @@ export function handleRewardDistribution(event: RewardDistributedEvent): void {
             context.set('accountId', Value.fromBytes(ev.to))
             context.set('amount', Value.fromBigInt(event.params.amount))
             context.set('sustainabilityId', Value.fromString(sustainabilityId))
+            context.set('roundId', Value.fromString(ev.round))
             SustainabilityProofTemplate.createWithContext(event.params.proof, context)
             ev.proof = event.params.proof
         }
@@ -119,6 +129,7 @@ export function handleRewardDistribution(event: RewardDistributedEvent): void {
                 proof.app = app.id
                 proof.account = ev.to
                 proof.transaction = transactions.log(event).id
+                proof.round = ev.round
                 proof.save()
 
                 updateAppSustainability(sustainabilityId, proof)
@@ -140,7 +151,9 @@ export function handleRewardDistribution(event: RewardDistributedEvent): void {
     transfer.from = ev.by
     transfer.to = ev.to
     transfer.distribution = ev.id
+    transfer.round = ev.round
     transfer.save()
+    updateAppRoundSummary(transfer)
 
     app.poolBalanceExact = app.poolBalanceExact.minus(ev.amountExact)
     app.poolDistributionsExact = app.poolDistributionsExact.plus(ev.amountExact)
@@ -152,6 +165,7 @@ export function handleRewardDistribution(event: RewardDistributedEvent): void {
     }
 
     app.save()
+
 }
 
 
@@ -165,6 +179,7 @@ export function handleSustainabilityProof(content: Bytes, context: DataSourceCon
     proof.account = context.get('accountId')!.toBytes()
     proof.app = context.get('appId')!.toBytes()
     proof.reward = context.get('amount')!.toBigInt()
+    proof.round = context.get('roundId')!.toString()
     proof.save()
 
     updateAppSustainability(context.get('sustainabilityId')!.toString(), proof)
@@ -282,6 +297,60 @@ function updateAccountSustainability(proof: SustainabilityProof): boolean {
     return isNewParticipant
 }
 
+function updateAppRoundSummary(transfer: RewardPoolTransfer): void {
+    const round = Round.load(transfer.round)!
+    const app = App.load(transfer.app)!
+    const id = [app.id.toHexString(), round.id].join('/')
+    let appRoundSummary = AppRoundSummary.load(id)
+
+    if (appRoundSummary == null) {
+        appRoundSummary = new AppRoundSummary(id)
+
+        appRoundSummary.app = app.id
+        appRoundSummary.round = round.id
+
+        appRoundSummary.poolDeposits = constants.BIGDECIMAL_ZERO
+        appRoundSummary.poolDepositsExact = constants.BIGINT_ZERO
+        appRoundSummary.poolWithdrawals = constants.BIGDECIMAL_ZERO
+        appRoundSummary.poolWithdrawalsExact = constants.BIGINT_ZERO
+        appRoundSummary.poolDistributions = constants.BIGDECIMAL_ZERO
+        appRoundSummary.poolDistributionsExact = constants.BIGINT_ZERO
+    }
+
+    if (transfer.deposit != null) {
+        appRoundSummary.poolDepositsExact = appRoundSummary.poolDepositsExact.plus(transfer.amountExact)
+        appRoundSummary.poolDeposits = decimals.toDecimals(appRoundSummary.poolDepositsExact, 18)
+    }
+
+    if (transfer.withdraw != null) {
+        appRoundSummary.poolWithdrawalsExact = appRoundSummary.poolWithdrawalsExact.plus(transfer.amountExact)
+        appRoundSummary.poolWithdrawals = decimals.toDecimals(appRoundSummary.poolWithdrawalsExact, 18)
+
+        // group withdrawals by reason for the app/round summary
+        const withdrawal = RewardPoolWithdraw.load(transfer.withdraw!)!
+        const withdrawalReasonId = [appRoundSummary.id, withdrawal.reason.toString()].join('/')
+        let withdrawalReason = AppRoundWithdrawalReason.load(withdrawalReasonId)
+        if (withdrawalReason == null) {
+            withdrawalReason = new AppRoundWithdrawalReason(withdrawalReasonId)
+            withdrawalReason.appRoundSummary = appRoundSummary.id
+            withdrawalReason.reason = withdrawal.reason
+            withdrawalReason.amount = constants.BIGDECIMAL_ZERO
+            withdrawalReason.amountExact = constants.BIGINT_ZERO
+        }
+
+        withdrawalReason.amountExact = withdrawalReason.amountExact.plus(transfer.amountExact)
+        withdrawalReason.amount = decimals.toDecimals(withdrawalReason.amountExact, 18)
+        withdrawalReason.save()
+    }
+
+    if (transfer.distribution != null) {
+        appRoundSummary.poolDistributionsExact = appRoundSummary.poolDistributionsExact.plus(transfer.amountExact)
+        appRoundSummary.poolDistributions = decimals.toDecimals(appRoundSummary.poolDistributionsExact, 18)
+    }
+
+    appRoundSummary.save()
+}
+
 export function isDigitsOnly(s: string): boolean {
     for (let i = 0; i < s.length; i++) {
         let charCode = s.charCodeAt(i);
@@ -290,4 +359,17 @@ export function isDigitsOnly(s: string): boolean {
         }
     }
     return true;
+}
+
+export function getCurrentRoundId(): string {
+    let b3trGov = XAllocationVoting.bind(Address.fromString("0x89A00Bb0947a30FF95BEeF77a66AEdE3842Fe5B7"))
+
+    let try_currentRoundId = b3trGov.try_currentRoundId()
+    if (try_currentRoundId.reverted) { return "0" }
+
+    return try_currentRoundId.value.toString()
+}
+
+export function getCurrentRound(): Round {
+    return fetchRound(getCurrentRoundId())
 }

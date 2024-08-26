@@ -65,6 +65,27 @@ type AppMetadata @entity {
   bannerUrl: String
 }
 
+type AppRoundSummary @entity {
+  id: ID!
+  app: App!
+  round: Round!
+  poolDeposits: BigDecimal!
+  poolDepositsExact: BigInt!
+  poolWithdrawals: BigDecimal!
+  poolWithdrawalsExact: BigInt!
+  poolDistributions: BigDecimal!
+  poolDistributionsExact: BigInt!
+  poolWithdrawalsReasons: [AppRoundWithdrawalReason!]! @derivedFrom(field: "appRoundSummary")
+}
+
+type AppRoundWithdrawalReason @entity {
+  id: ID!
+  appRoundSummary: AppRoundSummary!
+  reason: String!
+  amount: BigDecimal!
+  amountExact: BigInt!
+}
+
 """
 Allocation Voting
 """
@@ -241,6 +262,7 @@ type VBDBalance @entity {
   convertedB3trExact: BigInt!
   value: BigDecimal!
   valueExact: BigInt!
+  qfWeight: BigInt!
 }
 
 type ERC20Balance @entity {
@@ -616,6 +638,7 @@ type RewardPoolDeposit implements Event @entity(immutable: true) {
   emitter: Account!
   timestamp: BigInt!
   app: App!
+  round: Round!
   amount: BigDecimal!
   amountExact: BigInt!
   depositor: Account!
@@ -627,6 +650,7 @@ type RewardPoolWithdraw implements Event @entity(immutable: true) {
   emitter: Account!
   timestamp: BigInt!
   app: App!
+  round: Round!
   amount: BigDecimal!
   amountExact: BigInt!
   by: Account!
@@ -640,6 +664,7 @@ type RewardPoolDistribution implements Event @entity(immutable: true) {
   emitter: Account!
   timestamp: BigInt!
   app: App!
+  round: Round!
   amount: BigDecimal!
   amountExact: BigInt!
   by: Account!
@@ -653,6 +678,7 @@ type RewardPoolTransfer implements Event @entity(immutable: true) {
   emitter: Account!
   timestamp: BigInt!
   app: App!
+  round: Round!
   amount: BigDecimal!
   amountExact: BigInt!
   from: Account!
@@ -669,6 +695,7 @@ type SustainabilityProof @entity(immutable: true) {
   id: ID!
   timestamp: Timestamp!
   app: App!
+  round: Round!
   account: Account!
   proofType: String
   proofData: String

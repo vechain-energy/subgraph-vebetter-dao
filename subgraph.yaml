@@ -160,9 +160,12 @@ dataSources:
       language: wasm/assemblyscript
       entities:
         - RewardsPool
+        - XAllocationVoting
       abis:
         - name: RewardsPool
           file: ./abis/VeBetterDAO-x-2-earns-rewards-pool.json
+        - name: XAllocationVoting
+          file: ./abis/VeBetterDAO-allocations-voting.json
       eventHandlers:
         - event: NewDeposit(uint256,indexed bytes32,indexed address)
           handler: handleNewDeposit

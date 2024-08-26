@@ -80,6 +80,11 @@ export function handleTransfer(event: TransferEvent): void {
 		const vbdBalance = fetchVBDBalance(from)
 		vbdBalance.valueExact = vbdBalance.valueExact.minus(event.params.value)
 		vbdBalance.value = decimals.toDecimals(vbdBalance.valueExact, contract.decimals)
+
+		if (contract.symbol == 'VOT3') {
+			vbdBalance.qfWeight = balance.valueExact.sqrt()
+		}
+
 		vbdBalance.save()
 
 		const veFrom = VeDelegateAccount.load(event.params.from)
@@ -123,6 +128,10 @@ export function handleTransfer(event: TransferEvent): void {
 		const vbdBalance = fetchVBDBalance(to)
 		vbdBalance.valueExact = vbdBalance.valueExact.plus(event.params.value)
 		vbdBalance.value = decimals.toDecimals(vbdBalance.valueExact, contract.decimals)
+
+		if (contract.symbol == 'VOT3') {
+			vbdBalance.qfWeight = balance.valueExact.sqrt()
+		}
 		vbdBalance.save()
 
 		const veTo = VeDelegateAccount.load(event.params.to)
@@ -192,6 +201,7 @@ function fetchVBDBalance(account: OZAccount | null): VBDBalance {
 		balance.valueExact = constants.BIGINT_ZERO
 		balance.convertedB3tr = constants.BIGDECIMAL_ZERO
 		balance.convertedB3trExact = constants.BIGINT_ZERO
+		balance.qfWeight = constants.BIGINT_ZERO
 		balance.save()
 	}
 
