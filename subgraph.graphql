@@ -3,6 +3,7 @@ Weekly Voting Rounds
 """
 type Round @entity {
   id: ID!
+  number: BigInt!
   voteStart: BigInt!
   voteEnd: BigInt!
   apps: [App!]!
