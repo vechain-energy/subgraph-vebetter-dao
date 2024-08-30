@@ -203,6 +203,28 @@ dataSources:
           handler: handleTransfer
       file: ./src/VeDelegate-ERC721.ts
 
+  # veDelegate.vet Configs
+  - kind: ethereum/contract
+    name: vedelegate-configs
+    network: mainnet
+    source:
+      address: "0x763d4da44EDa9DD3d738Ae87F3961c9e92fb5bEe"
+      abi: IVeDelegateConfigs
+      startBlock: 19386843
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - ERC721Contract
+      abis:
+        - name: IVeDelegateConfigs
+          file: ./abis/VeDelegate-Configs.json
+      eventHandlers:
+        - event: ConfigUpdated(indexed address,indexed string,uint256)
+          handler: handleConfigUpdated
+      file: ./src/VeDelegate-Configs.ts
+
   # Gov: VOT3 Delegation
   - kind: ethereum/contract
     name: voting

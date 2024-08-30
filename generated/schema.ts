@@ -50,6 +50,19 @@ export class Round extends Entity {
     this.set("id", Value.fromString(value));
   }
 
+  get number(): BigInt {
+    let value = this.get("number");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set number(value: BigInt) {
+    this.set("number", Value.fromBigInt(value));
+  }
+
   get voteStart(): BigInt {
     let value = this.get("voteStart");
     if (!value || value.kind == ValueKind.NULL) {
@@ -1505,6 +1518,89 @@ export class VeDelegateAccount extends Entity {
 
   set token(value: string) {
     this.set("token", Value.fromString(value));
+  }
+}
+
+export class VeDelegateConfig extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id != null, "Cannot save VeDelegateConfig entity without an ID");
+    if (id) {
+      assert(
+        id.kind == ValueKind.STRING,
+        `Entities of type VeDelegateConfig must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`,
+      );
+      store.set("VeDelegateConfig", id.toString(), this);
+    }
+  }
+
+  static loadInBlock(id: string): VeDelegateConfig | null {
+    return changetype<VeDelegateConfig | null>(
+      store.get_in_block("VeDelegateConfig", id),
+    );
+  }
+
+  static load(id: string): VeDelegateConfig | null {
+    return changetype<VeDelegateConfig | null>(
+      store.get("VeDelegateConfig", id),
+    );
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toString();
+    }
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get account(): Bytes {
+    let value = this.get("account");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set account(value: Bytes) {
+    this.set("account", Value.fromBytes(value));
+  }
+
+  get configId(): string {
+    let value = this.get("configId");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toString();
+    }
+  }
+
+  set configId(value: string) {
+    this.set("configId", Value.fromString(value));
+  }
+
+  get value(): BigInt {
+    let value = this.get("value");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set value(value: BigInt) {
+    this.set("value", Value.fromBigInt(value));
   }
 }
 

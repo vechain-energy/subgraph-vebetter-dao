@@ -152,6 +152,13 @@ type VeDelegateAccount @entity {
   token: ERC721Token!
 }
 
+type VeDelegateConfig @entity {
+  id: ID!
+  account: Account!
+  configId: String!
+  value: BigInt!
+}
+
 type VetDomainsNames @entity {
   id: String!
   address: Bytes!
