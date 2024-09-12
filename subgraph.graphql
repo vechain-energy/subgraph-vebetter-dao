@@ -709,17 +709,27 @@ type SustainabilityProof @entity(immutable: true) {
   proofData: String
   description: String
   additionalInfo: String
+
+  reward: BigInt!
+  transaction: Transaction!
+
   carbon: BigInt!
   water: BigInt!
   energy: BigInt!
   wasteMass: BigInt!
+  plastic: BigInt!
+  timber: BigInt!
+  educationTime: BigInt!
+  treesPlanted: BigInt!
+
+  """
+  deprecated entries
+  """
   wasteItems: BigInt!
   people: BigInt!
   biodiversity: BigInt!
-  plastic: BigInt!
-  timber: BigInt!
-  reward: BigInt!
-  transaction: Transaction!
+
+  version: Int!
 }
 
 type AccountSustainability @entity {
@@ -731,11 +741,17 @@ type AccountSustainability @entity {
   water: BigInt!
   energy: BigInt!
   wasteMass: BigInt!
+  plastic: BigInt!
+  timber: BigInt!
+  educationTime: BigInt!
+  treesPlanted: BigInt!
+
+  """
+  deprecated entries
+  """
   wasteItems: BigInt!
   people: BigInt!
   biodiversity: BigInt!
-  plastic: BigInt!
-  timber: BigInt!
 }
 
 type AppSustainability @entity(immutable: true, timeseries: true) {
@@ -744,16 +760,23 @@ type AppSustainability @entity(immutable: true, timeseries: true) {
   account: Account!
   timestamp: Timestamp!
   reward: BigInt!
+  participantsCount: BigInt!
+
   carbon: BigInt!
   water: BigInt!
   energy: BigInt!
   wasteMass: BigInt!
+  plastic: BigInt!
+  timber: BigInt!
+  educationTime: BigInt!
+  treesPlanted: BigInt!
+
+  """
+  deprecated entries
+  """
   wasteItems: BigInt!
   people: BigInt!
   biodiversity: BigInt!
-  plastic: BigInt!
-  timber: BigInt!
-  participantsCount: BigInt!
 }
 
 type StatsAppSustainability
@@ -768,13 +791,10 @@ type StatsAppSustainability
   water: BigInt! @aggregate(fn: "sum", arg: "water", cumulative: false)
   energy: BigInt! @aggregate(fn: "sum", arg: "energy", cumulative: false)
   wasteMass: BigInt! @aggregate(fn: "sum", arg: "wasteMass", cumulative: false)
-  wasteItems: BigInt!
-    @aggregate(fn: "sum", arg: "wasteItems", cumulative: false)
-  people: BigInt! @aggregate(fn: "sum", arg: "people", cumulative: false)
-  biodiversity: BigInt!
-    @aggregate(fn: "sum", arg: "biodiversity", cumulative: false)
   plastic: BigInt! @aggregate(fn: "sum", arg: "plastic", cumulative: false)
   timber: BigInt! @aggregate(fn: "sum", arg: "timber", cumulative: false)
+  educationTime: BigInt! @aggregate(fn: "sum", arg: "educationTime", cumulative: false)
+  treesPlanted: BigInt! @aggregate(fn: "sum", arg: "treesPlanted", cumulative: false)
 
   actionsTotal: BigInt! @aggregate(fn: "count", cumulative: true)
   carbonTotal: BigInt! @aggregate(fn: "sum", arg: "carbon", cumulative: true)
@@ -782,13 +802,25 @@ type StatsAppSustainability
   energyTotal: BigInt! @aggregate(fn: "sum", arg: "energy", cumulative: true)
   wasteMassTotal: BigInt!
     @aggregate(fn: "sum", arg: "wasteMass", cumulative: true)
+  plasticTotal: BigInt! @aggregate(fn: "sum", arg: "plastic", cumulative: true)
+  timberTotal: BigInt! @aggregate(fn: "sum", arg: "timber", cumulative: true)
+  educationTimeTotal: BigInt! @aggregate(fn: "sum", arg: "educationTime", cumulative: true)
+  treesPlantedTotal: BigInt! @aggregate(fn: "sum", arg: "treesPlanted", cumulative: true)
+
+  """
+  deprecated entries
+  """
+  wasteItems: BigInt!
+    @aggregate(fn: "sum", arg: "wasteItems", cumulative: false)
+  people: BigInt! @aggregate(fn: "sum", arg: "people", cumulative: false)
+  biodiversity: BigInt!
+    @aggregate(fn: "sum", arg: "biodiversity", cumulative: false)
   wasteItemsTotal: BigInt!
     @aggregate(fn: "sum", arg: "wasteItems", cumulative: true)
   peopleTotal: BigInt! @aggregate(fn: "sum", arg: "people", cumulative: true)
   biodiversityTotal: BigInt!
     @aggregate(fn: "sum", arg: "biodiversity", cumulative: true)
-  plasticTotal: BigInt! @aggregate(fn: "sum", arg: "plastic", cumulative: true)
-  timberTotal: BigInt! @aggregate(fn: "sum", arg: "timber", cumulative: true)
+
 
   participantsCount: BigInt! @aggregate(fn: "max", arg: "participantsCount")
 }
@@ -805,13 +837,10 @@ type StatsAccountSustainability
   water: BigInt! @aggregate(fn: "sum", arg: "water", cumulative: false)
   energy: BigInt! @aggregate(fn: "sum", arg: "energy", cumulative: false)
   wasteMass: BigInt! @aggregate(fn: "sum", arg: "wasteMass", cumulative: false)
-  wasteItems: BigInt!
-    @aggregate(fn: "sum", arg: "wasteItems", cumulative: false)
-  people: BigInt! @aggregate(fn: "sum", arg: "people", cumulative: false)
-  biodiversity: BigInt!
-    @aggregate(fn: "sum", arg: "biodiversity", cumulative: false)
   plastic: BigInt! @aggregate(fn: "sum", arg: "plastic", cumulative: false)
   timber: BigInt! @aggregate(fn: "sum", arg: "timber", cumulative: false)
+  educationTime: BigInt! @aggregate(fn: "sum", arg: "educationTime", cumulative: false)
+  treesPlanted: BigInt! @aggregate(fn: "sum", arg: "treesPlanted", cumulative: false)
 
   actionsTotal: BigInt! @aggregate(fn: "count", cumulative: true)
   carbonTotal: BigInt! @aggregate(fn: "sum", arg: "carbon", cumulative: true)
@@ -819,11 +848,23 @@ type StatsAccountSustainability
   energyTotal: BigInt! @aggregate(fn: "sum", arg: "energy", cumulative: true)
   wasteMassTotal: BigInt!
     @aggregate(fn: "sum", arg: "wasteMass", cumulative: true)
+  plasticTotal: BigInt! @aggregate(fn: "sum", arg: "plastic", cumulative: true)
+  timberTotal: BigInt! @aggregate(fn: "sum", arg: "timber", cumulative: true)
+  educationTimeTotal: BigInt! @aggregate(fn: "sum", arg: "educationTime", cumulative: true)
+  treesPlantedTotal: BigInt! @aggregate(fn: "sum", arg: "treesPlanted", cumulative: true)
+
+  """
+  deprecated entries
+  """
+  wasteItems: BigInt!
+    @aggregate(fn: "sum", arg: "wasteItems", cumulative: false)
+  people: BigInt! @aggregate(fn: "sum", arg: "people", cumulative: false)
+  biodiversity: BigInt!
+    @aggregate(fn: "sum", arg: "biodiversity", cumulative: false)
   wasteItemsTotal: BigInt!
     @aggregate(fn: "sum", arg: "wasteItems", cumulative: true)
   peopleTotal: BigInt! @aggregate(fn: "sum", arg: "people", cumulative: true)
   biodiversityTotal: BigInt!
     @aggregate(fn: "sum", arg: "biodiversity", cumulative: true)
-  plasticTotal: BigInt! @aggregate(fn: "sum", arg: "plastic", cumulative: true)
-  timberTotal: BigInt! @aggregate(fn: "sum", arg: "timber", cumulative: true)
+
 }

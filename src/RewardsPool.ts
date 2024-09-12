@@ -200,38 +200,106 @@ function generateSustainabilityProofFromJson(id: string, proofObject: TypedMap<s
     proof.water = constants.BIGINT_ZERO
     proof.energy = constants.BIGINT_ZERO
     proof.wasteMass = constants.BIGINT_ZERO
+    proof.plastic = constants.BIGINT_ZERO
+    proof.timber = constants.BIGINT_ZERO
+    proof.educationTime = constants.BIGINT_ZERO
+    proof.treesPlanted = constants.BIGINT_ZERO
+
+    // deprecated entries
     proof.wasteItems = constants.BIGINT_ZERO
     proof.people = constants.BIGINT_ZERO
     proof.biodiversity = constants.BIGINT_ZERO
-    proof.plastic = constants.BIGINT_ZERO
-    proof.timber = constants.BIGINT_ZERO
+    proof.version = 0
 
-    if (proofObject.isSet("proof") && proofObject.get("proof")!.kind === JSONValueKind.OBJECT) {
-        const proofData = proofObject.get("proof")!.toObject()
-        if (proofData.isSet('proof_type')) { proof.proofType = proofData.get("proof_type")!.toString() }
-        if (proofData.isSet('proof_data')) { proof.proofData = proofData.get("proof_data")!.toString() }
+    /**
+     * Proof Version 2
+     *
+     * Introduced with https://github.com/vechain/vebetterdao-contracts/pull/18 
+     *
+     * Example JSON:
+     * {
+     *     version: 2,
+     *     description: 'The description of the action',
+     *     proof: { image: 'https://image.png', link: 'https://twitter.com/tweet/1' },
+     *     impact: { carbon: 100, water: 200 }
+     * }
+     */
+    if (proofObject.isSet("version") && proofObject.get("version")!.kind === JSONValueKind.NUMBER && proofObject.get("version")!.toI64() == 2) {
+        proof.version = 2
+
+        if (proofObject.isSet("proof") && proofObject.get("proof")!.kind === JSONValueKind.OBJECT) {
+            const proofData = proofObject.get("proof")!.toObject()
+            if (proofData.isSet('image')) {
+                proof.proofType = "image"
+                proof.proofData = proofData.get("image")!.toString()
+            }
+            if (proofData.isSet('link')) {
+                proof.proofType = "link"
+                proof.proofData = proofData.get("link")!.toString()
+            }
+            if (proofData.isSet('video')) {
+                proof.proofType = "video"
+                proof.proofData = proofData.get("video")!.toString()
+            }
+            if (proofData.isSet('text')) {
+                proof.proofType = "text"
+                proof.proofData = proofData.get("text")!.toString()
+            }
+        }
+
+        if (proofObject.isSet("description") && proofObject.get("description")!.kind === JSONValueKind.STRING) {
+            proof.description = proofObject.get("description")!.toString()
+        }
+
+        // not part of the official spec, but kept as backwards compatibility
+        if (proofObject.isSet("additional_info") && proofObject.get("additional_info")!.kind === JSONValueKind.STRING) {
+            proof.additionalInfo = proofObject.get("additional_info")!.toString()
+        }
+
+        if (proofObject.isSet("impact") && proofObject.get("impact")!.kind === JSONValueKind.OBJECT) {
+            const impact = proofObject.get("impact")!.toObject()
+
+            if (impact.isSet('carbon') && impact.get('carbon')!.kind === JSONValueKind.NUMBER) { proof.carbon = impact.get('carbon')!.toBigInt() } 
+            if (impact.isSet('water') && impact.get('water')!.kind === JSONValueKind.NUMBER) { proof.water = impact.get('water')!.toBigInt() }
+            if (impact.isSet('energy') && impact.get('energy')!.kind === JSONValueKind.NUMBER) { proof.energy = impact.get('energy')!.toBigInt() }
+            if (impact.isSet('waste_mass') && impact.get('waste_mass')!.kind === JSONValueKind.NUMBER) { proof.wasteMass = impact.get('waste_mass')!.toBigInt() }
+            if (impact.isSet('plastic') && impact.get('plastic')!.kind === JSONValueKind.NUMBER) { proof.plastic = impact.get('plastic')!.toBigInt() }
+            if (impact.isSet('timber') && impact.get('timber')!.kind === JSONValueKind.NUMBER) { proof.timber = impact.get('timber')!.toBigInt() }
+            if (impact.isSet('education_time') && impact.get('education_time')!.kind === JSONValueKind.NUMBER) { proof.educationTime = impact.get('education_time')!.toBigInt() }
+            if (impact.isSet('trees_planted') && impact.get('trees_planted')!.kind === JSONValueKind.NUMBER) { proof.treesPlanted = impact.get('trees_planted')!.toBigInt() }
+        }
     }
 
-    if (proofObject.isSet("metadata") && proofObject.get("metadata")!.kind === JSONValueKind.OBJECT) {
-        const metadata = proofObject.get("metadata")!.toObject()
-        if (metadata.isSet('description')) { proof.description = metadata.get("description")!.toString() }
-        if (metadata.isSet('additional_info')) { proof.additionalInfo = metadata.get("additional_info")!.toString() }
+    // default proof is version 1
+    else {
+        proof.version = 1
+
+        if (proofObject.isSet("proof") && proofObject.get("proof")!.kind === JSONValueKind.OBJECT) {
+            const proofData = proofObject.get("proof")!.toObject()
+            if (proofData.isSet('proof_type')) { proof.proofType = proofData.get("proof_type")!.toString() }
+            if (proofData.isSet('proof_data')) { proof.proofData = proofData.get("proof_data")!.toString() }
+        }
+
+        if (proofObject.isSet("metadata") && proofObject.get("metadata")!.kind === JSONValueKind.OBJECT) {
+            const metadata = proofObject.get("metadata")!.toObject()
+            if (metadata.isSet('description')) { proof.description = metadata.get("description")!.toString() }
+            if (metadata.isSet('additional_info')) { proof.additionalInfo = metadata.get("additional_info")!.toString() }
+        }
+
+        if (proofObject.isSet("impact") && proofObject.get("impact")!.kind === JSONValueKind.OBJECT) {
+            const impact = proofObject.get("impact")!.toObject()
+
+            if (impact.isSet('carbon') && impact.get('carbon')!.kind === JSONValueKind.STRING && isDigitsOnly(impact.get('carbon')!.toString())) { proof.carbon = bigInt.fromString(impact.get('carbon')!.toString()) }
+            if (impact.isSet('water') && impact.get('water')!.kind === JSONValueKind.STRING && isDigitsOnly(impact.get('water')!.toString())) { proof.water = bigInt.fromString(impact.get('water')!.toString()) }
+            if (impact.isSet('energy') && impact.get('energy')!.kind === JSONValueKind.STRING && isDigitsOnly(impact.get('energy')!.toString())) { proof.energy = bigInt.fromString(impact.get('energy')!.toString()) }
+            if (impact.isSet('waste_mass') && impact.get('waste_mass')!.kind === JSONValueKind.STRING && isDigitsOnly(impact.get('waste_mass')!.toString())) { proof.wasteMass = bigInt.fromString(impact.get('waste_mass')!.toString()) }
+            if (impact.isSet('waste_items') && impact.get('waste_items')!.kind === JSONValueKind.STRING && isDigitsOnly(impact.get('waste_items')!.toString())) { proof.wasteItems = bigInt.fromString(impact.get('waste_items')!.toString()) }
+            if (impact.isSet('people') && impact.get('people')!.kind === JSONValueKind.STRING && isDigitsOnly(impact.get('people')!.toString())) { proof.people = bigInt.fromString(impact.get('people')!.toString()) }
+            if (impact.isSet('biodiversity') && impact.get('biodiversity')!.kind === JSONValueKind.STRING && isDigitsOnly(impact.get('biodiversity')!.toString())) { proof.biodiversity = bigInt.fromString(impact.get('biodiversity')!.toString()) }
+            if (impact.isSet('plastic') && impact.get('plastic')!.kind === JSONValueKind.STRING && isDigitsOnly(impact.get('plastic')!.toString())) { proof.plastic = bigInt.fromString(impact.get('plastic')!.toString()) }
+            if (impact.isSet('timber') && impact.get('timber')!.kind === JSONValueKind.STRING && isDigitsOnly(impact.get('timber')!.toString())) { proof.timber = bigInt.fromString(impact.get('timber')!.toString()) }
+        }
     }
-
-    if (proofObject.isSet("impact") && proofObject.get("impact")!.kind === JSONValueKind.OBJECT) {
-        const impact = proofObject.get("impact")!.toObject()
-
-        if (impact.isSet('carbon') && impact.get('carbon')!.kind === JSONValueKind.STRING && isDigitsOnly(impact.get('carbon')!.toString())) { proof.carbon = bigInt.fromString(impact.get('carbon')!.toString()) }
-        if (impact.isSet('water') && impact.get('water')!.kind === JSONValueKind.STRING && isDigitsOnly(impact.get('water')!.toString())) { proof.water = bigInt.fromString(impact.get('water')!.toString()) }
-        if (impact.isSet('energy') && impact.get('energy')!.kind === JSONValueKind.STRING && isDigitsOnly(impact.get('energy')!.toString())) { proof.energy = bigInt.fromString(impact.get('energy')!.toString()) }
-        if (impact.isSet('waste_mass') && impact.get('waste_mass')!.kind === JSONValueKind.STRING && isDigitsOnly(impact.get('waste_mass')!.toString())) { proof.wasteMass = bigInt.fromString(impact.get('waste_mass')!.toString()) }
-        if (impact.isSet('waste_items') && impact.get('waste_items')!.kind === JSONValueKind.STRING && isDigitsOnly(impact.get('waste_items')!.toString())) { proof.wasteItems = bigInt.fromString(impact.get('waste_items')!.toString()) }
-        if (impact.isSet('people') && impact.get('people')!.kind === JSONValueKind.STRING && isDigitsOnly(impact.get('people')!.toString())) { proof.people = bigInt.fromString(impact.get('people')!.toString()) }
-        if (impact.isSet('biodiversity') && impact.get('biodiversity')!.kind === JSONValueKind.STRING && isDigitsOnly(impact.get('biodiversity')!.toString())) { proof.biodiversity = bigInt.fromString(impact.get('biodiversity')!.toString()) }
-        if (impact.isSet('plastic') && impact.get('plastic')!.kind === JSONValueKind.STRING && isDigitsOnly(impact.get('plastic')!.toString())) { proof.plastic = bigInt.fromString(impact.get('plastic')!.toString()) }
-        if (impact.isSet('timber') && impact.get('timber')!.kind === JSONValueKind.STRING && isDigitsOnly(impact.get('timber')!.toString())) { proof.timber = bigInt.fromString(impact.get('timber')!.toString()) }
-    }
-
     return proof
 }
 
@@ -243,14 +311,19 @@ function updateAppSustainability(sustainabilityId: string, proof: Sustainability
     appSustainability.water = proof.water
     appSustainability.energy = proof.energy
     appSustainability.wasteMass = proof.wasteMass
-    appSustainability.wasteItems = proof.wasteItems
-    appSustainability.people = proof.people
-    appSustainability.biodiversity = proof.biodiversity
     appSustainability.plastic = proof.plastic
     appSustainability.timber = proof.timber
     appSustainability.timestamp = proof.timestamp
     appSustainability.app = proof.app
     appSustainability.account = proof.account
+    appSustainability.educationTime = proof.educationTime
+    appSustainability.treesPlanted = proof.treesPlanted
+
+    // deprecated entries
+    appSustainability.wasteItems = proof.wasteItems
+    appSustainability.people = proof.people
+    appSustainability.biodiversity = proof.biodiversity
+
 
     const app = App.load(proof.app)!
     appSustainability.participantsCount = app.participantsCount
@@ -271,13 +344,17 @@ function updateAccountSustainability(proof: SustainabilityProof): boolean {
         accountSustainability.water = constants.BIGINT_ZERO
         accountSustainability.energy = constants.BIGINT_ZERO
         accountSustainability.wasteMass = constants.BIGINT_ZERO
+        accountSustainability.plastic = constants.BIGINT_ZERO
+        accountSustainability.timber = constants.BIGINT_ZERO
+        accountSustainability.educationTime = constants.BIGINT_ZERO
+        accountSustainability.treesPlanted = constants.BIGINT_ZERO
+        accountSustainability.account = proof.account
+        accountSustainability.app = proof.app
+
+        // deprecated entries
         accountSustainability.wasteItems = constants.BIGINT_ZERO
         accountSustainability.people = constants.BIGINT_ZERO
         accountSustainability.biodiversity = constants.BIGINT_ZERO
-        accountSustainability.plastic = constants.BIGINT_ZERO
-        accountSustainability.timber = constants.BIGINT_ZERO
-        accountSustainability.account = proof.account
-        accountSustainability.app = proof.app
 
         isNewParticipant = true
     }
@@ -287,11 +364,16 @@ function updateAccountSustainability(proof: SustainabilityProof): boolean {
     accountSustainability.water = accountSustainability.water.plus(proof.water)
     accountSustainability.energy = accountSustainability.energy.plus(proof.energy)
     accountSustainability.wasteMass = accountSustainability.wasteMass.plus(proof.wasteMass)
+    accountSustainability.plastic = accountSustainability.plastic.plus(proof.plastic)
+    accountSustainability.timber = accountSustainability.timber.plus(proof.timber)
+    accountSustainability.educationTime = accountSustainability.educationTime.plus(proof.educationTime)
+    accountSustainability.treesPlanted = accountSustainability.treesPlanted.plus(proof.treesPlanted)
+
+    // deprecated entries
     accountSustainability.wasteItems = accountSustainability.wasteItems.plus(proof.wasteItems)
     accountSustainability.people = accountSustainability.people.plus(proof.people)
     accountSustainability.biodiversity = accountSustainability.biodiversity.plus(proof.biodiversity)
-    accountSustainability.plastic = accountSustainability.plastic.plus(proof.plastic)
-    accountSustainability.timber = accountSustainability.timber.plus(proof.timber)
+
     accountSustainability.save()
 
     return isNewParticipant
