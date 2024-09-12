@@ -88,6 +88,7 @@ export function handleProposalQueued(event: ProposalQueuedEvent): void {
 	ev.timestamp = event.block.timestamp
 	ev.governor = governor.id
 	ev.proposal = proposal.id
+	ev.eta = event.params.etaSeconds
 	ev.save()
 }
 
