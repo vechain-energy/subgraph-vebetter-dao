@@ -3,7 +3,7 @@ import {
     TeamWithdrawal as TeamWithdrawalEvent,
     RewardDistributed as RewardDistributedEvent,
 } from '../generated/RewardsPool/RewardsPool'
-import { App, AppRoundSummary, RewardPoolTransfer, RewardPoolDeposit, RewardPoolWithdraw, RewardPoolDistribution, SustainabilityProof, AppSustainability, AccountSustainability, Round, AppRoundWithdrawalReason } from '../generated/schema'
+import { App, AppRoundSummary, RewardPoolTransfer, RewardPoolDeposit, RewardPoolWithdraw, RewardPoolDistribution, SustainabilityProof, SustainabilityStats, AppSustainability, AccountSustainability, Round, AppRoundWithdrawalReason } from '../generated/schema'
 import { events, transactions, decimals, constants } from '@amxx/graphprotocol-utils'
 import { DataSourceContext, JSONValueKind, Value, json, Bytes, dataSource, JSONValue, TypedMap, bigInt, Address } from '@graphprotocol/graph-ts'
 import { fetchApp } from './XApps'
@@ -134,6 +134,7 @@ export function handleRewardDistribution(event: RewardDistributedEvent): void {
 
                 updateAppSustainability(sustainabilityId, proof)
                 isNewParticipant = updateAccountSustainability(proof)
+                updateAppRundSustainability(proof)
                 ev.proof = proof.id
             }
         }
@@ -189,8 +190,34 @@ export function handleSustainabilityProof(content: Bytes, context: DataSourceCon
         app.participantsCount = app.participantsCount.plus(constants.BIGINT_ONE)
         app.save()
     }
+    updateAppRundSustainability(proof)
 }
 
+function updateAppRundSustainability(proof: SustainabilityProof): void {
+    const id = [proof.app.toHexString(), proof.round].join('/')
+    const sustainabilityStats = SustainabilityStats.load(id)
+    if (!sustainabilityStats) { return }
+
+    const app = App.load(proof.app)!
+    sustainabilityStats.participantsCount = app.participantsCount
+    sustainabilityStats.rewards = sustainabilityStats.rewards.plus(proof.reward)
+
+    sustainabilityStats.carbon = sustainabilityStats.carbon.plus(proof.carbon)
+    sustainabilityStats.carbon = sustainabilityStats.carbon.plus(proof.carbon)
+    sustainabilityStats.water = sustainabilityStats.water.plus(proof.water)
+    sustainabilityStats.energy = sustainabilityStats.energy.plus(proof.energy)
+    sustainabilityStats.wasteMass = sustainabilityStats.wasteMass.plus(proof.wasteMass)
+    sustainabilityStats.plastic = sustainabilityStats.plastic.plus(proof.plastic)
+    sustainabilityStats.timber = sustainabilityStats.timber.plus(proof.timber)
+    sustainabilityStats.educationTime = sustainabilityStats.educationTime.plus(proof.educationTime)
+    sustainabilityStats.treesPlanted = sustainabilityStats.treesPlanted.plus(proof.treesPlanted)
+
+    // deprecated entries
+    sustainabilityStats.wasteItems = sustainabilityStats.wasteItems.plus(proof.wasteItems)
+    sustainabilityStats.people = sustainabilityStats.people.plus(proof.people)
+    sustainabilityStats.biodiversity = sustainabilityStats.biodiversity.plus(proof.biodiversity)
+    sustainabilityStats.save()
+}
 
 function generateSustainabilityProofFromJson(id: string, proofObject: TypedMap<string, JSONValue>): SustainabilityProof {
     const proof = new SustainabilityProof(id)
@@ -259,7 +286,7 @@ function generateSustainabilityProofFromJson(id: string, proofObject: TypedMap<s
         if (proofObject.isSet("impact") && proofObject.get("impact")!.kind === JSONValueKind.OBJECT) {
             const impact = proofObject.get("impact")!.toObject()
 
-            if (impact.isSet('carbon') && impact.get('carbon')!.kind === JSONValueKind.NUMBER) { proof.carbon = impact.get('carbon')!.toBigInt() } 
+            if (impact.isSet('carbon') && impact.get('carbon')!.kind === JSONValueKind.NUMBER) { proof.carbon = impact.get('carbon')!.toBigInt() }
             if (impact.isSet('water') && impact.get('water')!.kind === JSONValueKind.NUMBER) { proof.water = impact.get('water')!.toBigInt() }
             if (impact.isSet('energy') && impact.get('energy')!.kind === JSONValueKind.NUMBER) { proof.energy = impact.get('energy')!.toBigInt() }
             if (impact.isSet('waste_mass') && impact.get('waste_mass')!.kind === JSONValueKind.NUMBER) { proof.wasteMass = impact.get('waste_mass')!.toBigInt() }
@@ -300,12 +327,14 @@ function generateSustainabilityProofFromJson(id: string, proofObject: TypedMap<s
             if (impact.isSet('timber') && impact.get('timber')!.kind === JSONValueKind.STRING && isDigitsOnly(impact.get('timber')!.toString())) { proof.timber = bigInt.fromString(impact.get('timber')!.toString()) }
         }
     }
+
     return proof
 }
 
 
 function updateAppSustainability(sustainabilityId: string, proof: SustainabilityProof): void {
     const appSustainability = new AppSustainability(sustainabilityId)
+    appSustainability.round = proof.round
     appSustainability.reward = proof.reward
     appSustainability.carbon = proof.carbon
     appSustainability.water = proof.water
@@ -387,6 +416,26 @@ function updateAppRoundSummary(transfer: RewardPoolTransfer): void {
 
     if (appRoundSummary == null) {
         appRoundSummary = new AppRoundSummary(id)
+
+        const sustainabilityStats = new SustainabilityStats(id)
+        sustainabilityStats.participantsCount = constants.BIGINT_ZERO
+        sustainabilityStats.rewards = constants.BIGINT_ZERO
+        sustainabilityStats.carbon = constants.BIGINT_ZERO
+        sustainabilityStats.water = constants.BIGINT_ZERO
+        sustainabilityStats.energy = constants.BIGINT_ZERO
+        sustainabilityStats.wasteMass = constants.BIGINT_ZERO
+        sustainabilityStats.plastic = constants.BIGINT_ZERO
+        sustainabilityStats.timber = constants.BIGINT_ZERO
+        sustainabilityStats.educationTime = constants.BIGINT_ZERO
+        sustainabilityStats.treesPlanted = constants.BIGINT_ZERO
+
+        // deprecated entries
+        sustainabilityStats.wasteItems = constants.BIGINT_ZERO
+        sustainabilityStats.people = constants.BIGINT_ZERO
+        sustainabilityStats.biodiversity = constants.BIGINT_ZERO
+
+        appRoundSummary.sustainabilityStats = sustainabilityStats.id
+        sustainabilityStats.save()
 
         appRoundSummary.app = app.id
         appRoundSummary.round = round.id

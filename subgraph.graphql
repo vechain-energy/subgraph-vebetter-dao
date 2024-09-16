@@ -76,7 +76,9 @@ type AppRoundSummary @entity {
   poolWithdrawalsExact: BigInt!
   poolDistributions: BigDecimal!
   poolDistributionsExact: BigInt!
-  poolWithdrawalsReasons: [AppRoundWithdrawalReason!]! @derivedFrom(field: "appRoundSummary")
+  poolWithdrawalsReasons: [AppRoundWithdrawalReason!]!
+    @derivedFrom(field: "appRoundSummary")
+  sustainabilityStats: SustainabilityStats!
 }
 
 type AppRoundWithdrawalReason @entity {
@@ -621,7 +623,7 @@ type ProposalDeposit implements Event @entity(immutable: true) {
 }
 
 """
-Generic Types 
+Generic Types
 """
 interface Event {
   id: ID!
@@ -757,6 +759,7 @@ type AccountSustainability @entity {
 type AppSustainability @entity(immutable: true, timeseries: true) {
   id: Int8!
   app: App!
+  round: Round!
   account: Account!
   timestamp: Timestamp!
   reward: BigInt!
@@ -793,8 +796,10 @@ type StatsAppSustainability
   wasteMass: BigInt! @aggregate(fn: "sum", arg: "wasteMass", cumulative: false)
   plastic: BigInt! @aggregate(fn: "sum", arg: "plastic", cumulative: false)
   timber: BigInt! @aggregate(fn: "sum", arg: "timber", cumulative: false)
-  educationTime: BigInt! @aggregate(fn: "sum", arg: "educationTime", cumulative: false)
-  treesPlanted: BigInt! @aggregate(fn: "sum", arg: "treesPlanted", cumulative: false)
+  educationTime: BigInt!
+    @aggregate(fn: "sum", arg: "educationTime", cumulative: false)
+  treesPlanted: BigInt!
+    @aggregate(fn: "sum", arg: "treesPlanted", cumulative: false)
 
   actionsTotal: BigInt! @aggregate(fn: "count", cumulative: true)
   carbonTotal: BigInt! @aggregate(fn: "sum", arg: "carbon", cumulative: true)
@@ -804,8 +809,10 @@ type StatsAppSustainability
     @aggregate(fn: "sum", arg: "wasteMass", cumulative: true)
   plasticTotal: BigInt! @aggregate(fn: "sum", arg: "plastic", cumulative: true)
   timberTotal: BigInt! @aggregate(fn: "sum", arg: "timber", cumulative: true)
-  educationTimeTotal: BigInt! @aggregate(fn: "sum", arg: "educationTime", cumulative: true)
-  treesPlantedTotal: BigInt! @aggregate(fn: "sum", arg: "treesPlanted", cumulative: true)
+  educationTimeTotal: BigInt!
+    @aggregate(fn: "sum", arg: "educationTime", cumulative: true)
+  treesPlantedTotal: BigInt!
+    @aggregate(fn: "sum", arg: "treesPlanted", cumulative: true)
 
   """
   deprecated entries
@@ -820,7 +827,6 @@ type StatsAppSustainability
   peopleTotal: BigInt! @aggregate(fn: "sum", arg: "people", cumulative: true)
   biodiversityTotal: BigInt!
     @aggregate(fn: "sum", arg: "biodiversity", cumulative: true)
-
 
   participantsCount: BigInt! @aggregate(fn: "max", arg: "participantsCount")
 }
@@ -839,8 +845,10 @@ type StatsAccountSustainability
   wasteMass: BigInt! @aggregate(fn: "sum", arg: "wasteMass", cumulative: false)
   plastic: BigInt! @aggregate(fn: "sum", arg: "plastic", cumulative: false)
   timber: BigInt! @aggregate(fn: "sum", arg: "timber", cumulative: false)
-  educationTime: BigInt! @aggregate(fn: "sum", arg: "educationTime", cumulative: false)
-  treesPlanted: BigInt! @aggregate(fn: "sum", arg: "treesPlanted", cumulative: false)
+  educationTime: BigInt!
+    @aggregate(fn: "sum", arg: "educationTime", cumulative: false)
+  treesPlanted: BigInt!
+    @aggregate(fn: "sum", arg: "treesPlanted", cumulative: false)
 
   actionsTotal: BigInt! @aggregate(fn: "count", cumulative: true)
   carbonTotal: BigInt! @aggregate(fn: "sum", arg: "carbon", cumulative: true)
@@ -850,8 +858,10 @@ type StatsAccountSustainability
     @aggregate(fn: "sum", arg: "wasteMass", cumulative: true)
   plasticTotal: BigInt! @aggregate(fn: "sum", arg: "plastic", cumulative: true)
   timberTotal: BigInt! @aggregate(fn: "sum", arg: "timber", cumulative: true)
-  educationTimeTotal: BigInt! @aggregate(fn: "sum", arg: "educationTime", cumulative: true)
-  treesPlantedTotal: BigInt! @aggregate(fn: "sum", arg: "treesPlanted", cumulative: true)
+  educationTimeTotal: BigInt!
+    @aggregate(fn: "sum", arg: "educationTime", cumulative: true)
+  treesPlantedTotal: BigInt!
+    @aggregate(fn: "sum", arg: "treesPlanted", cumulative: true)
 
   """
   deprecated entries
@@ -866,5 +876,27 @@ type StatsAccountSustainability
   peopleTotal: BigInt! @aggregate(fn: "sum", arg: "people", cumulative: true)
   biodiversityTotal: BigInt!
     @aggregate(fn: "sum", arg: "biodiversity", cumulative: true)
+}
 
+
+type SustainabilityStats @entity {
+  id: ID!
+  rewards: BigInt!
+  participantsCount: BigInt!
+
+  carbon: BigInt!
+  water: BigInt!
+  energy: BigInt!
+  wasteMass: BigInt!
+  plastic: BigInt!
+  timber: BigInt!
+  educationTime: BigInt!
+  treesPlanted: BigInt!
+
+  """
+  deprecated entries
+  """
+  wasteItems: BigInt!
+  people: BigInt!
+  biodiversity: BigInt!
 }
