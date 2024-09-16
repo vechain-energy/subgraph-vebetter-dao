@@ -440,6 +440,8 @@ function updateAppRoundSummary(transfer: RewardPoolTransfer): void {
         appRoundSummary.app = app.id
         appRoundSummary.round = round.id
 
+        appRoundSummary.poolBalance = app.poolBalance
+        appRoundSummary.poolBalanceExact = app.poolBalanceExact
         appRoundSummary.poolDeposits = constants.BIGDECIMAL_ZERO
         appRoundSummary.poolDepositsExact = constants.BIGINT_ZERO
         appRoundSummary.poolWithdrawals = constants.BIGDECIMAL_ZERO

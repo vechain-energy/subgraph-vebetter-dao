@@ -70,6 +70,8 @@ type AppRoundSummary @entity {
   id: ID!
   app: App!
   round: Round!
+  poolBalance: BigDecimal!
+  poolBalanceExact: BigInt!
   poolDeposits: BigDecimal!
   poolDepositsExact: BigInt!
   poolWithdrawals: BigDecimal!

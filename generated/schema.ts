@@ -838,6 +838,32 @@ export class AppRoundSummary extends Entity {
     this.set("round", Value.fromString(value));
   }
 
+  get poolBalance(): BigDecimal {
+    let value = this.get("poolBalance");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigDecimal();
+    }
+  }
+
+  set poolBalance(value: BigDecimal) {
+    this.set("poolBalance", Value.fromBigDecimal(value));
+  }
+
+  get poolBalanceExact(): BigInt {
+    let value = this.get("poolBalanceExact");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set poolBalanceExact(value: BigInt) {
+    this.set("poolBalanceExact", Value.fromBigInt(value));
+  }
+
   get poolDeposits(): BigDecimal {
     let value = this.get("poolDeposits");
     if (!value || value.kind == ValueKind.NULL) {
