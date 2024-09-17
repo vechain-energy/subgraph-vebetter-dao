@@ -199,10 +199,10 @@ function updateAppRundSustainability(proof: SustainabilityProof): void {
     if (!sustainabilityStats) { return }
 
     const app = App.load(proof.app)!
-    sustainabilityStats.participantsCount = app.participantsCount
+    sustainabilityStats.newUserCount = app.participantsCount.minus(sustainabilityStats.participantsCountStart)
     sustainabilityStats.rewards = sustainabilityStats.rewards.plus(proof.reward)
+    sustainabilityStats.actionCount = sustainabilityStats.actionCount.plus(constants.BIGINT_ONE)
 
-    sustainabilityStats.carbon = sustainabilityStats.carbon.plus(proof.carbon)
     sustainabilityStats.carbon = sustainabilityStats.carbon.plus(proof.carbon)
     sustainabilityStats.water = sustainabilityStats.water.plus(proof.water)
     sustainabilityStats.energy = sustainabilityStats.energy.plus(proof.energy)
@@ -418,7 +418,9 @@ function updateAppRoundSummary(transfer: RewardPoolTransfer): void {
         appRoundSummary = new AppRoundSummary(id)
 
         const sustainabilityStats = new SustainabilityStats(id)
-        sustainabilityStats.participantsCount = constants.BIGINT_ZERO
+        sustainabilityStats.participantsCountStart = app.participantsCount
+        sustainabilityStats.actionCount = constants.BIGINT_ZERO
+        sustainabilityStats.newUserCount = constants.BIGINT_ZERO
         sustainabilityStats.rewards = constants.BIGINT_ZERO
         sustainabilityStats.carbon = constants.BIGINT_ZERO
         sustainabilityStats.water = constants.BIGINT_ZERO

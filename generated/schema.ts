@@ -8298,8 +8298,8 @@ export class SustainabilityStats extends Entity {
     this.set("rewards", Value.fromBigInt(value));
   }
 
-  get participantsCount(): BigInt {
-    let value = this.get("participantsCount");
+  get participantsCountStart(): BigInt {
+    let value = this.get("participantsCountStart");
     if (!value || value.kind == ValueKind.NULL) {
       throw new Error("Cannot return null for a required field.");
     } else {
@@ -8307,8 +8307,34 @@ export class SustainabilityStats extends Entity {
     }
   }
 
-  set participantsCount(value: BigInt) {
-    this.set("participantsCount", Value.fromBigInt(value));
+  set participantsCountStart(value: BigInt) {
+    this.set("participantsCountStart", Value.fromBigInt(value));
+  }
+
+  get newUserCount(): BigInt {
+    let value = this.get("newUserCount");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set newUserCount(value: BigInt) {
+    this.set("newUserCount", Value.fromBigInt(value));
+  }
+
+  get actionCount(): BigInt {
+    let value = this.get("actionCount");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set actionCount(value: BigInt) {
+    this.set("actionCount", Value.fromBigInt(value));
   }
 
   get carbon(): BigInt {

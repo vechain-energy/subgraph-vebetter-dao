@@ -884,7 +884,10 @@ type StatsAccountSustainability
 type SustainabilityStats @entity {
   id: ID!
   rewards: BigInt!
-  participantsCount: BigInt!
+
+  participantsCountStart: BigInt!
+  newUserCount: BigInt!
+  actionCount: BigInt!
 
   carbon: BigInt!
   water: BigInt!
