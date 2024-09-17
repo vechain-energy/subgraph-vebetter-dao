@@ -3,7 +3,7 @@ import {
     TeamWithdrawal as TeamWithdrawalEvent,
     RewardDistributed as RewardDistributedEvent,
 } from '../generated/RewardsPool/RewardsPool'
-import { App, AppRoundSummary, RewardPoolTransfer, RewardPoolDeposit, RewardPoolWithdraw, RewardPoolDistribution, SustainabilityProof, SustainabilityStats, AppSustainability, AccountSustainability, Round, AppRoundWithdrawalReason } from '../generated/schema'
+import { App, AppRoundSummary, RewardPoolTransfer, RewardPoolDeposit, RewardPoolWithdraw, RewardPoolDistribution, SustainabilityProof, SustainabilityStats, AppSustainability, AccountSustainability, AccountRoundSustainability, Round, AppRoundWithdrawalReason } from '../generated/schema'
 import { events, transactions, decimals, constants } from '@amxx/graphprotocol-utils'
 import { DataSourceContext, JSONValueKind, Value, json, Bytes, dataSource, JSONValue, TypedMap, bigInt, Address } from '@graphprotocol/graph-ts'
 import { fetchApp } from './XApps'
@@ -112,6 +112,7 @@ export function handleRewardDistribution(event: RewardDistributedEvent): void {
      * ignore all data before
      */
     let isNewParticipant = false
+    let isNewRoundParticipant = false
     if (event.block.number.toI64() >= 19145969) {
         if (event.params.proof.startsWith("ipfs://")) {
             const context = new DataSourceContext()
@@ -138,8 +139,12 @@ export function handleRewardDistribution(event: RewardDistributedEvent): void {
                 proof.save()
 
                 updateAppSustainability(sustainabilityId, proof)
-                isNewParticipant = updateAccountSustainability(proof)
-                updateAppRundSustainability(proof)
+
+                const newParticipantStatus = updateAccountSustainability(proof)
+                isNewParticipant = newParticipantStatus[0] ? true : false
+                isNewRoundParticipant = newParticipantStatus[1] ? true : false
+
+                updateAppRoundSustainability(proof)
                 ev.proof = proof.id
             }
         }
@@ -172,6 +177,11 @@ export function handleRewardDistribution(event: RewardDistributedEvent): void {
 
     app.save()
 
+    if (isNewRoundParticipant) {
+        const appRoundSummary = AppRoundSummary.load([app.id.toHexString(), ev.round].join('/'))!
+        appRoundSummary.activeUserCount = appRoundSummary.activeUserCount.plus(constants.BIGINT_ONE)
+        appRoundSummary.save()
+    }
 }
 
 
@@ -189,16 +199,22 @@ export function handleSustainabilityProof(content: Bytes, context: DataSourceCon
     proof.save()
 
     updateAppSustainability(context.get('sustainabilityId')!.toString(), proof)
-    const isNewParticipant = updateAccountSustainability(proof)
-    if (isNewParticipant) {
+    const newParticipantStatus = updateAccountSustainability(proof)
+    if (newParticipantStatus[0]) {
         const app = App.load(proof.app)!
         app.participantsCount = app.participantsCount.plus(constants.BIGINT_ONE)
         app.save()
     }
-    updateAppRundSustainability(proof)
+
+    if (newParticipantStatus[1]) {
+        const appRoundSummary = AppRoundSummary.load([proof.app.toHexString(), proof.round].join('/'))!
+        appRoundSummary.activeUserCount = appRoundSummary.activeUserCount.plus(constants.BIGINT_ONE)
+        appRoundSummary.save()
+    }
+    updateAppRoundSustainability(proof)
 }
 
-function updateAppRundSustainability(proof: SustainabilityProof): void {
+function updateAppRoundSustainability(proof: SustainabilityProof): void {
     const id = [proof.app.toHexString(), proof.round].join('/')
     const sustainabilityStats = SustainabilityStats.load(id)
     if (!sustainabilityStats) { return }
@@ -365,10 +381,12 @@ function updateAppSustainability(sustainabilityId: string, proof: Sustainability
     appSustainability.save()
 }
 
-function updateAccountSustainability(proof: SustainabilityProof): boolean {
+function updateAccountSustainability(proof: SustainabilityProof): boolean[] {
     const id = [proof.account.toHexString(), proof.app.toHexString()].join('/')
+    const roundId = [proof.account.toHexString(), proof.app.toHexString(), proof.round].join('/')
     let accountSustainability = AccountSustainability.load(id)
     let isNewParticipant = false
+    let isNewRoundParticipant = false
 
     if (accountSustainability == null) {
         accountSustainability = new AccountSustainability(id)
@@ -410,7 +428,49 @@ function updateAccountSustainability(proof: SustainabilityProof): boolean {
 
     accountSustainability.save()
 
-    return isNewParticipant
+    let accountRoundSustainability = AccountRoundSustainability.load(roundId)
+    if (accountRoundSustainability == null) {
+        accountRoundSustainability = new AccountRoundSustainability(roundId)
+
+        accountRoundSustainability.receivedRewards = constants.BIGINT_ZERO
+        accountRoundSustainability.carbon = constants.BIGINT_ZERO
+        accountRoundSustainability.water = constants.BIGINT_ZERO
+        accountRoundSustainability.energy = constants.BIGINT_ZERO
+        accountRoundSustainability.wasteMass = constants.BIGINT_ZERO
+        accountRoundSustainability.plastic = constants.BIGINT_ZERO
+        accountRoundSustainability.timber = constants.BIGINT_ZERO
+        accountRoundSustainability.educationTime = constants.BIGINT_ZERO
+        accountRoundSustainability.treesPlanted = constants.BIGINT_ZERO
+        accountRoundSustainability.account = proof.account
+        accountRoundSustainability.app = proof.app
+        accountRoundSustainability.round = proof.round
+
+        // deprecated entries
+        accountRoundSustainability.wasteItems = constants.BIGINT_ZERO
+        accountRoundSustainability.people = constants.BIGINT_ZERO
+        accountRoundSustainability.biodiversity = constants.BIGINT_ZERO
+
+        isNewRoundParticipant = true
+    }
+
+    accountRoundSustainability.receivedRewards = accountRoundSustainability.receivedRewards.plus(proof.reward)
+    accountRoundSustainability.carbon = accountRoundSustainability.carbon.plus(proof.carbon)
+    accountRoundSustainability.water = accountRoundSustainability.water.plus(proof.water)
+    accountRoundSustainability.energy = accountRoundSustainability.energy.plus(proof.energy)
+    accountRoundSustainability.wasteMass = accountRoundSustainability.wasteMass.plus(proof.wasteMass)
+    accountRoundSustainability.plastic = accountRoundSustainability.plastic.plus(proof.plastic)
+    accountRoundSustainability.timber = accountRoundSustainability.timber.plus(proof.timber)
+    accountRoundSustainability.educationTime = accountRoundSustainability.educationTime.plus(proof.educationTime)
+    accountRoundSustainability.treesPlanted = accountRoundSustainability.treesPlanted.plus(proof.treesPlanted)
+
+    // deprecated entries
+    accountRoundSustainability.wasteItems = accountRoundSustainability.wasteItems.plus(proof.wasteItems)
+    accountRoundSustainability.people = accountRoundSustainability.people.plus(proof.people)
+    accountRoundSustainability.biodiversity = accountRoundSustainability.biodiversity.plus(proof.biodiversity)
+
+    accountRoundSustainability.save()
+
+    return [isNewParticipant, isNewRoundParticipant]
 }
 
 function updateAppRoundSummary(transfer: RewardPoolTransfer): void {
@@ -447,6 +507,7 @@ function updateAppRoundSummary(transfer: RewardPoolTransfer): void {
         appRoundSummary.app = app.id
         appRoundSummary.round = round.id
 
+        appRoundSummary.activeUserCount = constants.BIGINT_ZERO
         appRoundSummary.poolAllocations = constants.BIGDECIMAL_ZERO
         appRoundSummary.poolAllocationsExact = constants.BIGINT_ZERO
         appRoundSummary.poolBalance = app.poolBalance

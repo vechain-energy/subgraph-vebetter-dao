@@ -72,6 +72,7 @@ type AppRoundSummary @entity {
   id: ID!
   app: App!
   round: Round!
+  activeUserCount: BigInt!
   poolBalance: BigDecimal!
   poolBalanceExact: BigInt!
   poolAllocations: BigDecimal!
@@ -743,6 +744,29 @@ type SustainabilityProof @entity(immutable: true) {
 type AccountSustainability @entity {
   id: ID!
   app: App!
+  receivedRewards: BigInt!
+  account: Account!
+  carbon: BigInt!
+  water: BigInt!
+  energy: BigInt!
+  wasteMass: BigInt!
+  plastic: BigInt!
+  timber: BigInt!
+  educationTime: BigInt!
+  treesPlanted: BigInt!
+
+  """
+  deprecated entries
+  """
+  wasteItems: BigInt!
+  people: BigInt!
+  biodiversity: BigInt!
+}
+
+type AccountRoundSustainability @entity {
+  id: ID!
+  app: App!
+  round: Round!
   receivedRewards: BigInt!
   account: Account!
   carbon: BigInt!
