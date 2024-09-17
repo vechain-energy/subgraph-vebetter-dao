@@ -38,6 +38,8 @@ type App @entity {
   metadata: AppMetadata
   metadataURI: String
   votingEligibility: Boolean
+  poolAllocations: BigDecimal!
+  poolAllocationsExact: BigInt!
   poolBalance: BigDecimal!
   poolBalanceExact: BigInt!
   poolDeposits: BigDecimal!
@@ -72,6 +74,8 @@ type AppRoundSummary @entity {
   round: Round!
   poolBalance: BigDecimal!
   poolBalanceExact: BigInt!
+  poolAllocations: BigDecimal!
+  poolAllocationsExact: BigInt!
   poolDeposits: BigDecimal!
   poolDepositsExact: BigInt!
   poolWithdrawals: BigDecimal!

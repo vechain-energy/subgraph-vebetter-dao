@@ -44,6 +44,11 @@ export function handleNewDeposit(event: NewDepositEvent): void {
 
     app.poolBalanceExact = app.poolBalanceExact.plus(ev.amountExact)
     app.poolDepositsExact = app.poolDepositsExact.plus(ev.amountExact)
+    // deposit coming from X Allocation Pool equals an allocation for the app
+    if (transfer.from.equals(Address.fromString("0x4191776f05f4be4848d3f4d587345078b439c7d3"))) {
+        app.poolAllocationsExact = app.poolAllocationsExact.plus(ev.amountExact)
+        app.poolAllocations = decimals.toDecimals(app.poolAllocationsExact, 18)
+    }
     app.poolBalance = decimals.toDecimals(app.poolBalanceExact, 18)
     app.poolDeposits = decimals.toDecimals(app.poolDepositsExact, 18)
     app.save()
@@ -442,6 +447,8 @@ function updateAppRoundSummary(transfer: RewardPoolTransfer): void {
         appRoundSummary.app = app.id
         appRoundSummary.round = round.id
 
+        appRoundSummary.poolAllocations = constants.BIGDECIMAL_ZERO
+        appRoundSummary.poolAllocationsExact = constants.BIGINT_ZERO
         appRoundSummary.poolBalance = app.poolBalance
         appRoundSummary.poolBalanceExact = app.poolBalanceExact
         appRoundSummary.poolDeposits = constants.BIGDECIMAL_ZERO
@@ -453,8 +460,15 @@ function updateAppRoundSummary(transfer: RewardPoolTransfer): void {
     }
 
     if (transfer.deposit != null) {
-        appRoundSummary.poolDepositsExact = appRoundSummary.poolDepositsExact.plus(transfer.amountExact)
-        appRoundSummary.poolDeposits = decimals.toDecimals(appRoundSummary.poolDepositsExact, 18)
+        // deposit coming from X Allocation Pool equals an allocation for the app
+        if (transfer.from.equals(Address.fromString("0x4191776f05f4be4848d3f4d587345078b439c7d3"))) {
+            appRoundSummary.poolAllocationsExact = appRoundSummary.poolAllocationsExact.plus(transfer.amountExact)
+            appRoundSummary.poolAllocations = decimals.toDecimals(appRoundSummary.poolAllocationsExact, 18)
+        }
+        else {
+            appRoundSummary.poolDepositsExact = appRoundSummary.poolDepositsExact.plus(transfer.amountExact)
+            appRoundSummary.poolDeposits = decimals.toDecimals(appRoundSummary.poolDepositsExact, 18)
+        }
     }
 
     if (transfer.withdraw != null) {
