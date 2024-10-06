@@ -116,6 +116,7 @@ export function handleRewardDistribution(event: RewardDistributedEvent): void {
     if (event.block.number.toI64() >= 19145969) {
         if (event.params.proof.startsWith("ipfs://")) {
             const context = new DataSourceContext()
+            context.set('proofId', Value.fromString(sustainabilityId))
             context.set('timestamp', Value.fromI64(event.block.timestamp.toI64()))
             context.set('transaction', Value.fromString(transactions.log(event).id))
             context.set('appId', Value.fromBytes(app.id))
@@ -129,7 +130,7 @@ export function handleRewardDistribution(event: RewardDistributedEvent): void {
         else if (event.params.proof) {
             let proofData = json.try_fromString(event.params.proof)
             if (!proofData.isError && proofData.value.kind == JSONValueKind.OBJECT) {
-                const proof = generateSustainabilityProofFromJson(transactions.log(event).id, proofData.value.toObject())
+                const proof = generateSustainabilityProofFromJson(sustainabilityId, proofData.value.toObject())
                 proof.reward = event.params.amount
                 proof.timestamp = event.block.timestamp.toI64()
                 proof.app = app.id
@@ -189,7 +190,7 @@ export function handleRewardDistribution(event: RewardDistributedEvent): void {
 export function handleSustainabilityProof(content: Bytes, context: DataSourceContext): void {
     const jsonData = json.try_fromBytes(content)
     if (jsonData.isError || jsonData.value.kind !== JSONValueKind.OBJECT) { return }
-    const proof = generateSustainabilityProofFromJson(dataSource.stringParam(), jsonData.value.toObject())
+    const proof = generateSustainabilityProofFromJson(context.get('proofId')!.toString(), jsonData.value.toObject())
     proof.timestamp = context.get('timestamp')!.toI64()
     proof.transaction = context.get('transaction')!.toString()
     proof.account = context.get('accountId')!.toBytes()
