@@ -309,6 +309,30 @@ dataSources:
           handler: handleProposalDeposit
       file: ./src/Governor.ts
 
+  # VePassport
+  - kind: ethereum/contract
+    name: passport
+    network: mainnet
+    source:
+      address: "0x35a267671d8EDD607B2056A9a13E7ba7CF53c8b3"
+      abi: Passport
+      startBlock: 19820804
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Passport
+      abis:
+        - name: Passport
+          file: ./abis/VeBetterDAO-ve-better-passport.json
+      eventHandlers:
+        - event: DelegationCreated(indexed address,indexed address)
+          handler: handleDelegationCreated
+        - event: DelegationRevoked(indexed address,indexed address)
+          handler: handleDelegationRevoked
+      file: ./src/Passport.ts
+
   # Account: vet.domains names
   - kind: ethereum/contract
     name: vetDomains

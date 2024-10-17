@@ -211,6 +211,9 @@ type Account @entity {
   proposedCalls: [ProposalCall!]! @derivedFrom(field: "target")
   events: [Event!]! @derivedFrom(field: "emitter")
   sustainability: AccountSustainability @derivedFrom(field: "account")
+
+  passportDelegator: PassportDelegation @derivedFrom(field: "delegator")
+  passportDelegatee: PassportDelegation @derivedFrom(field: "delegatee")
 }
 
 """
@@ -908,7 +911,6 @@ type StatsAccountSustainability
     @aggregate(fn: "sum", arg: "biodiversity", cumulative: true)
 }
 
-
 type SustainabilityStats @entity {
   id: ID!
   rewards: BigInt!
@@ -932,4 +934,14 @@ type SustainabilityStats @entity {
   wasteItems: BigInt!
   people: BigInt!
   biodiversity: BigInt!
+}
+
+type PassportDelegation implements Event @entity {
+  id: ID!
+  delegator: Account!
+  delegatee: Account!
+
+  transaction: Transaction!
+  emitter: Account!
+  timestamp: BigInt!
 }

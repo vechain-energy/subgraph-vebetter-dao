@@ -2121,6 +2121,22 @@ export class Account extends Entity {
       "sustainability",
     );
   }
+
+  get passportDelegator(): PassportDelegationLoader {
+    return new PassportDelegationLoader(
+      "Account",
+      this.get("id")!.toBytes().toHexString(),
+      "passportDelegator",
+    );
+  }
+
+  get passportDelegatee(): PassportDelegationLoader {
+    return new PassportDelegationLoader(
+      "Account",
+      this.get("id")!.toBytes().toHexString(),
+      "passportDelegatee",
+    );
+  }
 }
 
 export class ERC721Contract extends Entity {
@@ -8788,6 +8804,115 @@ export class SustainabilityStats extends Entity {
   }
 }
 
+export class PassportDelegation extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id != null, "Cannot save PassportDelegation entity without an ID");
+    if (id) {
+      assert(
+        id.kind == ValueKind.STRING,
+        `Entities of type PassportDelegation must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`,
+      );
+      store.set("PassportDelegation", id.toString(), this);
+    }
+  }
+
+  static loadInBlock(id: string): PassportDelegation | null {
+    return changetype<PassportDelegation | null>(
+      store.get_in_block("PassportDelegation", id),
+    );
+  }
+
+  static load(id: string): PassportDelegation | null {
+    return changetype<PassportDelegation | null>(
+      store.get("PassportDelegation", id),
+    );
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toString();
+    }
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get delegator(): Bytes {
+    let value = this.get("delegator");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set delegator(value: Bytes) {
+    this.set("delegator", Value.fromBytes(value));
+  }
+
+  get delegatee(): Bytes {
+    let value = this.get("delegatee");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set delegatee(value: Bytes) {
+    this.set("delegatee", Value.fromBytes(value));
+  }
+
+  get transaction(): string {
+    let value = this.get("transaction");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toString();
+    }
+  }
+
+  set transaction(value: string) {
+    this.set("transaction", Value.fromString(value));
+  }
+
+  get emitter(): Bytes {
+    let value = this.get("emitter");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set emitter(value: Bytes) {
+    this.set("emitter", Value.fromBytes(value));
+  }
+
+  get timestamp(): BigInt {
+    let value = this.get("timestamp");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set timestamp(value: BigInt) {
+    this.set("timestamp", Value.fromBigInt(value));
+  }
+}
+
 export class ProposalLoader extends Entity {
   _entity: string;
   _field: string;
@@ -9199,6 +9324,24 @@ export class ProposalCallLoader extends Entity {
   load(): ProposalCall[] {
     let value = store.loadRelated(this._entity, this._id, this._field);
     return changetype<ProposalCall[]>(value);
+  }
+}
+
+export class PassportDelegationLoader extends Entity {
+  _entity: string;
+  _field: string;
+  _id: string;
+
+  constructor(entity: string, id: string, field: string) {
+    super();
+    this._entity = entity;
+    this._id = id;
+    this._field = field;
+  }
+
+  load(): PassportDelegation[] {
+    let value = store.loadRelated(this._entity, this._id, this._field);
+    return changetype<PassportDelegation[]>(value);
   }
 }
 
