@@ -21,7 +21,7 @@ The data provided offers information about:
 5. Proposal Metadata
 6. Insight into Sustainability Proofs
 7. Balance and activity of users (single or all tokens aggregated)
-8. Passports (delegations, entities and scores)
+8. Passports (delegations, entities, scores, white/blacklists)
 
 The subgraph is deployed publicly on: https://graph.vet/subgraphs/name/vebetter/dao  
 It powers the statistic pages on https://veDelegate.vet/stats 

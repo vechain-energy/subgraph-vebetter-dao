@@ -341,6 +341,14 @@ dataSources:
           handler: handleLinkRemoved
         - event: RegisteredAction(indexed address,address,indexed bytes32,indexed uint256,uint256)
           handler: handleRegisteredAction
+        - event: UserWhitelisted(indexed address,indexed address)
+          handler: handleUserWhitelisted
+        - event: RemovedUserFromWhitelist(indexed address,indexed address,indexed address)
+          handler: handleRemovedUserFromWhitelist
+        - event: UserBlacklisted(indexed address,indexed address)
+          handler: handleUserBlacklisted
+        - event: RemovedUserFromBlacklist(indexed address,indexed address)
+          handler: handleRemovedUserFromBlacklist
       file: ./src/Passport.ts
 
   # Account: vet.domains names

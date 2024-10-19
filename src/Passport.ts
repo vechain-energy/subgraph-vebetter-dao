@@ -1,4 +1,4 @@
-import { PassportDelegation, PassportEntityLink, VeDelegateAccount } from '../generated/schema'
+import { PassportDelegation, PassportEntityLink, VeDelegateAccount, PassportWhitelist, PassportBlacklist } from '../generated/schema'
 import {
     DelegationPending as DelegationPendingEvent,
     DelegationCreated as DelegationCreatedEvent,
@@ -6,7 +6,11 @@ import {
     LinkPending as LinkPendingEvent,
     LinkCreated as LinkCreatedEvent,
     LinkRemoved as LinkRemovedEvent,
-    RegisteredAction as RegisteredActionEvent
+    RegisteredAction as RegisteredActionEvent,
+    UserWhitelisted as UserWhitelistedEvent,
+    RemovedUserFromWhitelist as RemovedUserFromWhitelistEvent,
+    UserBlacklisted as UserBlacklistedEvent,
+    RemovedUserFromBlacklist as RemovedUserFromBlacklistEvent
 } from '../generated/passport/Passport'
 import { fetchAccount } from '../node_modules/@openzeppelin/subgraphs/src/fetch/account'
 import { transactions, events } from '@amxx/graphprotocol-utils'
@@ -14,8 +18,6 @@ import { store } from '@graphprotocol/graph-ts'
 import { fetchApp } from './XApps'
 import { fetchRound, fetchStatistic } from './XAllocationVoting'
 import { fetchAppRoundSummary, fetchAccountRoundSustainability } from './RewardsPool'
-
-
 
 export function handleDelegationPending(event: DelegationPendingEvent): void {
     const id = [event.params.delegator, event.params.delegatee].join('/').toString()
@@ -144,4 +146,50 @@ export function handleRegisteredAction(event: RegisteredActionEvent): void {
     const stats = fetchStatistic(round.id, "")
     stats.totalActionScores = stats.totalActionScores.plus(event.params.actionScore)
     stats.save()
+}
+
+export function handleUserWhitelisted(event: UserWhitelistedEvent): void {
+    const id = event.params.user
+    let whitelist = PassportWhitelist.load(id)
+    if (whitelist == null) {
+        whitelist = new PassportWhitelist(id)
+    }
+
+    whitelist.user = fetchAccount(event.params.user).id
+    whitelist.whitelistedBy = fetchAccount(event.params.whitelistedBy).id
+    whitelist.active = true
+
+    whitelist.save()
+}
+
+export function handleRemovedUserFromWhitelist(event: RemovedUserFromWhitelistEvent): void {
+    const id = event.params.user
+    const whitelist = PassportWhitelist.load(id)
+    if (!whitelist) { return }
+
+    whitelist.active = false
+    whitelist.save()
+}
+
+export function handleUserBlacklisted(event: UserBlacklistedEvent): void {
+    const id = event.params.user
+    let blacklist = PassportBlacklist.load(id)
+    if (blacklist == null) {
+        blacklist = new PassportBlacklist(id)
+    }
+
+    blacklist.user = fetchAccount(event.params.user).id
+    blacklist.blacklistedBy = fetchAccount(event.params.blacklistedBy).id
+    blacklist.active = true
+
+    blacklist.save()
+}
+
+export function handleRemovedUserFromBlacklist(event: RemovedUserFromBlacklistEvent): void {
+    const id = event.params.user
+    const blacklist = PassportBlacklist.load(id)
+    if (!blacklist) { return }
+
+    blacklist.active = false
+    blacklist.save()
 }

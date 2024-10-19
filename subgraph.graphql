@@ -965,3 +965,17 @@ type PassportEntityLink implements Event @entity {
   emitter: Account!
   timestamp: BigInt!
 }
+
+type PassportWhitelist @entity {
+  id: Bytes!
+  user: Account!
+  whitelistedBy: Account!
+  active: Boolean!
+}
+
+type PassportBlacklist @entity {
+  id: Bytes!
+  user: Account!
+  blacklistedBy: Account!
+  active: Boolean!
+}
