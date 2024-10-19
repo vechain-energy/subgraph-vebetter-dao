@@ -7,7 +7,7 @@ import { Round, AllocationVote, RoundStatistic, ERC20Balance, AllocationResult, 
 import { decimals, transactions, constants } from '@amxx/graphprotocol-utils'
 import { fetchAccount } from '../node_modules/@openzeppelin/subgraphs/src/fetch/account'
 import { fetchApp } from './XApps'
-import {  bigInt } from '@graphprotocol/graph-ts'
+import { bigInt } from '@graphprotocol/graph-ts'
 
 export function handleVoteCast(event: AllocationVoteCastEvent): void {
     const appCount = event.params.appsIds.length
@@ -173,6 +173,7 @@ export function fetchStatistic(_id: string, suffix: string): RoundStatistic {
         stats.weightExact = constants.BIGINT_ZERO
         stats.totalRewardsClaimed = constants.BIGDECIMAL_ZERO
         stats.totalRewardsClaimedExact = constants.BIGINT_ZERO
+        stats.totalActionScores = constants.BIGINT_ZERO
         stats.save()
     }
 

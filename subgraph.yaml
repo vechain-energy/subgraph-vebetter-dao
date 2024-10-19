@@ -327,10 +327,20 @@ dataSources:
         - name: Passport
           file: ./abis/VeBetterDAO-ve-better-passport.json
       eventHandlers:
+        - event: DelegationPending(indexed address,indexed address)
+          handler: handleDelegationPending
         - event: DelegationCreated(indexed address,indexed address)
           handler: handleDelegationCreated
         - event: DelegationRevoked(indexed address,indexed address)
           handler: handleDelegationRevoked
+        - event: LinkPending(indexed address,indexed address)
+          handler: handleLinkPending
+        - event: LinkCreated(indexed address,indexed address)
+          handler: handleLinkCreated
+        - event: LinkRemoved(indexed address,indexed address)
+          handler: handleLinkRemoved
+        - event: RegisteredAction(indexed address,address,indexed bytes32,indexed uint256,uint256)
+          handler: handleRegisteredAction
       file: ./src/Passport.ts
 
   # Account: vet.domains names

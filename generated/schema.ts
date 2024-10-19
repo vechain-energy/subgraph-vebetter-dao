@@ -342,6 +342,19 @@ export class RoundStatistic extends Entity {
   set totalRewardsClaimedExact(value: BigInt) {
     this.set("totalRewardsClaimedExact", Value.fromBigInt(value));
   }
+
+  get totalActionScores(): BigInt {
+    let value = this.get("totalActionScores");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set totalActionScores(value: BigInt) {
+    this.set("totalActionScores", Value.fromBigInt(value));
+  }
 }
 
 export class App extends Entity {
@@ -1027,6 +1040,19 @@ export class AppRoundSummary extends Entity {
   set sustainabilityStats(value: string) {
     this.set("sustainabilityStats", Value.fromString(value));
   }
+
+  get passportScore(): BigInt {
+    let value = this.get("passportScore");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set passportScore(value: BigInt) {
+    this.set("passportScore", Value.fromBigInt(value));
+  }
 }
 
 export class AppRoundWithdrawalReason extends Entity {
@@ -1623,6 +1649,23 @@ export class VeDelegateAccount extends Entity {
   set token(value: string) {
     this.set("token", Value.fromString(value));
   }
+
+  get passportDelegation(): string | null {
+    let value = this.get("passportDelegation");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set passportDelegation(value: string | null) {
+    if (!value) {
+      this.unset("passportDelegation");
+    } else {
+      this.set("passportDelegation", Value.fromString(<string>value));
+    }
+  }
 }
 
 export class VeDelegateConfig extends Entity {
@@ -2135,6 +2178,14 @@ export class Account extends Entity {
       "Account",
       this.get("id")!.toBytes().toHexString(),
       "passportDelegatee",
+    );
+  }
+
+  get passportEntities(): PassportEntityLinkLoader {
+    return new PassportEntityLinkLoader(
+      "Account",
+      this.get("id")!.toBytes().toHexString(),
+      "passportEntities",
     );
   }
 }
@@ -8143,6 +8194,19 @@ export class AccountRoundSustainability extends Entity {
     this.set("receivedRewards", Value.fromBigInt(value));
   }
 
+  get passportScore(): BigInt {
+    let value = this.get("passportScore");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set passportScore(value: BigInt) {
+    this.set("passportScore", Value.fromBigInt(value));
+  }
+
   get account(): Bytes {
     let value = this.get("account");
     if (!value || value.kind == ValueKind.NULL) {
@@ -8847,6 +8911,19 @@ export class PassportDelegation extends Entity {
     this.set("id", Value.fromString(value));
   }
 
+  get active(): boolean {
+    let value = this.get("active");
+    if (!value || value.kind == ValueKind.NULL) {
+      return false;
+    } else {
+      return value.toBoolean();
+    }
+  }
+
+  set active(value: boolean) {
+    this.set("active", Value.fromBoolean(value));
+  }
+
   get delegator(): Bytes {
     let value = this.get("delegator");
     if (!value || value.kind == ValueKind.NULL) {
@@ -8871,6 +8948,128 @@ export class PassportDelegation extends Entity {
 
   set delegatee(value: Bytes) {
     this.set("delegatee", Value.fromBytes(value));
+  }
+
+  get transaction(): string {
+    let value = this.get("transaction");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toString();
+    }
+  }
+
+  set transaction(value: string) {
+    this.set("transaction", Value.fromString(value));
+  }
+
+  get emitter(): Bytes {
+    let value = this.get("emitter");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set emitter(value: Bytes) {
+    this.set("emitter", Value.fromBytes(value));
+  }
+
+  get timestamp(): BigInt {
+    let value = this.get("timestamp");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set timestamp(value: BigInt) {
+    this.set("timestamp", Value.fromBigInt(value));
+  }
+}
+
+export class PassportEntityLink extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id != null, "Cannot save PassportEntityLink entity without an ID");
+    if (id) {
+      assert(
+        id.kind == ValueKind.STRING,
+        `Entities of type PassportEntityLink must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`,
+      );
+      store.set("PassportEntityLink", id.toString(), this);
+    }
+  }
+
+  static loadInBlock(id: string): PassportEntityLink | null {
+    return changetype<PassportEntityLink | null>(
+      store.get_in_block("PassportEntityLink", id),
+    );
+  }
+
+  static load(id: string): PassportEntityLink | null {
+    return changetype<PassportEntityLink | null>(
+      store.get("PassportEntityLink", id),
+    );
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toString();
+    }
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get active(): boolean {
+    let value = this.get("active");
+    if (!value || value.kind == ValueKind.NULL) {
+      return false;
+    } else {
+      return value.toBoolean();
+    }
+  }
+
+  set active(value: boolean) {
+    this.set("active", Value.fromBoolean(value));
+  }
+
+  get entity(): Bytes {
+    let value = this.get("entity");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set entity(value: Bytes) {
+    this.set("entity", Value.fromBytes(value));
+  }
+
+  get passport(): Bytes {
+    let value = this.get("passport");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set passport(value: Bytes) {
+    this.set("passport", Value.fromBytes(value));
   }
 
   get transaction(): string {
@@ -9342,6 +9541,24 @@ export class PassportDelegationLoader extends Entity {
   load(): PassportDelegation[] {
     let value = store.loadRelated(this._entity, this._id, this._field);
     return changetype<PassportDelegation[]>(value);
+  }
+}
+
+export class PassportEntityLinkLoader extends Entity {
+  _entity: string;
+  _field: string;
+  _id: string;
+
+  constructor(entity: string, id: string, field: string) {
+    super();
+    this._entity = entity;
+    this._id = id;
+    this._field = field;
+  }
+
+  load(): PassportEntityLink[] {
+    let value = store.loadRelated(this._entity, this._id, this._field);
+    return changetype<PassportEntityLink[]>(value);
   }
 }
 

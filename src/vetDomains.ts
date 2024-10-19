@@ -30,6 +30,7 @@ export function handleAddrChanged(event: AddrChangedEvent): void {
     // load confirmed name for the address
     const resolveUtils = ResolveUtils.bind(RESOLVE_UTILS_ADDRESS)
     const names = resolveUtils.try_getNames([Address.fromBytes(event.params.newAddress)])
+
     if (names.reverted || names.value.length == 0) { return }
     linkNameAddress(event.params.newAddress, names.value[0])
 

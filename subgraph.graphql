@@ -27,6 +27,7 @@ type RoundStatistic @entity {
   weightExact: BigInt!
   totalRewardsClaimed: BigDecimal!
   totalRewardsClaimedExact: BigInt!
+  totalActionScores: BigInt!
 }
 
 """
@@ -86,6 +87,7 @@ type AppRoundSummary @entity {
   poolWithdrawalsReasons: [AppRoundWithdrawalReason!]!
     @derivedFrom(field: "appRoundSummary")
   sustainabilityStats: SustainabilityStats!
+  passportScore: BigInt!
 }
 
 type AppRoundWithdrawalReason @entity {
@@ -159,6 +161,7 @@ type VeDelegateAccount @entity {
   id: Bytes!
   account: Account!
   token: ERC721Token!
+  passportDelegation: PassportDelegation
 }
 
 type VeDelegateConfig @entity {
@@ -214,6 +217,8 @@ type Account @entity {
 
   passportDelegator: PassportDelegation @derivedFrom(field: "delegator")
   passportDelegatee: PassportDelegation @derivedFrom(field: "delegatee")
+
+  passportEntities: [PassportEntityLink!]! @derivedFrom(field: "passport")
 }
 
 """
@@ -771,6 +776,7 @@ type AccountRoundSustainability @entity {
   app: App!
   round: Round!
   receivedRewards: BigInt!
+  passportScore: BigInt!
   account: Account!
   carbon: BigInt!
   water: BigInt!
@@ -938,8 +944,22 @@ type SustainabilityStats @entity {
 
 type PassportDelegation implements Event @entity {
   id: ID!
+  active: Boolean!
+
   delegator: Account!
   delegatee: Account!
+
+  transaction: Transaction!
+  emitter: Account!
+  timestamp: BigInt!
+}
+
+type PassportEntityLink implements Event @entity {
+  id: ID!
+  active: Boolean!
+
+  entity: Account!
+  passport: Account!
 
   transaction: Transaction!
   emitter: Account!

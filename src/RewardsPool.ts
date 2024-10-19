@@ -384,7 +384,6 @@ function updateAppSustainability(sustainabilityId: string, proof: Sustainability
 
 function updateAccountSustainability(proof: SustainabilityProof): boolean[] {
     const id = [proof.account.toHexString(), proof.app.toHexString()].join('/')
-    const roundId = [proof.account.toHexString(), proof.app.toHexString(), proof.round].join('/')
     let accountSustainability = AccountSustainability.load(id)
     let isNewParticipant = false
     let isNewRoundParticipant = false
@@ -429,30 +428,12 @@ function updateAccountSustainability(proof: SustainabilityProof): boolean[] {
 
     accountSustainability.save()
 
-    let accountRoundSustainability = AccountRoundSustainability.load(roundId)
-    if (accountRoundSustainability == null) {
-        accountRoundSustainability = new AccountRoundSustainability(roundId)
-
-        accountRoundSustainability.receivedRewards = constants.BIGINT_ZERO
-        accountRoundSustainability.carbon = constants.BIGINT_ZERO
-        accountRoundSustainability.water = constants.BIGINT_ZERO
-        accountRoundSustainability.energy = constants.BIGINT_ZERO
-        accountRoundSustainability.wasteMass = constants.BIGINT_ZERO
-        accountRoundSustainability.plastic = constants.BIGINT_ZERO
-        accountRoundSustainability.timber = constants.BIGINT_ZERO
-        accountRoundSustainability.educationTime = constants.BIGINT_ZERO
-        accountRoundSustainability.treesPlanted = constants.BIGINT_ZERO
-        accountRoundSustainability.account = proof.account
-        accountRoundSustainability.app = proof.app
-        accountRoundSustainability.round = proof.round
-
-        // deprecated entries
-        accountRoundSustainability.wasteItems = constants.BIGINT_ZERO
-        accountRoundSustainability.people = constants.BIGINT_ZERO
-        accountRoundSustainability.biodiversity = constants.BIGINT_ZERO
-
+    const accountSustainabilityId = [proof.account.toHexString(), proof.app.toHexString(), proof.round].join('/')
+    const knownAccount = AccountRoundSustainability.load(accountSustainabilityId)
+    if (!knownAccount) {
         isNewRoundParticipant = true
     }
+    const accountRoundSustainability = fetchAccountRoundSustainability(proof.account, fetchApp(proof.app), fetchRound(proof.round))
 
     accountRoundSustainability.receivedRewards = accountRoundSustainability.receivedRewards.plus(proof.reward)
     accountRoundSustainability.carbon = accountRoundSustainability.carbon.plus(proof.carbon)
@@ -477,49 +458,7 @@ function updateAccountSustainability(proof: SustainabilityProof): boolean[] {
 function updateAppRoundSummary(transfer: RewardPoolTransfer): void {
     const round = Round.load(transfer.round)!
     const app = App.load(transfer.app)!
-    const id = [app.id.toHexString(), round.id].join('/')
-    let appRoundSummary = AppRoundSummary.load(id)
-
-    if (appRoundSummary == null) {
-        appRoundSummary = new AppRoundSummary(id)
-
-        const sustainabilityStats = new SustainabilityStats(id)
-        sustainabilityStats.participantsCountStart = app.participantsCount
-        sustainabilityStats.actionCount = constants.BIGINT_ZERO
-        sustainabilityStats.newUserCount = constants.BIGINT_ZERO
-        sustainabilityStats.rewards = constants.BIGINT_ZERO
-        sustainabilityStats.carbon = constants.BIGINT_ZERO
-        sustainabilityStats.water = constants.BIGINT_ZERO
-        sustainabilityStats.energy = constants.BIGINT_ZERO
-        sustainabilityStats.wasteMass = constants.BIGINT_ZERO
-        sustainabilityStats.plastic = constants.BIGINT_ZERO
-        sustainabilityStats.timber = constants.BIGINT_ZERO
-        sustainabilityStats.educationTime = constants.BIGINT_ZERO
-        sustainabilityStats.treesPlanted = constants.BIGINT_ZERO
-
-        // deprecated entries
-        sustainabilityStats.wasteItems = constants.BIGINT_ZERO
-        sustainabilityStats.people = constants.BIGINT_ZERO
-        sustainabilityStats.biodiversity = constants.BIGINT_ZERO
-
-        appRoundSummary.sustainabilityStats = sustainabilityStats.id
-        sustainabilityStats.save()
-
-        appRoundSummary.app = app.id
-        appRoundSummary.round = round.id
-
-        appRoundSummary.activeUserCount = constants.BIGINT_ZERO
-        appRoundSummary.poolAllocations = constants.BIGDECIMAL_ZERO
-        appRoundSummary.poolAllocationsExact = constants.BIGINT_ZERO
-        appRoundSummary.poolBalance = app.poolBalance
-        appRoundSummary.poolBalanceExact = app.poolBalanceExact
-        appRoundSummary.poolDeposits = constants.BIGDECIMAL_ZERO
-        appRoundSummary.poolDepositsExact = constants.BIGINT_ZERO
-        appRoundSummary.poolWithdrawals = constants.BIGDECIMAL_ZERO
-        appRoundSummary.poolWithdrawalsExact = constants.BIGINT_ZERO
-        appRoundSummary.poolDistributions = constants.BIGDECIMAL_ZERO
-        appRoundSummary.poolDistributionsExact = constants.BIGINT_ZERO
-    }
+    const appRoundSummary = fetchAppRoundSummary(app, round)
 
     if (transfer.deposit != null) {
         // deposit coming from X Allocation Pool equals an allocation for the app
@@ -583,4 +522,85 @@ export function getCurrentRoundId(): string {
 
 export function getCurrentRound(): Round {
     return fetchRound(getCurrentRoundId())
+}
+
+export function fetchAppRoundSummary(app: App, round: Round): AppRoundSummary {
+    const id = [app.id.toHexString(), round.id].join('/')
+    let appRoundSummary = AppRoundSummary.load(id)
+    if (appRoundSummary) {
+        return appRoundSummary
+    }
+
+    appRoundSummary = new AppRoundSummary(id)
+
+    const sustainabilityStats = new SustainabilityStats(id)
+    sustainabilityStats.participantsCountStart = app.participantsCount
+    sustainabilityStats.actionCount = constants.BIGINT_ZERO
+    sustainabilityStats.newUserCount = constants.BIGINT_ZERO
+    sustainabilityStats.rewards = constants.BIGINT_ZERO
+    sustainabilityStats.carbon = constants.BIGINT_ZERO
+    sustainabilityStats.water = constants.BIGINT_ZERO
+    sustainabilityStats.energy = constants.BIGINT_ZERO
+    sustainabilityStats.wasteMass = constants.BIGINT_ZERO
+    sustainabilityStats.plastic = constants.BIGINT_ZERO
+    sustainabilityStats.timber = constants.BIGINT_ZERO
+    sustainabilityStats.educationTime = constants.BIGINT_ZERO
+    sustainabilityStats.treesPlanted = constants.BIGINT_ZERO
+
+    // deprecated entries
+    sustainabilityStats.wasteItems = constants.BIGINT_ZERO
+    sustainabilityStats.people = constants.BIGINT_ZERO
+    sustainabilityStats.biodiversity = constants.BIGINT_ZERO
+
+    appRoundSummary.sustainabilityStats = sustainabilityStats.id
+    sustainabilityStats.save()
+
+    appRoundSummary.app = app.id
+    appRoundSummary.round = round.id
+
+    appRoundSummary.activeUserCount = constants.BIGINT_ZERO
+    appRoundSummary.poolAllocations = constants.BIGDECIMAL_ZERO
+    appRoundSummary.poolAllocationsExact = constants.BIGINT_ZERO
+    appRoundSummary.poolBalance = app.poolBalance
+    appRoundSummary.poolBalanceExact = app.poolBalanceExact
+    appRoundSummary.poolDeposits = constants.BIGDECIMAL_ZERO
+    appRoundSummary.poolDepositsExact = constants.BIGINT_ZERO
+    appRoundSummary.poolWithdrawals = constants.BIGDECIMAL_ZERO
+    appRoundSummary.poolWithdrawalsExact = constants.BIGINT_ZERO
+    appRoundSummary.poolDistributions = constants.BIGDECIMAL_ZERO
+    appRoundSummary.poolDistributionsExact = constants.BIGINT_ZERO
+    appRoundSummary.passportScore = constants.BIGINT_ZERO
+
+    return appRoundSummary;
+}
+
+export function fetchAccountRoundSustainability(account: Bytes, app: App, round: Round): AccountRoundSustainability {
+    const id = [account.toHexString(), app.id.toHexString(), round.id].join('/')
+    let accountRoundSustainability = AccountRoundSustainability.load(id)
+    if (accountRoundSustainability) {
+        return accountRoundSustainability
+    }
+
+    accountRoundSustainability = new AccountRoundSustainability(id)
+
+    accountRoundSustainability.passportScore = constants.BIGINT_ZERO
+    accountRoundSustainability.receivedRewards = constants.BIGINT_ZERO
+    accountRoundSustainability.carbon = constants.BIGINT_ZERO
+    accountRoundSustainability.water = constants.BIGINT_ZERO
+    accountRoundSustainability.energy = constants.BIGINT_ZERO
+    accountRoundSustainability.wasteMass = constants.BIGINT_ZERO
+    accountRoundSustainability.plastic = constants.BIGINT_ZERO
+    accountRoundSustainability.timber = constants.BIGINT_ZERO
+    accountRoundSustainability.educationTime = constants.BIGINT_ZERO
+    accountRoundSustainability.treesPlanted = constants.BIGINT_ZERO
+    accountRoundSustainability.account = account
+    accountRoundSustainability.app = app.id
+    accountRoundSustainability.round = round.id
+
+    // deprecated entries
+    accountRoundSustainability.wasteItems = constants.BIGINT_ZERO
+    accountRoundSustainability.people = constants.BIGINT_ZERO
+    accountRoundSustainability.biodiversity = constants.BIGINT_ZERO
+
+    return accountRoundSustainability
 }
