@@ -593,7 +593,7 @@ export function fetchAccountRoundSustainability(account: Bytes, app: App, round:
     accountRoundSustainability.timber = constants.BIGINT_ZERO
     accountRoundSustainability.educationTime = constants.BIGINT_ZERO
     accountRoundSustainability.treesPlanted = constants.BIGINT_ZERO
-    accountRoundSustainability.account = account
+    accountRoundSustainability.account = fetchAccount(Address.fromBytes(account)).id
     accountRoundSustainability.app = app.id
     accountRoundSustainability.round = round.id
 
