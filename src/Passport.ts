@@ -1,4 +1,4 @@
-import { PassportDelegation, PassportEntityLink, VeDelegateAccount, PassportWhitelist, PassportBlacklist } from '../generated/schema'
+import { PassportDelegation, PassportEntityLink, VeDelegateAccount, PassportWhitelist, PassportBlacklist, PassportScore } from '../generated/schema'
 import {
     DelegationPending as DelegationPendingEvent,
     DelegationCreated as DelegationCreatedEvent,
@@ -146,6 +146,17 @@ export function handleRegisteredAction(event: RegisteredActionEvent): void {
     const stats = fetchStatistic(round.id, "")
     stats.totalActionScores = stats.totalActionScores.plus(event.params.actionScore)
     stats.save()
+
+    const passportScore = new PassportScore(events.id(event))
+    passportScore.account = fetchAccount(event.params.user).id
+    passportScore.round = round.id
+    passportScore.app = app.id
+    passportScore.score = event.params.actionScore
+
+    passportScore.emitter = event.address
+    passportScore.transaction = transactions.log(event).id
+    passportScore.timestamp = event.block.timestamp
+    passportScore.save()
 }
 
 export function handleUserWhitelisted(event: UserWhitelistedEvent): void {

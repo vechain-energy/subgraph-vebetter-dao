@@ -219,6 +219,7 @@ type Account @entity {
   passportDelegatee: PassportDelegation @derivedFrom(field: "delegatee")
 
   passportEntities: [PassportEntityLink!]! @derivedFrom(field: "passport")
+  passportScores: [PassportScore!]! @derivedFrom(field: "account")
 }
 
 """
@@ -978,4 +979,17 @@ type PassportBlacklist @entity {
   user: Account!
   blacklistedBy: Account!
   active: Boolean!
+}
+
+type PassportScore implements Event @entity(immutable: true) {
+  id: ID!
+
+  account: Account!
+  round: Round!
+  app: App!
+  score: BigInt!
+
+  transaction: Transaction!
+  emitter: Account!
+  timestamp: BigInt!
 }
