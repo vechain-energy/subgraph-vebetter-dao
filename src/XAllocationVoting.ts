@@ -22,43 +22,53 @@ export function handleVoteCast(event: AllocationVoteCastEvent): void {
         veDelegateStats.voters = veDelegateStats.voters.plus(constants.BIGINT_ONE)
     }
 
+    let totalQFVotesAdjustment = constants.BIGINT_ZERO
+    let totalQFVotesAdjustmentVD = constants.BIGINT_ZERO
     for (let index = 0; index < appCount; index += 1) {
         const app = event.params.appsIds[index]
         const appId = app.toHexString()
         const id = (event.block.number.toI64() * 10000000) + (event.transaction.index.toI64() * 10000) + (event.transactionLogIndex.toI64() * 100) + index
         const vote = new AllocationVote(id.toString())
         const votesCast = event.params.voteWeights[index]
-        const qfWeight = votesCast.sqrt()
+        const newQFVotes = votesCast.gt(bigInt.fromString("1000000000000000000")) ? votesCast.sqrt() : votesCast.div(bigInt.fromString("1000000000"))
         vote.voter = fetchAccount(event.params.voter).id
         vote.round = roundId
         vote.app = app;
-        vote.weight = decimals.toDecimals(votesCast, 18)
         vote.weightExact = votesCast
+        vote.weight = decimals.toDecimals(vote.weightExact, 18)
 
-        vote.qfWeightExact = qfWeight
-        vote.qfWeight = decimals.toDecimals(qfWeight, 18)
+        // Get the current sum of the square roots of individual votes for the given project
+        const allocation = AllocationResult.load([roundId, appId].join('/'))!
+        const qfAppVotesPreVote = allocation.weightExact
+
+        // Calculate the new sum of the square roots of individual votes for the given project
+        const qfAppVotesPostVote = qfAppVotesPreVote.plus(newQFVotes)
+
+        // Calculate the adjustment to the quadratic funding value for the given app
+        totalQFVotesAdjustment = totalQFVotesAdjustment.plus(qfAppVotesPostVote.times(qfAppVotesPostVote).minus(qfAppVotesPreVote.times(qfAppVotesPreVote)))
+
+        // Update the quadratic funding votes received for the given app
+        allocation.weightExact = qfAppVotesPostVote
+        allocation.weight = decimals.toDecimals(qfAppVotesPostVote, 9)
+        allocation.votesCastExact = allocation.votesCastExact.plus(votesCast)
+        allocation.votesCast = decimals.toDecimals(allocation.votesCastExact, 18)
+        allocation.voters = allocation.voters.plus(constants.BIGINT_ONE)
+        allocation.save()
+
+        vote.qfWeightExact = newQFVotes
+        vote.qfWeight = decimals.toDecimals(newQFVotes, 9)
         vote.timestamp = event.block.timestamp.toI64()
         vote.transaction = transactions.log(event).id
         vote.save()
 
-        const allocation = AllocationResult.load([roundId, appId].join('/'))!
-        allocation.voters = allocation.voters.plus(constants.BIGINT_ONE)
-        allocation.votesCastExact = allocation.votesCastExact.plus(votesCast)
-        allocation.votesCast = decimals.toDecimals(allocation.votesCastExact, 18)
-        allocation.weightExact = allocation.weightExact.plus(qfWeight)
-        allocation.weight = decimals.toDecimals(allocation.weightExact, 18)
-        allocation.save()
-
         stats.votesCastExact = stats.votesCastExact.plus(votesCast)
         stats.votesCast = decimals.toDecimals(stats.votesCastExact, 18)
-        stats.weightExact = stats.weightExact.plus(qfWeight)
-        stats.weight = decimals.toDecimals(stats.weightExact, 18)
 
         if (veAccount != null) {
             const veDelegateAllocation = AllocationResult.load([roundId, appId, 'vedelegate'].join('/'))!
             veDelegateAllocation.voters = veDelegateAllocation.voters.plus(constants.BIGINT_ONE)
-            veDelegateAllocation.weightExact = veDelegateAllocation.weightExact.plus(qfWeight)
-            veDelegateAllocation.weight = decimals.toDecimals(veDelegateAllocation.weightExact, 18)
+            veDelegateAllocation.weightExact = veDelegateAllocation.weightExact.plus(newQFVotes)
+            veDelegateAllocation.weight = decimals.toDecimals(veDelegateAllocation.weightExact, 9)
             veDelegateAllocation.votesCastExact = veDelegateAllocation.votesCastExact.plus(votesCast)
             veDelegateAllocation.votesCast = decimals.toDecimals(veDelegateAllocation.votesCastExact, 18)
             veDelegateAllocation.save()
@@ -66,11 +76,20 @@ export function handleVoteCast(event: AllocationVoteCastEvent): void {
             veDelegateStats.votesCastExact = veDelegateStats.votesCastExact.plus(votesCast)
             veDelegateStats.votesCast = decimals.toDecimals(veDelegateStats.votesCastExact, 18)
 
-            veDelegateStats.weightExact = veDelegateStats.weightExact.plus(qfWeight)
-            veDelegateStats.weight = decimals.toDecimals(veDelegateStats.weightExact, 18)
+            // Calculate the adjustment to the quadratic funding value for the given app for veDelegate
+            totalQFVotesAdjustmentVD = totalQFVotesAdjustmentVD.plus(qfAppVotesPostVote.times(qfAppVotesPostVote).minus(qfAppVotesPreVote.times(qfAppVotesPreVote)))
         }
     }
+
+    stats.weightExact = stats.weightExact.plus(totalQFVotesAdjustment)
+    stats.weight = decimals.toDecimals(stats.weightExact, 18)
     stats.save()
+
+    if (veAccount) {
+        veDelegateStats.weightExact = veDelegateStats.weightExact.plus(totalQFVotesAdjustmentVD)
+        veDelegateStats.weight = decimals.toDecimals(veDelegateStats.weightExact, 18)
+    }
+
     veDelegateStats.save()
 }
 
