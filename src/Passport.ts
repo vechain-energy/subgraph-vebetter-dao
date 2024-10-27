@@ -138,7 +138,7 @@ export function handleRegisteredAction(event: RegisteredActionEvent): void {
     appRoundSummary.save()
 
     // stats for scores + Account + Round
-    const accountRoundSustainability = fetchAccountRoundSustainability(event.params.user, app, round)
+    const accountRoundSustainability = fetchAccountRoundSustainability(event.params.passport, app, round)
     accountRoundSustainability.passportScore = accountRoundSustainability.passportScore.plus(event.params.actionScore)
     accountRoundSustainability.save()
 
@@ -148,7 +148,8 @@ export function handleRegisteredAction(event: RegisteredActionEvent): void {
     stats.save()
 
     const passportScore = new PassportScore(events.id(event))
-    passportScore.account = fetchAccount(event.params.user).id
+    passportScore.user = fetchAccount(event.params.user).id
+    passportScore.passport = fetchAccount(event.params.passport).id
     passportScore.round = round.id
     passportScore.app = app.id
     passportScore.score = event.params.actionScore
