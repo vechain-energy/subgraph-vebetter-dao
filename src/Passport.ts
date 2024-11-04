@@ -20,7 +20,7 @@ import { fetchRound, fetchStatistic } from './XAllocationVoting'
 import { fetchAppRoundSummary, fetchAccountRoundSustainability } from './RewardsPool'
 
 export function handleDelegationPending(event: DelegationPendingEvent): void {
-    const id = [event.params.delegator.toHexString(), event.params.delegatee.toHexString()].join('/').toString()
+    const id = [event.params.delegator.toHexString(), event.params.delegatee.toHexString(), 'delegation'].join('/').toString()
     let passport = PassportDelegation.load(id)
     if (passport == null) {
         passport = new PassportDelegation(id)
@@ -38,7 +38,7 @@ export function handleDelegationPending(event: DelegationPendingEvent): void {
 }
 
 export function handleDelegationCreated(event: DelegationCreatedEvent): void {
-    const id = [event.params.delegator.toHexString(), event.params.delegatee.toHexString()].join('/').toString()
+    const id = [event.params.delegator.toHexString(), event.params.delegatee.toHexString(), 'delegation'].join('/').toString()
     let passport = PassportDelegation.load(id)
     if (passport == null) {
         passport = new PassportDelegation(id)
@@ -63,7 +63,7 @@ export function handleDelegationCreated(event: DelegationCreatedEvent): void {
 }
 
 export function handleDelegationRevoked(event: DelegationRevokedEvent): void {
-    const id = [event.params.delegator.toHexString(), event.params.delegatee.toHexString()].join('/').toString()
+    const id = [event.params.delegator.toHexString(), event.params.delegatee.toHexString(), 'delegation'].join('/').toString()
     const passport = PassportDelegation.load(id)
 
     if (!passport) {
@@ -82,7 +82,7 @@ export function handleDelegationRevoked(event: DelegationRevokedEvent): void {
 
 
 export function handleLinkPending(event: LinkPendingEvent): void {
-    const id = [event.params.entity.toHexString(), event.params.passport.toHexString()].join('/').toString()
+    const id = [event.params.entity.toHexString(), event.params.passport.toHexString(), 'link'].join('/').toString()
     let entityLink = PassportEntityLink.load(id)
     if (entityLink == null) {
         entityLink = new PassportEntityLink(id)
@@ -100,7 +100,7 @@ export function handleLinkPending(event: LinkPendingEvent): void {
 }
 
 export function handleLinkCreated(event: LinkCreatedEvent): void {
-    const id = [event.params.entity.toHexString(), event.params.passport.toHexString()].join('/').toString()
+    const id = [event.params.entity.toHexString(), event.params.passport.toHexString(), 'link'].join('/').toString()
     let entityLink = PassportEntityLink.load(id)
     if (entityLink == null) {
         entityLink = new PassportEntityLink(id)
@@ -118,7 +118,7 @@ export function handleLinkCreated(event: LinkCreatedEvent): void {
 }
 
 export function handleLinkRemoved(event: LinkRemovedEvent): void {
-    const id = [event.params.entity.toHexString(), event.params.passport.toHexString()].join('/').toString()
+    const id = [event.params.entity.toHexString(), event.params.passport.toHexString(), 'link'].join('/').toString()
     const entityLink = PassportEntityLink.load(id)
 
     if (!entityLink) {
