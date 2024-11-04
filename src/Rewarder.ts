@@ -1,6 +1,7 @@
 
 import {
-    RewardClaimed as RewardClaimedEvent
+    RewardClaimed as RewardClaimedEvent,
+    VoteRegistered as VoteRegisteredEvent,
 } from '../generated/rewarder/Rewarder'
 import { RewardClaimed, VeDelegateAccount } from '../generated/schema'
 import { decimals, transactions } from '@amxx/graphprotocol-utils'
@@ -33,4 +34,23 @@ export function handleReward(event: RewardClaimedEvent): void {
     ev.timestamp = event.block.timestamp
     ev.transaction = transactions.log(event).id
     ev.save()
+}
+
+
+export function handleVoteRegistered(event: VoteRegisteredEvent): void {
+    const roundId = event.params.cycle.toString()
+    const veAccount = VeDelegateAccount.load(event.params.voter)
+
+    const stats = fetchStatistic(roundId, "")
+    const veDelegateStats = fetchStatistic(roundId, "vedelegate")
+
+    stats.weightTotalExact = stats.weightTotalExact.plus(event.params.rewardWeightedVote)
+    stats.weightTotal = decimals.toDecimals(stats.weightTotalExact, 18)
+    stats.save()
+
+    if (veAccount != null) {
+        veDelegateStats.weightTotalExact = veDelegateStats.weightTotalExact.plus(event.params.rewardWeightedVote)
+        veDelegateStats.weightTotal = decimals.toDecimals(veDelegateStats.weightTotalExact, 18)
+        veDelegateStats.save()
+    }
 }

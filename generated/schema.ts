@@ -317,6 +317,32 @@ export class RoundStatistic extends Entity {
     this.set("weightExact", Value.fromBigInt(value));
   }
 
+  get weightTotal(): BigDecimal {
+    let value = this.get("weightTotal");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigDecimal();
+    }
+  }
+
+  set weightTotal(value: BigDecimal) {
+    this.set("weightTotal", Value.fromBigDecimal(value));
+  }
+
+  get weightTotalExact(): BigInt {
+    let value = this.get("weightTotalExact");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set weightTotalExact(value: BigInt) {
+    this.set("weightTotalExact", Value.fromBigInt(value));
+  }
+
   get totalRewardsClaimed(): BigDecimal {
     let value = this.get("totalRewardsClaimed");
     if (!value || value.kind == ValueKind.NULL) {

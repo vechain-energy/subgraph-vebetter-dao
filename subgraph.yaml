@@ -96,6 +96,8 @@ dataSources:
       eventHandlers:
         - event: RewardClaimed(indexed uint256,indexed address,uint256)
           handler: handleReward
+        - event: VoteRegistered(indexed uint256,indexed address,uint256,uint256)
+          handler: handleVoteRegistered
       file: ./src/Rewarder.ts
   - kind: ethereum/contract
     name: xallocationvoting

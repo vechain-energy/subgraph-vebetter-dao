@@ -25,6 +25,8 @@ type RoundStatistic @entity {
   votesCastExact: BigInt!
   weight: BigDecimal!
   weightExact: BigInt!
+  weightTotal: BigDecimal!
+  weightTotalExact: BigInt!
   totalRewardsClaimed: BigDecimal!
   totalRewardsClaimedExact: BigInt!
   totalActionScores: BigInt!
