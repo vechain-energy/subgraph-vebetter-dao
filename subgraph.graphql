@@ -227,8 +227,9 @@ type Account @entity {
 
   passportEntities: [PassportEntityLink!]! @derivedFrom(field: "passport")
   passportScores: [PassportScore!]! @derivedFrom(field: "passport")
-}
 
+  thorNode: ThorNode @derivedFrom(field: "owner")
+}
 
 """
 ERC721 Contract for veDelegate and GM NFTs
@@ -1006,7 +1007,6 @@ type PassportScore implements Event @entity(immutable: true) {
   timestamp: BigInt!
 }
 
-
 """
 NodeDelegation
 """
@@ -1014,12 +1014,23 @@ type NodeDelegation implements Event @entity {
   id: ID!
   active: Boolean!
 
-  nodeId: BigInt!
+  node: ThorNode!
   delegatee: Account!
 
   transaction: Transaction!
   emitter: Account!
   timestamp: BigInt!
+}
+
+type ThorNode @entity {
+  id: ID!
+  identifier: BigInt!
+  owner: Account!
+  level: Int!
+  isX: Boolean!
+
+  appEndorsement: AppEndorsement @derivedFrom(field: "node")
+  delegatee: NodeDelegation @derivedFrom(field: "node")
 }
 
 """
@@ -1029,7 +1040,7 @@ type AppEndorsement implements Event @entity {
   id: ID!
   active: Boolean!
 
-  nodeId: BigInt!
+  node: ThorNode!
   app: App!
 
   transaction: Transaction!

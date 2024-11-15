@@ -2268,6 +2268,14 @@ export class Account extends Entity {
       "passportScores",
     );
   }
+
+  get thorNode(): ThorNodeLoader {
+    return new ThorNodeLoader(
+      "Account",
+      this.get("id")!.toBytes().toHexString(),
+      "thorNode",
+    );
+  }
 }
 
 export class ERC721Contract extends Entity {
@@ -9558,17 +9566,17 @@ export class NodeDelegation extends Entity {
     this.set("active", Value.fromBoolean(value));
   }
 
-  get nodeId(): BigInt {
-    let value = this.get("nodeId");
+  get node(): string {
+    let value = this.get("node");
     if (!value || value.kind == ValueKind.NULL) {
       throw new Error("Cannot return null for a required field.");
     } else {
-      return value.toBigInt();
+      return value.toString();
     }
   }
 
-  set nodeId(value: BigInt) {
-    this.set("nodeId", Value.fromBigInt(value));
+  set node(value: string) {
+    this.set("node", Value.fromString(value));
   }
 
   get delegatee(): Bytes {
@@ -9621,6 +9629,114 @@ export class NodeDelegation extends Entity {
 
   set timestamp(value: BigInt) {
     this.set("timestamp", Value.fromBigInt(value));
+  }
+}
+
+export class ThorNode extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id != null, "Cannot save ThorNode entity without an ID");
+    if (id) {
+      assert(
+        id.kind == ValueKind.STRING,
+        `Entities of type ThorNode must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`,
+      );
+      store.set("ThorNode", id.toString(), this);
+    }
+  }
+
+  static loadInBlock(id: string): ThorNode | null {
+    return changetype<ThorNode | null>(store.get_in_block("ThorNode", id));
+  }
+
+  static load(id: string): ThorNode | null {
+    return changetype<ThorNode | null>(store.get("ThorNode", id));
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toString();
+    }
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get identifier(): BigInt {
+    let value = this.get("identifier");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set identifier(value: BigInt) {
+    this.set("identifier", Value.fromBigInt(value));
+  }
+
+  get owner(): Bytes {
+    let value = this.get("owner");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set owner(value: Bytes) {
+    this.set("owner", Value.fromBytes(value));
+  }
+
+  get level(): i32 {
+    let value = this.get("level");
+    if (!value || value.kind == ValueKind.NULL) {
+      return 0;
+    } else {
+      return value.toI32();
+    }
+  }
+
+  set level(value: i32) {
+    this.set("level", Value.fromI32(value));
+  }
+
+  get isX(): boolean {
+    let value = this.get("isX");
+    if (!value || value.kind == ValueKind.NULL) {
+      return false;
+    } else {
+      return value.toBoolean();
+    }
+  }
+
+  set isX(value: boolean) {
+    this.set("isX", Value.fromBoolean(value));
+  }
+
+  get appEndorsement(): AppEndorsementLoader {
+    return new AppEndorsementLoader(
+      "ThorNode",
+      this.get("id")!.toString(),
+      "appEndorsement",
+    );
+  }
+
+  get delegatee(): NodeDelegationLoader {
+    return new NodeDelegationLoader(
+      "ThorNode",
+      this.get("id")!.toString(),
+      "delegatee",
+    );
   }
 }
 
@@ -9678,17 +9794,17 @@ export class AppEndorsement extends Entity {
     this.set("active", Value.fromBoolean(value));
   }
 
-  get nodeId(): BigInt {
-    let value = this.get("nodeId");
+  get node(): string {
+    let value = this.get("node");
     if (!value || value.kind == ValueKind.NULL) {
       throw new Error("Cannot return null for a required field.");
     } else {
-      return value.toBigInt();
+      return value.toString();
     }
   }
 
-  set nodeId(value: BigInt) {
-    this.set("nodeId", Value.fromBigInt(value));
+  set node(value: string) {
+    this.set("node", Value.fromString(value));
   }
 
   get app(): Bytes {
@@ -10245,6 +10361,24 @@ export class PassportScoreLoader extends Entity {
   load(): PassportScore[] {
     let value = store.loadRelated(this._entity, this._id, this._field);
     return changetype<PassportScore[]>(value);
+  }
+}
+
+export class ThorNodeLoader extends Entity {
+  _entity: string;
+  _field: string;
+  _id: string;
+
+  constructor(entity: string, id: string, field: string) {
+    super();
+    this._entity = entity;
+    this._id = id;
+    this._field = field;
+  }
+
+  load(): ThorNode[] {
+    let value = store.loadRelated(this._entity, this._id, this._field);
+    return changetype<ThorNode[]>(value);
   }
 }
 

@@ -10,6 +10,7 @@ import { App, AppEndorsement } from '../generated/schema'
 import { Bytes } from "@graphprotocol/graph-ts";
 import { AppMetadata as AppMetadataTemplate } from '../generated/templates'
 import { constants, transactions } from '@amxx/graphprotocol-utils'
+import { fetchNode } from './ThorNode';
 
 export function handleAppAdded(event: AppAddedEvent): void {
     const app = fetchApp(event.params.id)
@@ -49,7 +50,7 @@ export function handleAppEndorsed(event: AppEndorsedEvent): void {
     }
 
     endorsement.active = event.params.endorsed
-    endorsement.nodeId = event.params.nodeId
+    endorsement.node = fetchNode(event.params.nodeId).id
     endorsement.app = app.id
 
 

@@ -380,6 +380,30 @@ dataSources:
           handler: handleDelegateNode
       file: ./src/NodeManagement.ts
 
+  # ThorNodes
+  - kind: ethereum/contract
+    name: ThorNode
+    network: mainnet
+    source:
+      address: "0xb81E9C5f9644Dec9e5e3Cac86b4461A222072302"
+      abi: ThorNode
+      startBlock: 1314209
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - IERC721
+      abis:
+        - name: ThorNode
+          file: ./abis/thornode-tokenauction.json
+      eventHandlers:
+        - event: Transfer(indexed address,indexed address,indexed uint256)
+          handler: handleTransfer
+        - event: LevelChanged(indexed uint256,indexed address,uint8,uint8)
+          handler: handleLevelChanged
+      file: ./src/ThorNode.ts
+
   # Account: vet.domains names
   - kind: ethereum/contract
     name: vetDomains
