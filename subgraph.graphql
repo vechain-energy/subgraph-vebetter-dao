@@ -228,7 +228,7 @@ type Account @entity {
   passportEntities: [PassportEntityLink!]! @derivedFrom(field: "passport")
   passportScores: [PassportScore!]! @derivedFrom(field: "passport")
 
-  thorNode: ThorNode @derivedFrom(field: "owner")
+  asThorNode: ThorNode @derivedFrom(field: "owner")
 }
 
 """

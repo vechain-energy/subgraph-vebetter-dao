@@ -2269,11 +2269,11 @@ export class Account extends Entity {
     );
   }
 
-  get thorNode(): ThorNodeLoader {
+  get asThorNode(): ThorNodeLoader {
     return new ThorNodeLoader(
       "Account",
       this.get("id")!.toBytes().toHexString(),
-      "thorNode",
+      "asThorNode",
     );
   }
 }
