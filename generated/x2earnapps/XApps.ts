@@ -66,6 +66,54 @@ export class AppAdminUpdated__Params {
   }
 }
 
+export class AppEndorsed extends ethereum.Event {
+  get params(): AppEndorsed__Params {
+    return new AppEndorsed__Params(this);
+  }
+}
+
+export class AppEndorsed__Params {
+  _event: AppEndorsed;
+
+  constructor(event: AppEndorsed) {
+    this._event = event;
+  }
+
+  get id(): Bytes {
+    return this._event.parameters[0].value.toBytes();
+  }
+
+  get nodeId(): BigInt {
+    return this._event.parameters[1].value.toBigInt();
+  }
+
+  get endorsed(): boolean {
+    return this._event.parameters[2].value.toBoolean();
+  }
+}
+
+export class AppEndorsementStatusUpdated extends ethereum.Event {
+  get params(): AppEndorsementStatusUpdated__Params {
+    return new AppEndorsementStatusUpdated__Params(this);
+  }
+}
+
+export class AppEndorsementStatusUpdated__Params {
+  _event: AppEndorsementStatusUpdated;
+
+  constructor(event: AppEndorsementStatusUpdated) {
+    this._event = event;
+  }
+
+  get appId(): Bytes {
+    return this._event.parameters[0].value.toBytes();
+  }
+
+  get endorsed(): boolean {
+    return this._event.parameters[1].value.toBoolean();
+  }
+}
+
 export class AppMetadataURIUpdated extends ethereum.Event {
   get params(): AppMetadataURIUpdated__Params {
     return new AppMetadataURIUpdated__Params(this);
@@ -92,6 +140,32 @@ export class AppMetadataURIUpdated__Params {
   }
 }
 
+export class AppUnendorsedGracePeriodStarted extends ethereum.Event {
+  get params(): AppUnendorsedGracePeriodStarted__Params {
+    return new AppUnendorsedGracePeriodStarted__Params(this);
+  }
+}
+
+export class AppUnendorsedGracePeriodStarted__Params {
+  _event: AppUnendorsedGracePeriodStarted;
+
+  constructor(event: AppUnendorsedGracePeriodStarted) {
+    this._event = event;
+  }
+
+  get appId(): Bytes {
+    return this._event.parameters[0].value.toBytes();
+  }
+
+  get startBlock(): BigInt {
+    return this._event.parameters[1].value.toBigInt();
+  }
+
+  get endBlock(): BigInt {
+    return this._event.parameters[2].value.toBigInt();
+  }
+}
+
 export class BaseURIUpdated extends ethereum.Event {
   get params(): BaseURIUpdated__Params {
     return new BaseURIUpdated__Params(this);
@@ -111,6 +185,94 @@ export class BaseURIUpdated__Params {
 
   get newBaseURI(): string {
     return this._event.parameters[1].value.toString();
+  }
+}
+
+export class BlacklistUpdated extends ethereum.Event {
+  get params(): BlacklistUpdated__Params {
+    return new BlacklistUpdated__Params(this);
+  }
+}
+
+export class BlacklistUpdated__Params {
+  _event: BlacklistUpdated;
+
+  constructor(event: BlacklistUpdated) {
+    this._event = event;
+  }
+
+  get appId(): Bytes {
+    return this._event.parameters[0].value.toBytes();
+  }
+
+  get isBlacklisted(): boolean {
+    return this._event.parameters[1].value.toBoolean();
+  }
+}
+
+export class CreatorAddedToApp extends ethereum.Event {
+  get params(): CreatorAddedToApp__Params {
+    return new CreatorAddedToApp__Params(this);
+  }
+}
+
+export class CreatorAddedToApp__Params {
+  _event: CreatorAddedToApp;
+
+  constructor(event: CreatorAddedToApp) {
+    this._event = event;
+  }
+
+  get appId(): Bytes {
+    return this._event.parameters[0].value.toBytes();
+  }
+
+  get creatorAddress(): Address {
+    return this._event.parameters[1].value.toAddress();
+  }
+}
+
+export class EndorsementScoreThresholdUpdated extends ethereum.Event {
+  get params(): EndorsementScoreThresholdUpdated__Params {
+    return new EndorsementScoreThresholdUpdated__Params(this);
+  }
+}
+
+export class EndorsementScoreThresholdUpdated__Params {
+  _event: EndorsementScoreThresholdUpdated;
+
+  constructor(event: EndorsementScoreThresholdUpdated) {
+    this._event = event;
+  }
+
+  get oldThreshold(): BigInt {
+    return this._event.parameters[0].value.toBigInt();
+  }
+
+  get newThreshold(): BigInt {
+    return this._event.parameters[1].value.toBigInt();
+  }
+}
+
+export class GracePeriodUpdated extends ethereum.Event {
+  get params(): GracePeriodUpdated__Params {
+    return new GracePeriodUpdated__Params(this);
+  }
+}
+
+export class GracePeriodUpdated__Params {
+  _event: GracePeriodUpdated;
+
+  constructor(event: GracePeriodUpdated) {
+    this._event = event;
+  }
+
+  get oldGracePeriod(): BigInt {
+    return this._event.parameters[0].value.toBigInt();
+  }
+
+  get newGracePeriod(): BigInt {
+    return this._event.parameters[1].value.toBigInt();
   }
 }
 
@@ -173,6 +335,24 @@ export class ModeratorRemovedFromApp__Params {
 
   get moderator(): Address {
     return this._event.parameters[1].value.toAddress();
+  }
+}
+
+export class NodeStrengthScoresUpdated extends ethereum.Event {
+  get params(): NodeStrengthScoresUpdated__Params {
+    return new NodeStrengthScoresUpdated__Params(this);
+  }
+}
+
+export class NodeStrengthScoresUpdated__Params {
+  _event: NodeStrengthScoresUpdated;
+
+  constructor(event: NodeStrengthScoresUpdated) {
+    this._event = event;
+  }
+
+  get nodeStrengthScores(): Bytes {
+    return this._event.parameters[0].value.toBytes();
   }
 }
 
@@ -456,6 +636,32 @@ export class XApps__getPaginatedAppsResultValue0Struct extends ethereum.Tuple {
   }
 }
 
+export class XApps__unendorsedAppsResultValue0Struct extends ethereum.Tuple {
+  get id(): Bytes {
+    return this[0].toBytes();
+  }
+
+  get teamWalletAddress(): Address {
+    return this[1].toAddress();
+  }
+
+  get name(): string {
+    return this[2].toString();
+  }
+
+  get metadataURI(): string {
+    return this[3].toString();
+  }
+
+  get createdAtTimestamp(): BigInt {
+    return this[4].toBigInt();
+  }
+
+  get appAvailableForAllocationVoting(): boolean {
+    return this[5].toBoolean();
+  }
+}
+
 export class XApps extends ethereum.SmartContract {
   static bind(address: Address): XApps {
     return new XApps("XApps", address);
@@ -520,6 +726,21 @@ export class XApps extends ethereum.SmartContract {
     }
     let value = result.value;
     return ethereum.CallResult.fromValue(value[0].toBytes());
+  }
+
+  MAX_CREATORS(): BigInt {
+    let result = super.call("MAX_CREATORS", "MAX_CREATORS():(uint256)", []);
+
+    return result[0].toBigInt();
+  }
+
+  try_MAX_CREATORS(): ethereum.CallResult<BigInt> {
+    let result = super.tryCall("MAX_CREATORS", "MAX_CREATORS():(uint256)", []);
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
   }
 
   MAX_MODERATORS(): BigInt {
@@ -673,6 +894,27 @@ export class XApps extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toAddress());
   }
 
+  appCreators(appId: Bytes): Array<Address> {
+    let result = super.call("appCreators", "appCreators(bytes32):(address[])", [
+      ethereum.Value.fromFixedBytes(appId),
+    ]);
+
+    return result[0].toAddressArray();
+  }
+
+  try_appCreators(appId: Bytes): ethereum.CallResult<Array<Address>> {
+    let result = super.tryCall(
+      "appCreators",
+      "appCreators(bytes32):(address[])",
+      [ethereum.Value.fromFixedBytes(appId)],
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toAddressArray());
+  }
+
   appExists(appId: Bytes): boolean {
     let result = super.call("appExists", "appExists(bytes32):(bool)", [
       ethereum.Value.fromFixedBytes(appId),
@@ -789,6 +1031,29 @@ export class XApps extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toString());
   }
 
+  checkEndorsement(appId: Bytes): boolean {
+    let result = super.call(
+      "checkEndorsement",
+      "checkEndorsement(bytes32):(bool)",
+      [ethereum.Value.fromFixedBytes(appId)],
+    );
+
+    return result[0].toBoolean();
+  }
+
+  try_checkEndorsement(appId: Bytes): ethereum.CallResult<boolean> {
+    let result = super.tryCall(
+      "checkEndorsement",
+      "checkEndorsement(bytes32):(bool)",
+      [ethereum.Value.fromFixedBytes(appId)],
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBoolean());
+  }
+
   clock(): BigInt {
     let result = super.call("clock", "clock():(uint48)", []);
 
@@ -802,6 +1067,119 @@ export class XApps extends ethereum.SmartContract {
     }
     let value = result.value;
     return ethereum.CallResult.fromValue(value[0].toBigInt());
+  }
+
+  creatorApps(creator: Address): BigInt {
+    let result = super.call("creatorApps", "creatorApps(address):(uint256)", [
+      ethereum.Value.fromAddress(creator),
+    ]);
+
+    return result[0].toBigInt();
+  }
+
+  try_creatorApps(creator: Address): ethereum.CallResult<BigInt> {
+    let result = super.tryCall(
+      "creatorApps",
+      "creatorApps(address):(uint256)",
+      [ethereum.Value.fromAddress(creator)],
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
+  }
+
+  endorsementScoreThreshold(): BigInt {
+    let result = super.call(
+      "endorsementScoreThreshold",
+      "endorsementScoreThreshold():(uint256)",
+      [],
+    );
+
+    return result[0].toBigInt();
+  }
+
+  try_endorsementScoreThreshold(): ethereum.CallResult<BigInt> {
+    let result = super.tryCall(
+      "endorsementScoreThreshold",
+      "endorsementScoreThreshold():(uint256)",
+      [],
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
+  }
+
+  getEndorsers(appId: Bytes): Array<Address> {
+    let result = super.call(
+      "getEndorsers",
+      "getEndorsers(bytes32):(address[])",
+      [ethereum.Value.fromFixedBytes(appId)],
+    );
+
+    return result[0].toAddressArray();
+  }
+
+  try_getEndorsers(appId: Bytes): ethereum.CallResult<Array<Address>> {
+    let result = super.tryCall(
+      "getEndorsers",
+      "getEndorsers(bytes32):(address[])",
+      [ethereum.Value.fromFixedBytes(appId)],
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toAddressArray());
+  }
+
+  getNodeEndorsementScore(nodeId: BigInt): BigInt {
+    let result = super.call(
+      "getNodeEndorsementScore",
+      "getNodeEndorsementScore(uint256):(uint256)",
+      [ethereum.Value.fromUnsignedBigInt(nodeId)],
+    );
+
+    return result[0].toBigInt();
+  }
+
+  try_getNodeEndorsementScore(nodeId: BigInt): ethereum.CallResult<BigInt> {
+    let result = super.tryCall(
+      "getNodeEndorsementScore",
+      "getNodeEndorsementScore(uint256):(uint256)",
+      [ethereum.Value.fromUnsignedBigInt(nodeId)],
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
+  }
+
+  getNodeManagementContract(): Address {
+    let result = super.call(
+      "getNodeManagementContract",
+      "getNodeManagementContract():(address)",
+      [],
+    );
+
+    return result[0].toAddress();
+  }
+
+  try_getNodeManagementContract(): ethereum.CallResult<Address> {
+    let result = super.tryCall(
+      "getNodeManagementContract",
+      "getNodeManagementContract():(address)",
+      [],
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toAddress());
   }
 
   getPaginatedApps(
@@ -860,6 +1238,86 @@ export class XApps extends ethereum.SmartContract {
     }
     let value = result.value;
     return ethereum.CallResult.fromValue(value[0].toBytes());
+  }
+
+  getScore(appId: Bytes): BigInt {
+    let result = super.call("getScore", "getScore(bytes32):(uint256)", [
+      ethereum.Value.fromFixedBytes(appId),
+    ]);
+
+    return result[0].toBigInt();
+  }
+
+  try_getScore(appId: Bytes): ethereum.CallResult<BigInt> {
+    let result = super.tryCall("getScore", "getScore(bytes32):(uint256)", [
+      ethereum.Value.fromFixedBytes(appId),
+    ]);
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
+  }
+
+  getUsersEndorsementScore(user: Address): BigInt {
+    let result = super.call(
+      "getUsersEndorsementScore",
+      "getUsersEndorsementScore(address):(uint256)",
+      [ethereum.Value.fromAddress(user)],
+    );
+
+    return result[0].toBigInt();
+  }
+
+  try_getUsersEndorsementScore(user: Address): ethereum.CallResult<BigInt> {
+    let result = super.tryCall(
+      "getUsersEndorsementScore",
+      "getUsersEndorsementScore(address):(uint256)",
+      [ethereum.Value.fromAddress(user)],
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
+  }
+
+  getVeBetterPassportContract(): Address {
+    let result = super.call(
+      "getVeBetterPassportContract",
+      "getVeBetterPassportContract():(address)",
+      [],
+    );
+
+    return result[0].toAddress();
+  }
+
+  try_getVeBetterPassportContract(): ethereum.CallResult<Address> {
+    let result = super.tryCall(
+      "getVeBetterPassportContract",
+      "getVeBetterPassportContract():(address)",
+      [],
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toAddress());
+  }
+
+  gracePeriod(): BigInt {
+    let result = super.call("gracePeriod", "gracePeriod():(uint256)", []);
+
+    return result[0].toBigInt();
+  }
+
+  try_gracePeriod(): ethereum.CallResult<BigInt> {
+    let result = super.tryCall("gracePeriod", "gracePeriod():(uint256)", []);
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
   }
 
   hasRole(role: Bytes, account: Address): boolean {
@@ -931,6 +1389,38 @@ export class XApps extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toBoolean());
   }
 
+  isAppCreator(appId: Bytes, account: Address): boolean {
+    let result = super.call(
+      "isAppCreator",
+      "isAppCreator(bytes32,address):(bool)",
+      [
+        ethereum.Value.fromFixedBytes(appId),
+        ethereum.Value.fromAddress(account),
+      ],
+    );
+
+    return result[0].toBoolean();
+  }
+
+  try_isAppCreator(
+    appId: Bytes,
+    account: Address,
+  ): ethereum.CallResult<boolean> {
+    let result = super.tryCall(
+      "isAppCreator",
+      "isAppCreator(bytes32,address):(bool)",
+      [
+        ethereum.Value.fromFixedBytes(appId),
+        ethereum.Value.fromAddress(account),
+      ],
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBoolean());
+  }
+
   isAppModerator(appId: Bytes, account: Address): boolean {
     let result = super.call(
       "isAppModerator",
@@ -955,6 +1445,50 @@ export class XApps extends ethereum.SmartContract {
         ethereum.Value.fromFixedBytes(appId),
         ethereum.Value.fromAddress(account),
       ],
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBoolean());
+  }
+
+  isAppUnendorsed(appId: Bytes): boolean {
+    let result = super.call(
+      "isAppUnendorsed",
+      "isAppUnendorsed(bytes32):(bool)",
+      [ethereum.Value.fromFixedBytes(appId)],
+    );
+
+    return result[0].toBoolean();
+  }
+
+  try_isAppUnendorsed(appId: Bytes): ethereum.CallResult<boolean> {
+    let result = super.tryCall(
+      "isAppUnendorsed",
+      "isAppUnendorsed(bytes32):(bool)",
+      [ethereum.Value.fromFixedBytes(appId)],
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBoolean());
+  }
+
+  isBlacklisted(appId: Bytes): boolean {
+    let result = super.call("isBlacklisted", "isBlacklisted(bytes32):(bool)", [
+      ethereum.Value.fromFixedBytes(appId),
+    ]);
+
+    return result[0].toBoolean();
+  }
+
+  try_isBlacklisted(appId: Bytes): ethereum.CallResult<boolean> {
+    let result = super.tryCall(
+      "isBlacklisted",
+      "isBlacklisted(bytes32):(bool)",
+      [ethereum.Value.fromFixedBytes(appId)],
     );
     if (result.reverted) {
       return new ethereum.CallResult();
@@ -1065,6 +1599,52 @@ export class XApps extends ethereum.SmartContract {
     }
     let value = result.value;
     return ethereum.CallResult.fromValue(value[0].toString());
+  }
+
+  nodeLevelEndorsementScore(nodeLevel: i32): BigInt {
+    let result = super.call(
+      "nodeLevelEndorsementScore",
+      "nodeLevelEndorsementScore(uint8):(uint256)",
+      [ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(nodeLevel))],
+    );
+
+    return result[0].toBigInt();
+  }
+
+  try_nodeLevelEndorsementScore(nodeLevel: i32): ethereum.CallResult<BigInt> {
+    let result = super.tryCall(
+      "nodeLevelEndorsementScore",
+      "nodeLevelEndorsementScore(uint8):(uint256)",
+      [ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(nodeLevel))],
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
+  }
+
+  nodeToEndorsedApp(nodeId: BigInt): Bytes {
+    let result = super.call(
+      "nodeToEndorsedApp",
+      "nodeToEndorsedApp(uint256):(bytes32)",
+      [ethereum.Value.fromUnsignedBigInt(nodeId)],
+    );
+
+    return result[0].toBytes();
+  }
+
+  try_nodeToEndorsedApp(nodeId: BigInt): ethereum.CallResult<Bytes> {
+    let result = super.tryCall(
+      "nodeToEndorsedApp",
+      "nodeToEndorsedApp(uint256):(bytes32)",
+      [ethereum.Value.fromUnsignedBigInt(nodeId)],
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBytes());
   }
 
   proxiableUUID(): Bytes {
@@ -1178,6 +1758,56 @@ export class XApps extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toAddress());
   }
 
+  unendorsedAppIds(): Array<Bytes> {
+    let result = super.call(
+      "unendorsedAppIds",
+      "unendorsedAppIds():(bytes32[])",
+      [],
+    );
+
+    return result[0].toBytesArray();
+  }
+
+  try_unendorsedAppIds(): ethereum.CallResult<Array<Bytes>> {
+    let result = super.tryCall(
+      "unendorsedAppIds",
+      "unendorsedAppIds():(bytes32[])",
+      [],
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBytesArray());
+  }
+
+  unendorsedApps(): Array<XApps__unendorsedAppsResultValue0Struct> {
+    let result = super.call(
+      "unendorsedApps",
+      "unendorsedApps():((bytes32,address,string,string,uint256,bool)[])",
+      [],
+    );
+
+    return result[0].toTupleArray<XApps__unendorsedAppsResultValue0Struct>();
+  }
+
+  try_unendorsedApps(): ethereum.CallResult<
+    Array<XApps__unendorsedAppsResultValue0Struct>
+  > {
+    let result = super.tryCall(
+      "unendorsedApps",
+      "unendorsedApps():((bytes32,address,string,string,uint256,bool)[])",
+      [],
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(
+      value[0].toTupleArray<XApps__unendorsedAppsResultValue0Struct>(),
+    );
+  }
+
   version(): string {
     let result = super.call("version", "version():(string)", []);
 
@@ -1191,6 +1821,29 @@ export class XApps extends ethereum.SmartContract {
     }
     let value = result.value;
     return ethereum.CallResult.fromValue(value[0].toString());
+  }
+
+  x2EarnCreatorContract(): Address {
+    let result = super.call(
+      "x2EarnCreatorContract",
+      "x2EarnCreatorContract():(address)",
+      [],
+    );
+
+    return result[0].toAddress();
+  }
+
+  try_x2EarnCreatorContract(): ethereum.CallResult<Address> {
+    let result = super.tryCall(
+      "x2EarnCreatorContract",
+      "x2EarnCreatorContract():(address)",
+      [],
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toAddress());
   }
 }
 
@@ -1216,48 +1869,6 @@ export class ConstructorCall__Outputs {
   _call: ConstructorCall;
 
   constructor(call: ConstructorCall) {
-    this._call = call;
-  }
-}
-
-export class AddAppCall extends ethereum.Call {
-  get inputs(): AddAppCall__Inputs {
-    return new AddAppCall__Inputs(this);
-  }
-
-  get outputs(): AddAppCall__Outputs {
-    return new AddAppCall__Outputs(this);
-  }
-}
-
-export class AddAppCall__Inputs {
-  _call: AddAppCall;
-
-  constructor(call: AddAppCall) {
-    this._call = call;
-  }
-
-  get _teamWalletAddress(): Address {
-    return this._call.inputValues[0].value.toAddress();
-  }
-
-  get _admin(): Address {
-    return this._call.inputValues[1].value.toAddress();
-  }
-
-  get _appName(): string {
-    return this._call.inputValues[2].value.toString();
-  }
-
-  get _appMetadataURI(): string {
-    return this._call.inputValues[3].value.toString();
-  }
-}
-
-export class AddAppCall__Outputs {
-  _call: AddAppCall;
-
-  constructor(call: AddAppCall) {
     this._call = call;
   }
 }
@@ -1296,6 +1907,40 @@ export class AddAppModeratorCall__Outputs {
   }
 }
 
+export class AddCreatorCall extends ethereum.Call {
+  get inputs(): AddCreatorCall__Inputs {
+    return new AddCreatorCall__Inputs(this);
+  }
+
+  get outputs(): AddCreatorCall__Outputs {
+    return new AddCreatorCall__Outputs(this);
+  }
+}
+
+export class AddCreatorCall__Inputs {
+  _call: AddCreatorCall;
+
+  constructor(call: AddCreatorCall) {
+    this._call = call;
+  }
+
+  get _appId(): Bytes {
+    return this._call.inputValues[0].value.toBytes();
+  }
+
+  get _creator(): Address {
+    return this._call.inputValues[1].value.toAddress();
+  }
+}
+
+export class AddCreatorCall__Outputs {
+  _call: AddCreatorCall;
+
+  constructor(call: AddCreatorCall) {
+    this._call = call;
+  }
+}
+
 export class AddRewardDistributorCall extends ethereum.Call {
   get inputs(): AddRewardDistributorCall__Inputs {
     return new AddRewardDistributorCall__Inputs(this);
@@ -1326,6 +1971,74 @@ export class AddRewardDistributorCall__Outputs {
   _call: AddRewardDistributorCall;
 
   constructor(call: AddRewardDistributorCall) {
+    this._call = call;
+  }
+}
+
+export class CheckEndorsementCall extends ethereum.Call {
+  get inputs(): CheckEndorsementCall__Inputs {
+    return new CheckEndorsementCall__Inputs(this);
+  }
+
+  get outputs(): CheckEndorsementCall__Outputs {
+    return new CheckEndorsementCall__Outputs(this);
+  }
+}
+
+export class CheckEndorsementCall__Inputs {
+  _call: CheckEndorsementCall;
+
+  constructor(call: CheckEndorsementCall) {
+    this._call = call;
+  }
+
+  get appId(): Bytes {
+    return this._call.inputValues[0].value.toBytes();
+  }
+}
+
+export class CheckEndorsementCall__Outputs {
+  _call: CheckEndorsementCall;
+
+  constructor(call: CheckEndorsementCall) {
+    this._call = call;
+  }
+
+  get value0(): boolean {
+    return this._call.outputValues[0].value.toBoolean();
+  }
+}
+
+export class EndorseAppCall extends ethereum.Call {
+  get inputs(): EndorseAppCall__Inputs {
+    return new EndorseAppCall__Inputs(this);
+  }
+
+  get outputs(): EndorseAppCall__Outputs {
+    return new EndorseAppCall__Outputs(this);
+  }
+}
+
+export class EndorseAppCall__Inputs {
+  _call: EndorseAppCall;
+
+  constructor(call: EndorseAppCall) {
+    this._call = call;
+  }
+
+  get appId(): Bytes {
+    return this._call.inputValues[0].value.toBytes();
+  }
+
+  get nodeId(): BigInt {
+    return this._call.inputValues[1].value.toBigInt();
+  }
+}
+
+export class EndorseAppCall__Outputs {
+  _call: EndorseAppCall;
+
+  constructor(call: EndorseAppCall) {
     this._call = call;
   }
 }
@@ -1364,44 +2077,78 @@ export class GrantRoleCall__Outputs {
   }
 }
 
-export class InitializeCall extends ethereum.Call {
-  get inputs(): InitializeCall__Inputs {
-    return new InitializeCall__Inputs(this);
+export class InitializeV2Call extends ethereum.Call {
+  get inputs(): InitializeV2Call__Inputs {
+    return new InitializeV2Call__Inputs(this);
   }
 
-  get outputs(): InitializeCall__Outputs {
-    return new InitializeCall__Outputs(this);
+  get outputs(): InitializeV2Call__Outputs {
+    return new InitializeV2Call__Outputs(this);
   }
 }
 
-export class InitializeCall__Inputs {
-  _call: InitializeCall;
+export class InitializeV2Call__Inputs {
+  _call: InitializeV2Call;
 
-  constructor(call: InitializeCall) {
+  constructor(call: InitializeV2Call) {
     this._call = call;
   }
 
-  get _baseURI(): string {
-    return this._call.inputValues[0].value.toString();
+  get _gracePeriod(): BigInt {
+    return this._call.inputValues[0].value.toBigInt();
   }
 
-  get _admins(): Array<Address> {
-    return this._call.inputValues[1].value.toAddressArray();
+  get _nodeManagementContract(): Address {
+    return this._call.inputValues[1].value.toAddress();
   }
 
-  get _upgrader(): Address {
+  get _veBetterPassportContract(): Address {
     return this._call.inputValues[2].value.toAddress();
   }
 
-  get _governor(): Address {
+  get _x2EarnCreatorContract(): Address {
     return this._call.inputValues[3].value.toAddress();
   }
 }
 
-export class InitializeCall__Outputs {
-  _call: InitializeCall;
+export class InitializeV2Call__Outputs {
+  _call: InitializeV2Call;
 
-  constructor(call: InitializeCall) {
+  constructor(call: InitializeV2Call) {
+    this._call = call;
+  }
+}
+
+export class RemoveAppCreatorCall extends ethereum.Call {
+  get inputs(): RemoveAppCreatorCall__Inputs {
+    return new RemoveAppCreatorCall__Inputs(this);
+  }
+
+  get outputs(): RemoveAppCreatorCall__Outputs {
+    return new RemoveAppCreatorCall__Outputs(this);
+  }
+}
+
+export class RemoveAppCreatorCall__Inputs {
+  _call: RemoveAppCreatorCall;
+
+  constructor(call: RemoveAppCreatorCall) {
+    this._call = call;
+  }
+
+  get _appId(): Bytes {
+    return this._call.inputValues[0].value.toBytes();
+  }
+
+  get _creator(): Address {
+    return this._call.inputValues[1].value.toAddress();
+  }
+}
+
+export class RemoveAppCreatorCall__Outputs {
+  _call: RemoveAppCreatorCall;
+
+  constructor(call: RemoveAppCreatorCall) {
     this._call = call;
   }
 }
@@ -1440,6 +2187,40 @@ export class RemoveAppModeratorCall__Outputs {
   }
 }
 
+export class RemoveNodeEndorsementCall extends ethereum.Call {
+  get inputs(): RemoveNodeEndorsementCall__Inputs {
+    return new RemoveNodeEndorsementCall__Inputs(this);
+  }
+
+  get outputs(): RemoveNodeEndorsementCall__Outputs {
+    return new RemoveNodeEndorsementCall__Outputs(this);
+  }
+}
+
+export class RemoveNodeEndorsementCall__Inputs {
+  _call: RemoveNodeEndorsementCall;
+
+  constructor(call: RemoveNodeEndorsementCall) {
+    this._call = call;
+  }
+
+  get _appId(): Bytes {
+    return this._call.inputValues[0].value.toBytes();
+  }
+
+  get _nodeId(): BigInt {
+    return this._call.inputValues[1].value.toBigInt();
+  }
+}
+
+export class RemoveNodeEndorsementCall__Outputs {
+  _call: RemoveNodeEndorsementCall;
+
+  constructor(call: RemoveNodeEndorsementCall) {
+    this._call = call;
+  }
+}
+
 export class RemoveRewardDistributorCall extends ethereum.Call {
   get inputs(): RemoveRewardDistributorCall__Inputs {
     return new RemoveRewardDistributorCall__Inputs(this);
@@ -1470,6 +2251,36 @@ export class RemoveRewardDistributorCall__Outputs {
   _call: RemoveRewardDistributorCall;
 
   constructor(call: RemoveRewardDistributorCall) {
+    this._call = call;
+  }
+}
+
+export class RemoveXAppSubmissionCall extends ethereum.Call {
+  get inputs(): RemoveXAppSubmissionCall__Inputs {
+    return new RemoveXAppSubmissionCall__Inputs(this);
+  }
+
+  get outputs(): RemoveXAppSubmissionCall__Outputs {
+    return new RemoveXAppSubmissionCall__Outputs(this);
+  }
+}
+
+export class RemoveXAppSubmissionCall__Inputs {
+  _call: RemoveXAppSubmissionCall;
+
+  constructor(call: RemoveXAppSubmissionCall) {
+    this._call = call;
+  }
+
+  get _appId(): Bytes {
+    return this._call.inputValues[0].value.toBytes();
+  }
+}
+
+export class RemoveXAppSubmissionCall__Outputs {
+  _call: RemoveXAppSubmissionCall;
+
+  constructor(call: RemoveXAppSubmissionCall) {
     this._call = call;
   }
 }
@@ -1606,6 +2417,36 @@ export class SetBaseURICall__Outputs {
   }
 }
 
+export class SetNodeManagementContractCall extends ethereum.Call {
+  get inputs(): SetNodeManagementContractCall__Inputs {
+    return new SetNodeManagementContractCall__Inputs(this);
+  }
+
+  get outputs(): SetNodeManagementContractCall__Outputs {
+    return new SetNodeManagementContractCall__Outputs(this);
+  }
+}
+
+export class SetNodeManagementContractCall__Inputs {
+  _call: SetNodeManagementContractCall;
+
+  constructor(call: SetNodeManagementContractCall) {
+    this._call = call;
+  }
+
+  get _nodeManagementContract(): Address {
+    return this._call.inputValues[0].value.toAddress();
+  }
+}
+
+export class SetNodeManagementContractCall__Outputs {
+  _call: SetNodeManagementContractCall;
+
+  constructor(call: SetNodeManagementContractCall) {
+    this._call = call;
+  }
+}
+
 export class SetTeamAllocationPercentageCall extends ethereum.Call {
   get inputs(): SetTeamAllocationPercentageCall__Inputs {
     return new SetTeamAllocationPercentageCall__Inputs(this);
@@ -1636,6 +2477,36 @@ export class SetTeamAllocationPercentageCall__Outputs {
   _call: SetTeamAllocationPercentageCall;
 
   constructor(call: SetTeamAllocationPercentageCall) {
+    this._call = call;
+  }
+}
+
+export class SetVeBetterPassportContractCall extends ethereum.Call {
+  get inputs(): SetVeBetterPassportContractCall__Inputs {
+    return new SetVeBetterPassportContractCall__Inputs(this);
+  }
+
+  get outputs(): SetVeBetterPassportContractCall__Outputs {
+    return new SetVeBetterPassportContractCall__Outputs(this);
+  }
+}
+
+export class SetVeBetterPassportContractCall__Inputs {
+  _call: SetVeBetterPassportContractCall;
+
+  constructor(call: SetVeBetterPassportContractCall) {
+    this._call = call;
+  }
+
+  get _veBetterPassportContract(): Address {
+    return this._call.inputValues[0].value.toAddress();
+  }
+}
+
+export class SetVeBetterPassportContractCall__Outputs {
+  _call: SetVeBetterPassportContractCall;
+
+  constructor(call: SetVeBetterPassportContractCall) {
     this._call = call;
   }
 }
@@ -1674,6 +2545,112 @@ export class SetVotingEligibilityCall__Outputs {
   }
 }
 
+export class SetX2EarnCreatorContractCall extends ethereum.Call {
+  get inputs(): SetX2EarnCreatorContractCall__Inputs {
+    return new SetX2EarnCreatorContractCall__Inputs(this);
+  }
+
+  get outputs(): SetX2EarnCreatorContractCall__Outputs {
+    return new SetX2EarnCreatorContractCall__Outputs(this);
+  }
+}
+
+export class SetX2EarnCreatorContractCall__Inputs {
+  _call: SetX2EarnCreatorContractCall;
+
+  constructor(call: SetX2EarnCreatorContractCall) {
+    this._call = call;
+  }
+
+  get _x2EarnCreatorContract(): Address {
+    return this._call.inputValues[0].value.toAddress();
+  }
+}
+
+export class SetX2EarnCreatorContractCall__Outputs {
+  _call: SetX2EarnCreatorContractCall;
+
+  constructor(call: SetX2EarnCreatorContractCall) {
+    this._call = call;
+  }
+}
+
+export class SubmitAppCall extends ethereum.Call {
+  get inputs(): SubmitAppCall__Inputs {
+    return new SubmitAppCall__Inputs(this);
+  }
+
+  get outputs(): SubmitAppCall__Outputs {
+    return new SubmitAppCall__Outputs(this);
+  }
+}
+
+export class SubmitAppCall__Inputs {
+  _call: SubmitAppCall;
+
+  constructor(call: SubmitAppCall) {
+    this._call = call;
+  }
+
+  get _teamWalletAddress(): Address {
+    return this._call.inputValues[0].value.toAddress();
+  }
+
+  get _admin(): Address {
+    return this._call.inputValues[1].value.toAddress();
+  }
+
+  get _appName(): string {
+    return this._call.inputValues[2].value.toString();
+  }
+
+  get _appMetadataURI(): string {
+    return this._call.inputValues[3].value.toString();
+  }
+}
+
+export class SubmitAppCall__Outputs {
+  _call: SubmitAppCall;
+
+  constructor(call: SubmitAppCall) {
+    this._call = call;
+  }
+}
+
+export class UnendorseAppCall extends ethereum.Call {
+  get inputs(): UnendorseAppCall__Inputs {
+    return new UnendorseAppCall__Inputs(this);
+  }
+
+  get outputs(): UnendorseAppCall__Outputs {
+    return new UnendorseAppCall__Outputs(this);
+  }
+}
+
+export class UnendorseAppCall__Inputs {
+  _call: UnendorseAppCall;
+
+  constructor(call: UnendorseAppCall) {
+    this._call = call;
+  }
+
+  get appId(): Bytes {
+    return this._call.inputValues[0].value.toBytes();
+  }
+
+  get nodeId(): BigInt {
+    return this._call.inputValues[1].value.toBigInt();
+  }
+}
+
+export class UnendorseAppCall__Outputs {
+  _call: UnendorseAppCall;
+
+  constructor(call: UnendorseAppCall) {
+    this._call = call;
+  }
+}
+
 export class UpdateAppMetadataCall extends ethereum.Call {
   get inputs(): UpdateAppMetadataCall__Inputs {
     return new UpdateAppMetadataCall__Inputs(this);
@@ -1705,6 +2682,128 @@ export class UpdateAppMetadataCall__Outputs {
 
   constructor(call: UpdateAppMetadataCall) {
     this._call = call;
+  }
+}
+
+export class UpdateEndorsementScoreThresholdCall extends ethereum.Call {
+  get inputs(): UpdateEndorsementScoreThresholdCall__Inputs {
+    return new UpdateEndorsementScoreThresholdCall__Inputs(this);
+  }
+
+  get outputs(): UpdateEndorsementScoreThresholdCall__Outputs {
+    return new UpdateEndorsementScoreThresholdCall__Outputs(this);
+  }
+}
+
+export class UpdateEndorsementScoreThresholdCall__Inputs {
+  _call: UpdateEndorsementScoreThresholdCall;
+
+  constructor(call: UpdateEndorsementScoreThresholdCall) {
+    this._call = call;
+  }
+
+  get _scoreThreshold(): BigInt {
+    return this._call.inputValues[0].value.toBigInt();
+  }
+}
+
+export class UpdateEndorsementScoreThresholdCall__Outputs {
+  _call: UpdateEndorsementScoreThresholdCall;
+
+  constructor(call: UpdateEndorsementScoreThresholdCall) {
+    this._call = call;
+  }
+}
+
+export class UpdateGracePeriodCall extends ethereum.Call {
+  get inputs(): UpdateGracePeriodCall__Inputs {
+    return new UpdateGracePeriodCall__Inputs(this);
+  }
+
+  get outputs(): UpdateGracePeriodCall__Outputs {
+    return new UpdateGracePeriodCall__Outputs(this);
+  }
+}
+
+export class UpdateGracePeriodCall__Inputs {
+  _call: UpdateGracePeriodCall;
+
+  constructor(call: UpdateGracePeriodCall) {
+    this._call = call;
+  }
+
+  get _newGracePeriod(): BigInt {
+    return this._call.inputValues[0].value.toBigInt();
+  }
+}
+
+export class UpdateGracePeriodCall__Outputs {
+  _call: UpdateGracePeriodCall;
+
+  constructor(call: UpdateGracePeriodCall) {
+    this._call = call;
+  }
+}
+
+export class UpdateNodeEndorsementScoresCall extends ethereum.Call {
+  get inputs(): UpdateNodeEndorsementScoresCall__Inputs {
+    return new UpdateNodeEndorsementScoresCall__Inputs(this);
+  }
+
+  get outputs(): UpdateNodeEndorsementScoresCall__Outputs {
+    return new UpdateNodeEndorsementScoresCall__Outputs(this);
+  }
+}
+
+export class UpdateNodeEndorsementScoresCall__Inputs {
+  _call: UpdateNodeEndorsementScoresCall;
+
+  constructor(call: UpdateNodeEndorsementScoresCall) {
+    this._call = call;
+  }
+
+  get _nodeStrengthScores(): UpdateNodeEndorsementScoresCall_nodeStrengthScoresStruct {
+    return changetype<UpdateNodeEndorsementScoresCall_nodeStrengthScoresStruct>(
+      this._call.inputValues[0].value.toTuple(),
+    );
+  }
+}
+
+export class UpdateNodeEndorsementScoresCall__Outputs {
+  _call: UpdateNodeEndorsementScoresCall;
+
+  constructor(call: UpdateNodeEndorsementScoresCall) {
+    this._call = call;
+  }
+}
+
+export class UpdateNodeEndorsementScoresCall_nodeStrengthScoresStruct extends ethereum.Tuple {
+  get strength(): BigInt {
+    return this[0].toBigInt();
+  }
+
+  get thunder(): BigInt {
+    return this[1].toBigInt();
+  }
+
+  get mjolnir(): BigInt {
+    return this[2].toBigInt();
+  }
+
+  get veThorX(): BigInt {
+    return this[3].toBigInt();
+  }
+
+  get strengthX(): BigInt {
+    return this[4].toBigInt();
+  }
+
+  get thunderX(): BigInt {
+    return this[5].toBigInt();
+  }
+
+  get mjolnirX(): BigInt {
+    return this[6].toBigInt();
   }
 }
 

@@ -37,6 +37,7 @@ X-2-Earn Apps
 """
 type App @entity {
   id: Bytes!
+  endorsed: Boolean!
   name: String
   metadata: AppMetadata
   metadataURI: String
@@ -59,6 +60,7 @@ type App @entity {
   participantsCount: BigInt!
   createdAtBlockNumber: BigInt!
   updatedAtBlockNumber: BigInt!
+  endorsers: [AppEndorsement!]! @derivedFrom(field: "app")
   createdAt: BigInt!
 }
 
@@ -164,6 +166,7 @@ type VeDelegateAccount @entity {
   account: Account!
   token: ERC721Token!
   passportDelegation: PassportDelegation
+  nodeDelegation: NodeDelegation
 }
 
 type VeDelegateConfig @entity {
@@ -220,9 +223,12 @@ type Account @entity {
   passportDelegator: PassportDelegation @derivedFrom(field: "delegator")
   passportDelegatee: PassportDelegation @derivedFrom(field: "delegatee")
 
+  nodeDelegatee: NodeDelegation @derivedFrom(field: "delegatee")
+
   passportEntities: [PassportEntityLink!]! @derivedFrom(field: "passport")
   passportScores: [PassportScore!]! @derivedFrom(field: "passport")
 }
+
 
 """
 ERC721 Contract for veDelegate and GM NFTs
@@ -945,6 +951,9 @@ type SustainabilityStats @entity {
   biodiversity: BigInt!
 }
 
+"""
+VePassport
+"""
 type PassportDelegation implements Event @entity {
   id: ID!
   active: Boolean!
@@ -991,6 +1000,37 @@ type PassportScore implements Event @entity(immutable: true) {
   round: Round!
   app: App!
   score: BigInt!
+
+  transaction: Transaction!
+  emitter: Account!
+  timestamp: BigInt!
+}
+
+
+"""
+NodeDelegation
+"""
+type NodeDelegation implements Event @entity {
+  id: ID!
+  active: Boolean!
+
+  nodeId: BigInt!
+  delegatee: Account!
+
+  transaction: Transaction!
+  emitter: Account!
+  timestamp: BigInt!
+}
+
+"""
+App Endorsement
+"""
+type AppEndorsement implements Event @entity {
+  id: ID!
+  active: Boolean!
+
+  nodeId: BigInt!
+  app: App!
 
   transaction: Transaction!
   emitter: Account!

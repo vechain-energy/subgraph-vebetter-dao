@@ -2,12 +2,15 @@ import {
     AppAdded as AppAddedEvent,
     AppMetadataURIUpdated as AppMetadataURIUpdatedEvent,
     VotingEligibilityUpdated as VotingEligibilityUpdatedEvent,
-    XApps
+    AppEndorsed as AppEndorsedEvent,
+    AppEndorsementStatusUpdated as AppEndorsementStatusUpdatedEvent,
+    XApps,
 } from '../generated/x2earnapps/XApps'
-import { App } from '../generated/schema'
+import { App, AppEndorsement } from '../generated/schema'
 import { Bytes } from "@graphprotocol/graph-ts";
 import { AppMetadata as AppMetadataTemplate } from '../generated/templates'
-import { constants } from '@amxx/graphprotocol-utils'
+import { constants, transactions } from '@amxx/graphprotocol-utils'
+
 export function handleAppAdded(event: AppAddedEvent): void {
     const app = fetchApp(event.params.id)
     app.name = event.params.name
@@ -36,10 +39,39 @@ export function handleAppVotingEligibilityUpdated(event: VotingEligibilityUpdate
     app.save()
 }
 
+export function handleAppEndorsed(event: AppEndorsedEvent): void {
+    const app = fetchApp(event.params.id)
+    const id = ['endorsement', event.params.nodeId.toString(), app.id.toHexString()].join('/')
+    let endorsement = AppEndorsement.load(id)
+
+    if (!endorsement) {
+        endorsement = new AppEndorsement(id)
+    }
+
+    endorsement.active = event.params.endorsed
+    endorsement.nodeId = event.params.nodeId
+    endorsement.app = app.id
+
+
+    endorsement.emitter = event.address
+    endorsement.timestamp = event.block.timestamp
+    endorsement.transaction = transactions.log(event).id
+
+    endorsement.save()
+}
+
+export function handleAppEndorsementStatusUpdated(event: AppEndorsementStatusUpdatedEvent): void {
+    const app = fetchApp(event.params.appId)
+    app.endorsed = event.params.endorsed
+    app.save()
+}
+
 export function fetchApp(id: Bytes): App {
     let app = App.load(id)
     if (app == null) {
         app = new App(id)
+
+        app.endorsed = false
         app.poolAllocations = constants.BIGDECIMAL_ZERO
         app.poolBalance = constants.BIGDECIMAL_ZERO
         app.poolDistributions = constants.BIGDECIMAL_ZERO

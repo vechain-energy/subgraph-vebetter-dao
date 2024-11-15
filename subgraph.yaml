@@ -146,6 +146,10 @@ dataSources:
           handler: handleAppMetadataURIUpdated
         - event: VotingEligibilityUpdated(indexed bytes32,bool)
           handler: handleAppVotingEligibilityUpdated
+        - event: AppEndorsed(indexed bytes32,uint256,bool)
+          handler: handleAppEndorsed
+        - event: AppEndorsementStatusUpdated(indexed bytes32,bool)
+          handler: handleAppEndorsementStatusUpdated
       file: ./src/XApps.ts
 
   # X2Apps: Allocations
@@ -352,6 +356,29 @@ dataSources:
         - event: RemovedUserFromBlacklist(indexed address,indexed address)
           handler: handleRemovedUserFromBlacklist
       file: ./src/Passport.ts
+
+  # NodeManagement
+  - kind: ethereum/contract
+    name: NodeManagement
+    network: mainnet
+    source:
+      address: "0xB0EF9D89C6b49CbA6BBF86Bf2FDf0Eee4968c6AB"
+      abi: NodeManagement
+      startBlock: 20115949
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - NodeManagement
+        - XApps
+      abis:
+        - name: NodeManagement
+          file: ./abis/VeBetterDAO-node-management.json
+      eventHandlers:
+        - event: NodeDelegated(indexed uint256,indexed address,bool)
+          handler: handleDelegateNode
+      file: ./src/NodeManagement.ts
 
   # Account: vet.domains names
   - kind: ethereum/contract
