@@ -26,6 +26,12 @@ export function handleTransfer(event: TransferEvent): void {
     }
 
     node.owner = fetchAccount(event.params._to).id
+
+    if (event.params._to === constants.ADDRESS_ZERO) {
+        node.isX = false
+        node.level = 0
+    }
+
     node.save()
 }
 
