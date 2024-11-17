@@ -3,10 +3,10 @@ import {
     AllocationVoteCast as AllocationVoteCastEvent,
     RoundCreated as RoundCreatedEvent
 } from '../generated/xallocationvoting/XAllocationVoting'
-import { Round, AllocationVote, RoundStatistic, ERC20Balance, AllocationResult, VeDelegateAccount } from '../generated/schema'
+import { Round, AllocationVote, RoundStatistic, ERC20Balance, AllocationResult, VeDelegateAccount, StatsEndorsement } from '../generated/schema'
 import { decimals, transactions, constants } from '@amxx/graphprotocol-utils'
 import { fetchAccount } from '../node_modules/@openzeppelin/subgraphs/src/fetch/account'
-import { fetchApp } from './XApps'
+import { fetchApp, fetchStatsEndorsements } from './XApps'
 import { bigInt } from '@graphprotocol/graph-ts'
 
 export function handleVoteCast(event: AllocationVoteCastEvent): void {

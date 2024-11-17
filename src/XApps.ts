@@ -6,11 +6,12 @@ import {
     AppEndorsementStatusUpdated as AppEndorsementStatusUpdatedEvent,
     XApps,
 } from '../generated/x2earnapps/XApps'
-import { App, AppEndorsement } from '../generated/schema'
+import { App, AppEndorsement, NodeDelegation, StatsEndorsement, VeDelegateAccount } from '../generated/schema'
 import { Bytes } from "@graphprotocol/graph-ts";
 import { AppMetadata as AppMetadataTemplate } from '../generated/templates'
 import { constants, transactions } from '@amxx/graphprotocol-utils'
 import { fetchNode } from './ThorNode';
+import { levelToPoints } from './NodeManagement';
 
 export function handleAppAdded(event: AppAddedEvent): void {
     const app = fetchApp(event.params.id)
@@ -59,6 +60,41 @@ export function handleAppEndorsed(event: AppEndorsedEvent): void {
     endorsement.transaction = transactions.log(event).id
 
     endorsement.save()
+
+
+    // track total endorsement points & node count
+    const stats = fetchStatsEndorsements('all')
+
+    const node = fetchNode(event.params.nodeId)
+    stats.nodeCount += app.endorsed ? 1 : -1
+    stats.points += app.endorsed ? levelToPoints(node.level) : (levelToPoints(node.level) * -1)
+    stats.save()
+
+
+    if (node.delegation) {
+        const delegation = NodeDelegation.load(node.delegation._id)
+        if (delegation) {
+            const veAccount = VeDelegateAccount.load(delegation.delegatee)
+            if (veAccount) {
+                const veDelegateStats = fetchStatsEndorsements('veDelegate')
+                veDelegateStats.nodeCount += app.endorsed ? 1 : -1
+                veDelegateStats.points += app.endorsed ? levelToPoints(node.level) : (levelToPoints(node.level) * -1)
+                veDelegateStats.save()
+            }
+        }
+    }
+}
+
+export function fetchStatsEndorsements(id: string): StatsEndorsement {
+    let stats = StatsEndorsement.load(id)
+    if (!stats) {
+        stats = new StatsEndorsement(id)
+        stats.nodeCount = 0
+        stats.points = 0
+        stats.delegatedPoints = 0
+        stats.save()
+    }
+    return stats
 }
 
 export function handleAppEndorsementStatusUpdated(event: AppEndorsementStatusUpdatedEvent): void {

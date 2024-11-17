@@ -1030,7 +1030,7 @@ type ThorNode @entity {
   isX: Boolean!
 
   appEndorsement: AppEndorsement @derivedFrom(field: "node")
-  delegatee: NodeDelegation @derivedFrom(field: "node")
+  delegation: NodeDelegation @derivedFrom(field: "node")
 }
 
 """
@@ -1046,4 +1046,11 @@ type AppEndorsement implements Event @entity {
   transaction: Transaction!
   emitter: Account!
   timestamp: BigInt!
+}
+
+type StatsEndorsement @entity {
+  id: ID!
+  nodeCount: Int!
+  points: Int!
+  delegatedPoints: Int!
 }

@@ -9731,11 +9731,11 @@ export class ThorNode extends Entity {
     );
   }
 
-  get delegatee(): NodeDelegationLoader {
+  get delegation(): NodeDelegationLoader {
     return new NodeDelegationLoader(
       "ThorNode",
       this.get("id")!.toString(),
-      "delegatee",
+      "delegation",
     );
   }
 }
@@ -9857,6 +9857,89 @@ export class AppEndorsement extends Entity {
 
   set timestamp(value: BigInt) {
     this.set("timestamp", Value.fromBigInt(value));
+  }
+}
+
+export class StatsEndorsement extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id != null, "Cannot save StatsEndorsement entity without an ID");
+    if (id) {
+      assert(
+        id.kind == ValueKind.STRING,
+        `Entities of type StatsEndorsement must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`,
+      );
+      store.set("StatsEndorsement", id.toString(), this);
+    }
+  }
+
+  static loadInBlock(id: string): StatsEndorsement | null {
+    return changetype<StatsEndorsement | null>(
+      store.get_in_block("StatsEndorsement", id),
+    );
+  }
+
+  static load(id: string): StatsEndorsement | null {
+    return changetype<StatsEndorsement | null>(
+      store.get("StatsEndorsement", id),
+    );
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toString();
+    }
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get nodeCount(): i32 {
+    let value = this.get("nodeCount");
+    if (!value || value.kind == ValueKind.NULL) {
+      return 0;
+    } else {
+      return value.toI32();
+    }
+  }
+
+  set nodeCount(value: i32) {
+    this.set("nodeCount", Value.fromI32(value));
+  }
+
+  get points(): i32 {
+    let value = this.get("points");
+    if (!value || value.kind == ValueKind.NULL) {
+      return 0;
+    } else {
+      return value.toI32();
+    }
+  }
+
+  set points(value: i32) {
+    this.set("points", Value.fromI32(value));
+  }
+
+  get delegatedPoints(): i32 {
+    let value = this.get("delegatedPoints");
+    if (!value || value.kind == ValueKind.NULL) {
+      return 0;
+    } else {
+      return value.toI32();
+    }
+  }
+
+  set delegatedPoints(value: i32) {
+    this.set("delegatedPoints", Value.fromI32(value));
   }
 }
 
