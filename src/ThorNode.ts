@@ -14,17 +14,14 @@ import { levelToPoints } from './NodeManagement';
 
 
 export function handleTransfer(event: TransferEvent): void {
-    let node = ThorNode.load(event.params._tokenId.toString())
-    if (!node) {
-        node = new ThorNode(event.params._tokenId.toString())
-        node.identifier = event.params._tokenId
-        node.level = 0
-        node.isX = false
+    const node = fetchNode(event.params._tokenId)
+    if (!node.level) {
 
         let thorNode = IThorNode.bind(Address.fromBytes(event.address))
         let try_getMetadata = thorNode.try_getMetadata(node.identifier)
         node.isX = try_getMetadata.reverted ? false : try_getMetadata.value.getValue1() >= 4
         node.level = try_getMetadata.reverted ? false : try_getMetadata.value.getValue1()
+        node.points = levelToPoints(node.level)
 
         const stats = fetchStatsEndorsements('all')
         stats.nodeCount += 1
@@ -94,6 +91,7 @@ export function handleLevelChanged(event: LevelChangedEvent): void {
     }
 
     node.level = event.params._toLevel
+    node.points = levelToPoints(node.level)
     node.save()
 }
 
@@ -106,6 +104,7 @@ export function fetchNode(id: BigInt): ThorNode {
     node = new ThorNode(id.toString())
     node.identifier = id
     node.level = 0
+    node.points = 0
     node.isX = false
     node.owner = constants.ADDRESS_ZERO
     node.save()

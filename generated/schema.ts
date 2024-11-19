@@ -9710,6 +9710,19 @@ export class ThorNode extends Entity {
     this.set("level", Value.fromI32(value));
   }
 
+  get points(): i32 {
+    let value = this.get("points");
+    if (!value || value.kind == ValueKind.NULL) {
+      return 0;
+    } else {
+      return value.toI32();
+    }
+  }
+
+  set points(value: i32) {
+    this.set("points", Value.fromI32(value));
+  }
+
   get isX(): boolean {
     let value = this.get("isX");
     if (!value || value.kind == ValueKind.NULL) {

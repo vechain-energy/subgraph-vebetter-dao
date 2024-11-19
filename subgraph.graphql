@@ -1027,6 +1027,7 @@ type ThorNode @entity {
   identifier: BigInt!
   owner: Account!
   level: Int!
+  points: Int!
   isX: Boolean!
 
   appEndorsement: AppEndorsement @derivedFrom(field: "node")
