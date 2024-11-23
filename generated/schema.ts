@@ -422,6 +422,19 @@ export class App extends Entity {
     this.set("id", Value.fromBytes(value));
   }
 
+  get endorsed(): boolean {
+    let value = this.get("endorsed");
+    if (!value || value.kind == ValueKind.NULL) {
+      return false;
+    } else {
+      return value.toBoolean();
+    }
+  }
+
+  set endorsed(value: boolean) {
+    this.set("endorsed", Value.fromBoolean(value));
+  }
+
   get name(): string | null {
     let value = this.get("name");
     if (!value || value.kind == ValueKind.NULL) {
@@ -693,6 +706,14 @@ export class App extends Entity {
 
   set updatedAtBlockNumber(value: BigInt) {
     this.set("updatedAtBlockNumber", Value.fromBigInt(value));
+  }
+
+  get endorsers(): AppEndorsementLoader {
+    return new AppEndorsementLoader(
+      "App",
+      this.get("id")!.toBytes().toHexString(),
+      "endorsers",
+    );
   }
 
   get createdAt(): BigInt {
@@ -1692,6 +1713,23 @@ export class VeDelegateAccount extends Entity {
       this.set("passportDelegation", Value.fromString(<string>value));
     }
   }
+
+  get nodeDelegation(): string | null {
+    let value = this.get("nodeDelegation");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set nodeDelegation(value: string | null) {
+    if (!value) {
+      this.unset("nodeDelegation");
+    } else {
+      this.set("nodeDelegation", Value.fromString(<string>value));
+    }
+  }
 }
 
 export class VeDelegateConfig extends Entity {
@@ -2207,6 +2245,14 @@ export class Account extends Entity {
     );
   }
 
+  get nodeDelegatee(): NodeDelegationLoader {
+    return new NodeDelegationLoader(
+      "Account",
+      this.get("id")!.toBytes().toHexString(),
+      "nodeDelegatee",
+    );
+  }
+
   get passportEntities(): PassportEntityLinkLoader {
     return new PassportEntityLinkLoader(
       "Account",
@@ -2220,6 +2266,14 @@ export class Account extends Entity {
       "Account",
       this.get("id")!.toBytes().toHexString(),
       "passportScores",
+    );
+  }
+
+  get asThorNode(): ThorNodeLoader {
+    return new ThorNodeLoader(
+      "Account",
+      this.get("id")!.toBytes().toHexString(),
+      "asThorNode",
     );
   }
 }
@@ -9458,6 +9512,450 @@ export class PassportScore extends Entity {
   }
 }
 
+export class NodeDelegation extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id != null, "Cannot save NodeDelegation entity without an ID");
+    if (id) {
+      assert(
+        id.kind == ValueKind.STRING,
+        `Entities of type NodeDelegation must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`,
+      );
+      store.set("NodeDelegation", id.toString(), this);
+    }
+  }
+
+  static loadInBlock(id: string): NodeDelegation | null {
+    return changetype<NodeDelegation | null>(
+      store.get_in_block("NodeDelegation", id),
+    );
+  }
+
+  static load(id: string): NodeDelegation | null {
+    return changetype<NodeDelegation | null>(store.get("NodeDelegation", id));
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toString();
+    }
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get active(): boolean {
+    let value = this.get("active");
+    if (!value || value.kind == ValueKind.NULL) {
+      return false;
+    } else {
+      return value.toBoolean();
+    }
+  }
+
+  set active(value: boolean) {
+    this.set("active", Value.fromBoolean(value));
+  }
+
+  get node(): string {
+    let value = this.get("node");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toString();
+    }
+  }
+
+  set node(value: string) {
+    this.set("node", Value.fromString(value));
+  }
+
+  get delegatee(): Bytes {
+    let value = this.get("delegatee");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set delegatee(value: Bytes) {
+    this.set("delegatee", Value.fromBytes(value));
+  }
+
+  get transaction(): string {
+    let value = this.get("transaction");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toString();
+    }
+  }
+
+  set transaction(value: string) {
+    this.set("transaction", Value.fromString(value));
+  }
+
+  get emitter(): Bytes {
+    let value = this.get("emitter");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set emitter(value: Bytes) {
+    this.set("emitter", Value.fromBytes(value));
+  }
+
+  get timestamp(): BigInt {
+    let value = this.get("timestamp");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set timestamp(value: BigInt) {
+    this.set("timestamp", Value.fromBigInt(value));
+  }
+}
+
+export class ThorNode extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id != null, "Cannot save ThorNode entity without an ID");
+    if (id) {
+      assert(
+        id.kind == ValueKind.STRING,
+        `Entities of type ThorNode must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`,
+      );
+      store.set("ThorNode", id.toString(), this);
+    }
+  }
+
+  static loadInBlock(id: string): ThorNode | null {
+    return changetype<ThorNode | null>(store.get_in_block("ThorNode", id));
+  }
+
+  static load(id: string): ThorNode | null {
+    return changetype<ThorNode | null>(store.get("ThorNode", id));
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toString();
+    }
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get identifier(): BigInt {
+    let value = this.get("identifier");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set identifier(value: BigInt) {
+    this.set("identifier", Value.fromBigInt(value));
+  }
+
+  get owner(): Bytes {
+    let value = this.get("owner");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set owner(value: Bytes) {
+    this.set("owner", Value.fromBytes(value));
+  }
+
+  get level(): i32 {
+    let value = this.get("level");
+    if (!value || value.kind == ValueKind.NULL) {
+      return 0;
+    } else {
+      return value.toI32();
+    }
+  }
+
+  set level(value: i32) {
+    this.set("level", Value.fromI32(value));
+  }
+
+  get points(): i32 {
+    let value = this.get("points");
+    if (!value || value.kind == ValueKind.NULL) {
+      return 0;
+    } else {
+      return value.toI32();
+    }
+  }
+
+  set points(value: i32) {
+    this.set("points", Value.fromI32(value));
+  }
+
+  get isX(): boolean {
+    let value = this.get("isX");
+    if (!value || value.kind == ValueKind.NULL) {
+      return false;
+    } else {
+      return value.toBoolean();
+    }
+  }
+
+  set isX(value: boolean) {
+    this.set("isX", Value.fromBoolean(value));
+  }
+
+  get appEndorsement(): AppEndorsementLoader {
+    return new AppEndorsementLoader(
+      "ThorNode",
+      this.get("id")!.toString(),
+      "appEndorsement",
+    );
+  }
+
+  get delegation(): NodeDelegationLoader {
+    return new NodeDelegationLoader(
+      "ThorNode",
+      this.get("id")!.toString(),
+      "delegation",
+    );
+  }
+}
+
+export class AppEndorsement extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id != null, "Cannot save AppEndorsement entity without an ID");
+    if (id) {
+      assert(
+        id.kind == ValueKind.STRING,
+        `Entities of type AppEndorsement must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`,
+      );
+      store.set("AppEndorsement", id.toString(), this);
+    }
+  }
+
+  static loadInBlock(id: string): AppEndorsement | null {
+    return changetype<AppEndorsement | null>(
+      store.get_in_block("AppEndorsement", id),
+    );
+  }
+
+  static load(id: string): AppEndorsement | null {
+    return changetype<AppEndorsement | null>(store.get("AppEndorsement", id));
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toString();
+    }
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get active(): boolean {
+    let value = this.get("active");
+    if (!value || value.kind == ValueKind.NULL) {
+      return false;
+    } else {
+      return value.toBoolean();
+    }
+  }
+
+  set active(value: boolean) {
+    this.set("active", Value.fromBoolean(value));
+  }
+
+  get node(): string {
+    let value = this.get("node");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toString();
+    }
+  }
+
+  set node(value: string) {
+    this.set("node", Value.fromString(value));
+  }
+
+  get app(): Bytes {
+    let value = this.get("app");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set app(value: Bytes) {
+    this.set("app", Value.fromBytes(value));
+  }
+
+  get transaction(): string {
+    let value = this.get("transaction");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toString();
+    }
+  }
+
+  set transaction(value: string) {
+    this.set("transaction", Value.fromString(value));
+  }
+
+  get emitter(): Bytes {
+    let value = this.get("emitter");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set emitter(value: Bytes) {
+    this.set("emitter", Value.fromBytes(value));
+  }
+
+  get timestamp(): BigInt {
+    let value = this.get("timestamp");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set timestamp(value: BigInt) {
+    this.set("timestamp", Value.fromBigInt(value));
+  }
+}
+
+export class StatsEndorsement extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id != null, "Cannot save StatsEndorsement entity without an ID");
+    if (id) {
+      assert(
+        id.kind == ValueKind.STRING,
+        `Entities of type StatsEndorsement must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`,
+      );
+      store.set("StatsEndorsement", id.toString(), this);
+    }
+  }
+
+  static loadInBlock(id: string): StatsEndorsement | null {
+    return changetype<StatsEndorsement | null>(
+      store.get_in_block("StatsEndorsement", id),
+    );
+  }
+
+  static load(id: string): StatsEndorsement | null {
+    return changetype<StatsEndorsement | null>(
+      store.get("StatsEndorsement", id),
+    );
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toString();
+    }
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get nodeCount(): i32 {
+    let value = this.get("nodeCount");
+    if (!value || value.kind == ValueKind.NULL) {
+      return 0;
+    } else {
+      return value.toI32();
+    }
+  }
+
+  set nodeCount(value: i32) {
+    this.set("nodeCount", Value.fromI32(value));
+  }
+
+  get points(): i32 {
+    let value = this.get("points");
+    if (!value || value.kind == ValueKind.NULL) {
+      return 0;
+    } else {
+      return value.toI32();
+    }
+  }
+
+  set points(value: i32) {
+    this.set("points", Value.fromI32(value));
+  }
+
+  get delegatedPoints(): i32 {
+    let value = this.get("delegatedPoints");
+    if (!value || value.kind == ValueKind.NULL) {
+      return 0;
+    } else {
+      return value.toI32();
+    }
+  }
+
+  set delegatedPoints(value: i32) {
+    this.set("delegatedPoints", Value.fromI32(value));
+  }
+}
+
 export class ProposalLoader extends Entity {
   _entity: string;
   _field: string;
@@ -9563,6 +10061,24 @@ export class AccountSustainabilityLoader extends Entity {
   load(): AccountSustainability[] {
     let value = store.loadRelated(this._entity, this._id, this._field);
     return changetype<AccountSustainability[]>(value);
+  }
+}
+
+export class AppEndorsementLoader extends Entity {
+  _entity: string;
+  _field: string;
+  _id: string;
+
+  constructor(entity: string, id: string, field: string) {
+    super();
+    this._entity = entity;
+    this._id = id;
+    this._field = field;
+  }
+
+  load(): AppEndorsement[] {
+    let value = store.loadRelated(this._entity, this._id, this._field);
+    return changetype<AppEndorsement[]>(value);
   }
 }
 
@@ -9890,6 +10406,24 @@ export class PassportDelegationLoader extends Entity {
   }
 }
 
+export class NodeDelegationLoader extends Entity {
+  _entity: string;
+  _field: string;
+  _id: string;
+
+  constructor(entity: string, id: string, field: string) {
+    super();
+    this._entity = entity;
+    this._id = id;
+    this._field = field;
+  }
+
+  load(): NodeDelegation[] {
+    let value = store.loadRelated(this._entity, this._id, this._field);
+    return changetype<NodeDelegation[]>(value);
+  }
+}
+
 export class PassportEntityLinkLoader extends Entity {
   _entity: string;
   _field: string;
@@ -9923,6 +10457,24 @@ export class PassportScoreLoader extends Entity {
   load(): PassportScore[] {
     let value = store.loadRelated(this._entity, this._id, this._field);
     return changetype<PassportScore[]>(value);
+  }
+}
+
+export class ThorNodeLoader extends Entity {
+  _entity: string;
+  _field: string;
+  _id: string;
+
+  constructor(entity: string, id: string, field: string) {
+    super();
+    this._entity = entity;
+    this._id = id;
+    this._field = field;
+  }
+
+  load(): ThorNode[] {
+    let value = store.loadRelated(this._entity, this._id, this._field);
+    return changetype<ThorNode[]>(value);
   }
 }
 

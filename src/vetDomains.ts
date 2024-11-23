@@ -4,7 +4,7 @@ import {
 } from "../generated/vetDomains/Resolver";
 import { ResolveUtils } from '../generated/vetDomains/ResolveUtils'
 import { Account, VetDomainsNames } from '../generated/schema'
-import { Address, Bytes } from '@graphprotocol/graph-ts'
+import { Address } from '@graphprotocol/graph-ts'
 import { constants } from '@amxx/graphprotocol-utils'
 
 
