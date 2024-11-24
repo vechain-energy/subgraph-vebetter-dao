@@ -233,6 +233,9 @@ function updateAppRoundSustainability(proof: SustainabilityProof): void {
     sustainabilityStats.timber = sustainabilityStats.timber.plus(proof.timber)
     sustainabilityStats.educationTime = sustainabilityStats.educationTime.plus(proof.educationTime)
     sustainabilityStats.treesPlanted = sustainabilityStats.treesPlanted.plus(proof.treesPlanted)
+    sustainabilityStats.caloriesBurned = sustainabilityStats.caloriesBurned.plus(proof.caloriesBurned)
+    sustainabilityStats.sleepQualityPercentage = sustainabilityStats.sleepQualityPercentage.plus(proof.sleepQualityPercentage)
+    sustainabilityStats.cleanEnergyProduction = sustainabilityStats.cleanEnergyProduction.plus(proof.cleanEnergyProduction)
 
     // deprecated entries
     sustainabilityStats.wasteItems = sustainabilityStats.wasteItems.plus(proof.wasteItems)
@@ -253,6 +256,9 @@ function generateSustainabilityProofFromJson(id: string, proofObject: TypedMap<s
     proof.timber = constants.BIGINT_ZERO
     proof.educationTime = constants.BIGINT_ZERO
     proof.treesPlanted = constants.BIGINT_ZERO
+    proof.caloriesBurned = constants.BIGINT_ZERO
+    proof.sleepQualityPercentage = constants.BIGINT_ZERO
+    proof.cleanEnergyProduction = constants.BIGINT_ZERO
 
     // deprecated entries
     proof.wasteItems = constants.BIGINT_ZERO
@@ -316,6 +322,9 @@ function generateSustainabilityProofFromJson(id: string, proofObject: TypedMap<s
             if (impact.isSet('timber') && impact.get('timber')!.kind === JSONValueKind.NUMBER) { proof.timber = impact.get('timber')!.toBigInt() }
             if (impact.isSet('education_time') && impact.get('education_time')!.kind === JSONValueKind.NUMBER) { proof.educationTime = impact.get('education_time')!.toBigInt() }
             if (impact.isSet('trees_planted') && impact.get('trees_planted')!.kind === JSONValueKind.NUMBER) { proof.treesPlanted = impact.get('trees_planted')!.toBigInt() }
+            if (impact.isSet('calories_burned') && impact.get('calories_burned')!.kind === JSONValueKind.NUMBER) { proof.caloriesBurned = impact.get('calories_burned')!.toBigInt() }
+            if (impact.isSet('sleep_quality_percentage') && impact.get('sleep_quality_percentage')!.kind === JSONValueKind.NUMBER) { proof.sleepQualityPercentage = impact.get('sleep_quality_percentage')!.toBigInt() }
+            if (impact.isSet('clean_energy_production') && impact.get('clean_energy_production')!.kind === JSONValueKind.NUMBER) { proof.cleanEnergyProduction = impact.get('clean_energy_production')!.toBigInt() }
         }
     }
 
@@ -369,6 +378,9 @@ function updateAppSustainability(sustainabilityId: string, proof: Sustainability
     appSustainability.account = proof.account
     appSustainability.educationTime = proof.educationTime
     appSustainability.treesPlanted = proof.treesPlanted
+    appSustainability.caloriesBurned = proof.caloriesBurned
+    appSustainability.sleepQualityPercentage = proof.sleepQualityPercentage
+    appSustainability.cleanEnergyProduction = proof.cleanEnergyProduction
 
     // deprecated entries
     appSustainability.wasteItems = proof.wasteItems
@@ -400,6 +412,9 @@ function updateAccountSustainability(proof: SustainabilityProof): boolean[] {
         accountSustainability.timber = constants.BIGINT_ZERO
         accountSustainability.educationTime = constants.BIGINT_ZERO
         accountSustainability.treesPlanted = constants.BIGINT_ZERO
+        accountSustainability.caloriesBurned = constants.BIGINT_ZERO
+        accountSustainability.sleepQualityPercentage = constants.BIGINT_ZERO
+        accountSustainability.cleanEnergyProduction = constants.BIGINT_ZERO
         accountSustainability.account = proof.account
         accountSustainability.app = proof.app
 
@@ -420,6 +435,9 @@ function updateAccountSustainability(proof: SustainabilityProof): boolean[] {
     accountSustainability.timber = accountSustainability.timber.plus(proof.timber)
     accountSustainability.educationTime = accountSustainability.educationTime.plus(proof.educationTime)
     accountSustainability.treesPlanted = accountSustainability.treesPlanted.plus(proof.treesPlanted)
+    accountSustainability.caloriesBurned = accountSustainability.caloriesBurned.plus(proof.caloriesBurned)
+    accountSustainability.sleepQualityPercentage = accountSustainability.sleepQualityPercentage.plus(proof.sleepQualityPercentage)
+    accountSustainability.cleanEnergyProduction = accountSustainability.cleanEnergyProduction.plus(proof.cleanEnergyProduction)
 
     // deprecated entries
     accountSustainability.wasteItems = accountSustainability.wasteItems.plus(proof.wasteItems)
@@ -444,6 +462,9 @@ function updateAccountSustainability(proof: SustainabilityProof): boolean[] {
     accountRoundSustainability.timber = accountRoundSustainability.timber.plus(proof.timber)
     accountRoundSustainability.educationTime = accountRoundSustainability.educationTime.plus(proof.educationTime)
     accountRoundSustainability.treesPlanted = accountRoundSustainability.treesPlanted.plus(proof.treesPlanted)
+    accountRoundSustainability.caloriesBurned = accountRoundSustainability.caloriesBurned.plus(proof.caloriesBurned)
+    accountRoundSustainability.sleepQualityPercentage = accountRoundSustainability.sleepQualityPercentage.plus(proof.sleepQualityPercentage)
+    accountRoundSustainability.cleanEnergyProduction = accountRoundSustainability.cleanEnergyProduction.plus(proof.cleanEnergyProduction)
 
     // deprecated entries
     accountRoundSustainability.wasteItems = accountRoundSustainability.wasteItems.plus(proof.wasteItems)
@@ -546,6 +567,9 @@ export function fetchAppRoundSummary(app: App, round: Round): AppRoundSummary {
     sustainabilityStats.timber = constants.BIGINT_ZERO
     sustainabilityStats.educationTime = constants.BIGINT_ZERO
     sustainabilityStats.treesPlanted = constants.BIGINT_ZERO
+    sustainabilityStats.caloriesBurned = constants.BIGINT_ZERO
+    sustainabilityStats.sleepQualityPercentage = constants.BIGINT_ZERO
+    sustainabilityStats.cleanEnergyProduction = constants.BIGINT_ZERO
 
     // deprecated entries
     sustainabilityStats.wasteItems = constants.BIGINT_ZERO
@@ -593,6 +617,9 @@ export function fetchAccountRoundSustainability(account: Bytes, app: App, round:
     accountRoundSustainability.timber = constants.BIGINT_ZERO
     accountRoundSustainability.educationTime = constants.BIGINT_ZERO
     accountRoundSustainability.treesPlanted = constants.BIGINT_ZERO
+    accountRoundSustainability.caloriesBurned = constants.BIGINT_ZERO
+    accountRoundSustainability.sleepQualityPercentage = constants.BIGINT_ZERO
+    accountRoundSustainability.cleanEnergyProduction = constants.BIGINT_ZERO
     accountRoundSustainability.account = fetchAccount(Address.fromBytes(account)).id
     accountRoundSustainability.app = app.id
     accountRoundSustainability.round = round.id

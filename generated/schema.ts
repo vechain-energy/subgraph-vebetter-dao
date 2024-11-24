@@ -7915,6 +7915,45 @@ export class SustainabilityProof extends Entity {
     this.set("treesPlanted", Value.fromBigInt(value));
   }
 
+  get caloriesBurned(): BigInt {
+    let value = this.get("caloriesBurned");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set caloriesBurned(value: BigInt) {
+    this.set("caloriesBurned", Value.fromBigInt(value));
+  }
+
+  get sleepQualityPercentage(): BigInt {
+    let value = this.get("sleepQualityPercentage");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set sleepQualityPercentage(value: BigInt) {
+    this.set("sleepQualityPercentage", Value.fromBigInt(value));
+  }
+
+  get cleanEnergyProduction(): BigInt {
+    let value = this.get("cleanEnergyProduction");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set cleanEnergyProduction(value: BigInt) {
+    this.set("cleanEnergyProduction", Value.fromBigInt(value));
+  }
+
   get wasteItems(): BigInt {
     let value = this.get("wasteItems");
     if (!value || value.kind == ValueKind.NULL) {
@@ -8155,6 +8194,45 @@ export class AccountSustainability extends Entity {
 
   set treesPlanted(value: BigInt) {
     this.set("treesPlanted", Value.fromBigInt(value));
+  }
+
+  get caloriesBurned(): BigInt {
+    let value = this.get("caloriesBurned");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set caloriesBurned(value: BigInt) {
+    this.set("caloriesBurned", Value.fromBigInt(value));
+  }
+
+  get sleepQualityPercentage(): BigInt {
+    let value = this.get("sleepQualityPercentage");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set sleepQualityPercentage(value: BigInt) {
+    this.set("sleepQualityPercentage", Value.fromBigInt(value));
+  }
+
+  get cleanEnergyProduction(): BigInt {
+    let value = this.get("cleanEnergyProduction");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set cleanEnergyProduction(value: BigInt) {
+    this.set("cleanEnergyProduction", Value.fromBigInt(value));
   }
 
   get wasteItems(): BigInt {
@@ -8410,6 +8488,45 @@ export class AccountRoundSustainability extends Entity {
 
   set treesPlanted(value: BigInt) {
     this.set("treesPlanted", Value.fromBigInt(value));
+  }
+
+  get caloriesBurned(): BigInt {
+    let value = this.get("caloriesBurned");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set caloriesBurned(value: BigInt) {
+    this.set("caloriesBurned", Value.fromBigInt(value));
+  }
+
+  get sleepQualityPercentage(): BigInt {
+    let value = this.get("sleepQualityPercentage");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set sleepQualityPercentage(value: BigInt) {
+    this.set("sleepQualityPercentage", Value.fromBigInt(value));
+  }
+
+  get cleanEnergyProduction(): BigInt {
+    let value = this.get("cleanEnergyProduction");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set cleanEnergyProduction(value: BigInt) {
+    this.set("cleanEnergyProduction", Value.fromBigInt(value));
   }
 
   get wasteItems(): BigInt {
@@ -8677,6 +8794,45 @@ export class AppSustainability extends Entity {
     this.set("treesPlanted", Value.fromBigInt(value));
   }
 
+  get caloriesBurned(): BigInt {
+    let value = this.get("caloriesBurned");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set caloriesBurned(value: BigInt) {
+    this.set("caloriesBurned", Value.fromBigInt(value));
+  }
+
+  get sleepQualityPercentage(): BigInt {
+    let value = this.get("sleepQualityPercentage");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set sleepQualityPercentage(value: BigInt) {
+    this.set("sleepQualityPercentage", Value.fromBigInt(value));
+  }
+
+  get cleanEnergyProduction(): BigInt {
+    let value = this.get("cleanEnergyProduction");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set cleanEnergyProduction(value: BigInt) {
+    this.set("cleanEnergyProduction", Value.fromBigInt(value));
+  }
+
   get wasteItems(): BigInt {
     let value = this.get("wasteItems");
     if (!value || value.kind == ValueKind.NULL) {
@@ -8914,6 +9070,45 @@ export class SustainabilityStats extends Entity {
 
   set treesPlanted(value: BigInt) {
     this.set("treesPlanted", Value.fromBigInt(value));
+  }
+
+  get caloriesBurned(): BigInt {
+    let value = this.get("caloriesBurned");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set caloriesBurned(value: BigInt) {
+    this.set("caloriesBurned", Value.fromBigInt(value));
+  }
+
+  get sleepQualityPercentage(): BigInt {
+    let value = this.get("sleepQualityPercentage");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set sleepQualityPercentage(value: BigInt) {
+    this.set("sleepQualityPercentage", Value.fromBigInt(value));
+  }
+
+  get cleanEnergyProduction(): BigInt {
+    let value = this.get("cleanEnergyProduction");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set cleanEnergyProduction(value: BigInt) {
+    this.set("cleanEnergyProduction", Value.fromBigInt(value));
   }
 
   get wasteItems(): BigInt {

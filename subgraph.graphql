@@ -748,6 +748,9 @@ type SustainabilityProof @entity(immutable: true) {
   timber: BigInt!
   educationTime: BigInt!
   treesPlanted: BigInt!
+  caloriesBurned: BigInt!
+  sleepQualityPercentage: BigInt!
+  cleanEnergyProduction: BigInt!
 
   """
   deprecated entries
@@ -772,6 +775,9 @@ type AccountSustainability @entity {
   timber: BigInt!
   educationTime: BigInt!
   treesPlanted: BigInt!
+  caloriesBurned: BigInt!
+  sleepQualityPercentage: BigInt!
+  cleanEnergyProduction: BigInt!
 
   """
   deprecated entries
@@ -796,6 +802,9 @@ type AccountRoundSustainability @entity {
   timber: BigInt!
   educationTime: BigInt!
   treesPlanted: BigInt!
+  caloriesBurned: BigInt!
+  sleepQualityPercentage: BigInt!
+  cleanEnergyProduction: BigInt!
 
   """
   deprecated entries
@@ -822,6 +831,9 @@ type AppSustainability @entity(immutable: true, timeseries: true) {
   timber: BigInt!
   educationTime: BigInt!
   treesPlanted: BigInt!
+  caloriesBurned: BigInt!
+  sleepQualityPercentage: BigInt!
+  cleanEnergyProduction: BigInt!
 
   """
   deprecated entries
@@ -849,6 +861,9 @@ type StatsAppSustainability
     @aggregate(fn: "sum", arg: "educationTime", cumulative: false)
   treesPlanted: BigInt!
     @aggregate(fn: "sum", arg: "treesPlanted", cumulative: false)
+  caloriesBurned: BigInt! @aggregate(fn: "sum", arg: "caloriesBurned", cumulative: false)
+  sleepQualityPercentage: BigInt! @aggregate(fn: "sum", arg: "sleepQualityPercentage", cumulative: false)
+  cleanEnergyProduction: BigInt! @aggregate(fn: "sum", arg: "cleanEnergyProduction", cumulative: false)
 
   actionsTotal: BigInt! @aggregate(fn: "count", cumulative: true)
   carbonTotal: BigInt! @aggregate(fn: "sum", arg: "carbon", cumulative: true)
@@ -862,6 +877,9 @@ type StatsAppSustainability
     @aggregate(fn: "sum", arg: "educationTime", cumulative: true)
   treesPlantedTotal: BigInt!
     @aggregate(fn: "sum", arg: "treesPlanted", cumulative: true)
+  caloriesBurnedTotal: BigInt! @aggregate(fn: "sum", arg: "caloriesBurned", cumulative: true)
+  sleepQualityPercentageTotal: BigInt! @aggregate(fn: "sum", arg: "sleepQualityPercentage", cumulative: false)
+  cleanEnergyProductionTotal: BigInt! @aggregate(fn: "sum", arg: "cleanEnergyProduction", cumulative: true)
 
   """
   deprecated entries
@@ -898,6 +916,9 @@ type StatsAccountSustainability
     @aggregate(fn: "sum", arg: "educationTime", cumulative: false)
   treesPlanted: BigInt!
     @aggregate(fn: "sum", arg: "treesPlanted", cumulative: false)
+  caloriesBurned: BigInt! @aggregate(fn: "sum", arg: "caloriesBurned", cumulative: false)
+  sleepQualityPercentage: BigInt! @aggregate(fn: "sum", arg: "sleepQualityPercentage", cumulative: false)
+  cleanEnergyProduction: BigInt! @aggregate(fn: "sum", arg: "cleanEnergyProduction", cumulative: false)
 
   actionsTotal: BigInt! @aggregate(fn: "count", cumulative: true)
   carbonTotal: BigInt! @aggregate(fn: "sum", arg: "carbon", cumulative: true)
@@ -911,6 +932,9 @@ type StatsAccountSustainability
     @aggregate(fn: "sum", arg: "educationTime", cumulative: true)
   treesPlantedTotal: BigInt!
     @aggregate(fn: "sum", arg: "treesPlanted", cumulative: true)
+  caloriesBurnedTotal: BigInt! @aggregate(fn: "sum", arg: "caloriesBurned", cumulative: true)
+  sleepQualityPercentageTotal: BigInt! @aggregate(fn: "sum", arg: "sleepQualityPercentage", cumulative: false)
+  cleanEnergyProductionTotal: BigInt! @aggregate(fn: "sum", arg: "cleanEnergyProduction", cumulative: true)
 
   """
   deprecated entries
@@ -943,6 +967,9 @@ type SustainabilityStats @entity {
   timber: BigInt!
   educationTime: BigInt!
   treesPlanted: BigInt!
+  caloriesBurned: BigInt!
+  sleepQualityPercentage: BigInt!
+  cleanEnergyProduction: BigInt!
 
   """
   deprecated entries
