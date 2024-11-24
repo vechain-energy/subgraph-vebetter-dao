@@ -13,23 +13,21 @@ export function handleDelegateNode(event: NodeDelegatedEvent): void {
     let delegation = NodeDelegation.load(id)
     const node = fetchNode(event.params.nodeId)
 
+    // update stats for previous delegatee
+    if (delegation) {
+        const veAccountFrom = VeDelegateAccount.load(delegation.delegatee)
+        if (veAccountFrom) {
+            veAccountFrom.nodeDelegation = null
+            veAccountFrom.save()
+        }
+    }
+
+
     // create new entity
     if (!delegation) {
         delegation = new NodeDelegation(id)
     }
 
-    // update stats for previous delegatee
-    else {
-        const veAccountFrom = VeDelegateAccount.load(delegation.delegatee)
-        if (veAccountFrom) {
-            const stats = fetchStatsEndorsements('veDelegate')
-            stats.delegatedPoints -= levelToPoints(node.level)
-            stats.save()
-
-            veAccountFrom.nodeDelegation = null
-            veAccountFrom.save()
-        }
-    }
 
     delegation.delegatee = fetchAccount(event.params.delegatee).id
     delegation.active = event.params.delegated
@@ -48,7 +46,7 @@ export function handleDelegateNode(event: NodeDelegatedEvent): void {
     const veAccountTo = VeDelegateAccount.load(delegation.delegatee)
     if (veAccountTo) {
         const stats = fetchStatsEndorsements('veDelegate')
-        stats.delegatedPoints += levelToPoints(node.level)
+        stats.delegatedPoints += levelToPoints(node.level) * (delegation.active ? 1 : -1)
         stats.save()
 
         veAccountTo.nodeDelegation = delegation.id
