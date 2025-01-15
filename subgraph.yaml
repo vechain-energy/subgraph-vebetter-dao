@@ -115,6 +115,8 @@ dataSources:
       abis:
         - name: XAllocationVoting
           file: ./abis/VeBetterDAO-allocations-voting.json
+        - name: Passport
+          file: ./abis/VeBetterDAO-ve-better-passport.json
       eventHandlers:
         - event: AllocationVoteCast(indexed address,indexed uint256,bytes32[],uint256[])
           handler: handleVoteCast

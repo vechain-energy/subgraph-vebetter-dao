@@ -119,6 +119,7 @@ type AllocationResult @entity {
 type AllocationVote @entity(immutable: true, timeseries: true) {
   id: Int8!
   voter: Account!
+  passport: Account!
   round: Round!
   app: App!
   weight: BigDecimal!

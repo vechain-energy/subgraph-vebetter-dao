@@ -14,10 +14,12 @@ import {
 } from '../generated/passport/Passport'
 import { fetchAccount } from '../node_modules/@openzeppelin/subgraphs/src/fetch/account'
 import { transactions, events } from '@amxx/graphprotocol-utils'
-import { store } from '@graphprotocol/graph-ts'
+import { store, Address, BigInt } from '@graphprotocol/graph-ts'
 import { fetchApp } from './XApps'
 import { fetchRound, fetchStatistic } from './XAllocationVoting'
 import { fetchAppRoundSummary, fetchAccountRoundSustainability } from './RewardsPool'
+import { XAllocationVoting } from '../generated/RewardsPool/XAllocationVoting'
+import { Passport } from '../generated/passport/Passport'
 
 export function handleDelegationPending(event: DelegationPendingEvent): void {
     const id = [event.params.delegator.toHexString(), event.params.delegatee.toHexString(), 'delegation'].join('/').toString()
@@ -204,4 +206,22 @@ export function handleRemovedUserFromBlacklist(event: RemovedUserFromBlacklistEv
 
     blacklist.active = false
     blacklist.save()
+}
+
+
+export function getUserPassportForRound(address: Address, roundId: string): Address {
+    const b3trGov = XAllocationVoting.bind(Address.fromString("0x89A00Bb0947a30FF95BEeF77a66AEdE3842Fe5B7"))
+    const passport = Passport.bind(Address.fromString("0x35a267671d8EDD607B2056A9a13E7ba7CF53c8b3"))
+
+    // get snapshot of round
+    const snapshotTimepoint = b3trGov.roundSnapshot(BigInt.fromString(roundId));
+    if (snapshotTimepoint.isZero()) { return address; } // Check if snapshot timepoint is valid
+
+    // is delegatee
+    const isDelegatee = passport.isDelegateeInTimepoint(address, snapshotTimepoint);
+    if (!isDelegatee) { return address; }
+
+    // delegator
+    const delegator = passport.getDelegatorInTimepoint(address, snapshotTimepoint);
+    return delegator;
 }

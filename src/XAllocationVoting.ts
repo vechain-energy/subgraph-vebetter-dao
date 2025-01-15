@@ -1,4 +1,3 @@
-
 import {
     AllocationVoteCast as AllocationVoteCastEvent,
     RoundCreated as RoundCreatedEvent
@@ -6,8 +5,9 @@ import {
 import { Round, AllocationVote, RoundStatistic, ERC20Balance, AllocationResult, VeDelegateAccount, StatsEndorsement } from '../generated/schema'
 import { decimals, transactions, constants } from '@amxx/graphprotocol-utils'
 import { fetchAccount } from '../node_modules/@openzeppelin/subgraphs/src/fetch/account'
-import { fetchApp, fetchStatsEndorsements } from './XApps'
+import { fetchApp } from './XApps'
 import { bigInt } from '@graphprotocol/graph-ts'
+import { getUserPassportForRound } from './Passport'
 
 export function handleVoteCast(event: AllocationVoteCastEvent): void {
     const appCount = event.params.appsIds.length
@@ -22,6 +22,17 @@ export function handleVoteCast(event: AllocationVoteCastEvent): void {
         veDelegateStats.voters = veDelegateStats.voters.plus(constants.BIGINT_ONE)
     }
 
+
+    const voterId = fetchAccount(event.params.voter).id
+
+    let passportId = voterId
+    // after VePassport has been deployed
+    if (event.block.number.toI64() >= 19820804) {
+        // get passport at that time
+        passportId = fetchAccount(getUserPassportForRound(event.params.voter, roundId)).id
+    }
+
+
     let totalQFVotesAdjustment = constants.BIGINT_ZERO
     let totalQFVotesAdjustmentVD = constants.BIGINT_ZERO
     for (let index = 0; index < appCount; index += 1) {
@@ -31,14 +42,26 @@ export function handleVoteCast(event: AllocationVoteCastEvent): void {
         const vote = new AllocationVote(id.toString())
         const votesCast = event.params.voteWeights[index]
         const newQFVotes = votesCast.gt(bigInt.fromString("1000000000000000000")) ? votesCast.sqrt() : votesCast.div(bigInt.fromString("1000000000"))
-        vote.voter = fetchAccount(event.params.voter).id
+        vote.voter = voterId
+        vote.passport = passportId
         vote.round = roundId
         vote.app = app;
         vote.weightExact = votesCast
         vote.weight = decimals.toDecimals(vote.weightExact, 18)
 
+
         // Get the current sum of the square roots of individual votes for the given project
-        const allocation = AllocationResult.load([roundId, appId].join('/'))!
+        let allocation = AllocationResult.load([roundId, appId].join('/'))
+        if (allocation === null) {
+            allocation = new AllocationResult([roundId, appId].join('/'))
+            allocation.round = roundId
+            allocation.app = app
+            allocation.votesCast = constants.BIGDECIMAL_ZERO
+            allocation.votesCastExact = constants.BIGINT_ZERO
+            allocation.weight = constants.BIGDECIMAL_ZERO
+            allocation.weightExact = constants.BIGINT_ZERO
+            allocation.voters = constants.BIGINT_ZERO
+        }
         const qfAppVotesPreVote = allocation.weightExact
 
         // Calculate the new sum of the square roots of individual votes for the given project

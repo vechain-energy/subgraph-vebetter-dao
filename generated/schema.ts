@@ -1390,6 +1390,19 @@ export class AllocationVote extends Entity {
     this.set("voter", Value.fromBytes(value));
   }
 
+  get passport(): Bytes {
+    let value = this.get("passport");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set passport(value: Bytes) {
+    this.set("passport", Value.fromBytes(value));
+  }
+
   get round(): string {
     let value = this.get("round");
     if (!value || value.kind == ValueKind.NULL) {
