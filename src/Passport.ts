@@ -1,5 +1,5 @@
-import { PassportDelegation, PassportEntityLink, VeDelegateAccount, PassportWhitelist, PassportBlacklist, PassportScore } from '../generated/schema'
-import {
+import { PassportDelegation, PassportEntityLink, VeDelegateAccount, PassportWhitelist, PassportBlacklist, PassportScore, UserSignal, UserSignalsReset, UserSignalsResetForApp } from '../generated/schema'
+import { 
     DelegationPending as DelegationPendingEvent,
     DelegationCreated as DelegationCreatedEvent,
     DelegationRevoked as DelegationRevokedEvent,
@@ -10,10 +10,13 @@ import {
     UserWhitelisted as UserWhitelistedEvent,
     RemovedUserFromWhitelist as RemovedUserFromWhitelistEvent,
     UserBlacklisted as UserBlacklistedEvent,
-    RemovedUserFromBlacklist as RemovedUserFromBlacklistEvent
+    RemovedUserFromBlacklist as RemovedUserFromBlacklistEvent,
+    UserSignaled as UserSignaledEvent,
+    UserSignalsReset as UserSignalsResetEvent,
+    UserSignalsResetForApp as UserSignalsResetForAppEvent
 } from '../generated/passport/Passport'
 import { fetchAccount } from '../node_modules/@openzeppelin/subgraphs/src/fetch/account'
-import { transactions, events } from '@amxx/graphprotocol-utils'
+import { transactions, events, constants } from '@amxx/graphprotocol-utils'
 import { store, Address, BigInt } from '@graphprotocol/graph-ts'
 import { fetchApp } from './XApps'
 import { fetchRound, fetchStatistic } from './XAllocationVoting'
@@ -208,6 +211,58 @@ export function handleRemovedUserFromBlacklist(event: RemovedUserFromBlacklistEv
     blacklist.save()
 }
 
+export function handleUserSignaled(event: UserSignaledEvent): void {
+    const id = [event.params.user.toHexString(), event.params.app.toHexString()].join('/')
+    let signal = UserSignal.load(id)
+    if (signal === null) {
+        signal = new UserSignal(id)
+        signal.user = fetchAccount(event.params.user).id
+        signal.app = fetchApp(event.params.app).id
+        signal.signalCount = constants.BIGINT_ZERO
+    }
+
+    signal.signalCount = signal.signalCount.plus(constants.BIGINT_ONE)
+    signal.emitter = event.address
+    signal.timestamp = event.block.timestamp
+    signal.transaction = transactions.log(event).id
+
+    signal.save()
+}
+
+export function handleUserSignalsReset(event: UserSignalsResetEvent): void {
+    const reset = new UserSignalsReset(events.id(event))
+    reset.user = fetchAccount(event.params.user).id
+    reset.appsCount = constants.BIGINT_ZERO
+
+    // Since we can't query all signals for a user directly in AssemblyScript,
+    // we'll just create the reset event. The signals will be considered reset
+    // when querying by checking if there's a reset event after their timestamp
+    reset.emitter = event.address
+    reset.timestamp = event.block.timestamp
+    reset.transaction = transactions.log(event).id
+
+    reset.save()
+}
+
+export function handleUserSignalsResetForApp(event: UserSignalsResetForAppEvent): void {
+    const id = [event.params.user.toHexString(), event.params.app.toHexString()].join('/')
+    const signal = UserSignal.load(id)
+    
+    const reset = new UserSignalsResetForApp(events.id(event))
+    reset.user = fetchAccount(event.params.user).id
+    reset.app = fetchApp(event.params.app).id
+    reset.previousSignalCount = signal ? signal.signalCount : constants.BIGINT_ZERO
+
+    if (signal) {
+        store.remove('UserSignal', id)
+    }
+
+    reset.emitter = event.address
+    reset.timestamp = event.block.timestamp
+    reset.transaction = transactions.log(event).id
+
+    reset.save()
+}
 
 export function getUserPassportForRound(address: Address, roundId: string): Address {
     const b3trGov = XAllocationVoting.bind(Address.fromString("0x89A00Bb0947a30FF95BEeF77a66AEdE3842Fe5B7"))

@@ -62,6 +62,9 @@ type App @entity {
   updatedAtBlockNumber: BigInt!
   endorsers: [AppEndorsement!]! @derivedFrom(field: "app")
   createdAt: BigInt!
+
+  userSignals: [UserSignal!]! @derivedFrom(field: "app")
+  userSignalsResetForApps: [UserSignalsResetForApp!]! @derivedFrom(field: "app")
 }
 
 type AppMetadata @entity {
@@ -228,6 +231,10 @@ type Account @entity {
 
   passportEntities: [PassportEntityLink!]! @derivedFrom(field: "passport")
   passportScores: [PassportScore!]! @derivedFrom(field: "passport")
+
+  userSignals: [UserSignal!]! @derivedFrom(field: "user")
+  userSignalsResets: [UserSignalsReset!]! @derivedFrom(field: "user")
+  userSignalsResetForApps: [UserSignalsResetForApp!]! @derivedFrom(field: "user")
 
   asThorNode: ThorNode @derivedFrom(field: "owner")
 }
@@ -1029,6 +1036,41 @@ type PassportScore implements Event @entity(immutable: true) {
   round: Round!
   app: App!
   score: BigInt!
+
+  transaction: Transaction!
+  emitter: Account!
+  timestamp: BigInt!
+}
+
+"""
+User Signals
+"""
+type UserSignal implements Event @entity {
+  id: ID!
+  user: Account!
+  app: App!
+  signalCount: BigInt!
+
+  transaction: Transaction!
+  emitter: Account!
+  timestamp: BigInt!
+}
+
+type UserSignalsResetForApp implements Event @entity(immutable: true) {
+  id: ID!
+  app: App!
+  user: Account!
+  previousSignalCount: BigInt!
+
+  transaction: Transaction!
+  emitter: Account!
+  timestamp: BigInt!
+}
+
+type UserSignalsReset implements Event @entity(immutable: true) {
+  id: ID!
+  user: Account!
+  appsCount: BigInt!
 
   transaction: Transaction!
   emitter: Account!

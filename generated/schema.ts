@@ -728,6 +728,22 @@ export class App extends Entity {
   set createdAt(value: BigInt) {
     this.set("createdAt", Value.fromBigInt(value));
   }
+
+  get userSignals(): UserSignalLoader {
+    return new UserSignalLoader(
+      "App",
+      this.get("id")!.toBytes().toHexString(),
+      "userSignals",
+    );
+  }
+
+  get userSignalsResetForApps(): UserSignalsResetForAppLoader {
+    return new UserSignalsResetForAppLoader(
+      "App",
+      this.get("id")!.toBytes().toHexString(),
+      "userSignalsResetForApps",
+    );
+  }
 }
 
 export class AppMetadata extends Entity {
@@ -2279,6 +2295,30 @@ export class Account extends Entity {
       "Account",
       this.get("id")!.toBytes().toHexString(),
       "passportScores",
+    );
+  }
+
+  get userSignals(): UserSignalLoader {
+    return new UserSignalLoader(
+      "Account",
+      this.get("id")!.toBytes().toHexString(),
+      "userSignals",
+    );
+  }
+
+  get userSignalsResets(): UserSignalsResetLoader {
+    return new UserSignalsResetLoader(
+      "Account",
+      this.get("id")!.toBytes().toHexString(),
+      "userSignalsResets",
+    );
+  }
+
+  get userSignalsResetForApps(): UserSignalsResetForAppLoader {
+    return new UserSignalsResetForAppLoader(
+      "Account",
+      this.get("id")!.toBytes().toHexString(),
+      "userSignalsResetForApps",
     );
   }
 
@@ -9720,6 +9760,358 @@ export class PassportScore extends Entity {
   }
 }
 
+export class UserSignal extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id != null, "Cannot save UserSignal entity without an ID");
+    if (id) {
+      assert(
+        id.kind == ValueKind.STRING,
+        `Entities of type UserSignal must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`,
+      );
+      store.set("UserSignal", id.toString(), this);
+    }
+  }
+
+  static loadInBlock(id: string): UserSignal | null {
+    return changetype<UserSignal | null>(store.get_in_block("UserSignal", id));
+  }
+
+  static load(id: string): UserSignal | null {
+    return changetype<UserSignal | null>(store.get("UserSignal", id));
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toString();
+    }
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get user(): Bytes {
+    let value = this.get("user");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set user(value: Bytes) {
+    this.set("user", Value.fromBytes(value));
+  }
+
+  get app(): Bytes {
+    let value = this.get("app");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set app(value: Bytes) {
+    this.set("app", Value.fromBytes(value));
+  }
+
+  get signalCount(): BigInt {
+    let value = this.get("signalCount");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set signalCount(value: BigInt) {
+    this.set("signalCount", Value.fromBigInt(value));
+  }
+
+  get transaction(): string {
+    let value = this.get("transaction");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toString();
+    }
+  }
+
+  set transaction(value: string) {
+    this.set("transaction", Value.fromString(value));
+  }
+
+  get emitter(): Bytes {
+    let value = this.get("emitter");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set emitter(value: Bytes) {
+    this.set("emitter", Value.fromBytes(value));
+  }
+
+  get timestamp(): BigInt {
+    let value = this.get("timestamp");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set timestamp(value: BigInt) {
+    this.set("timestamp", Value.fromBigInt(value));
+  }
+}
+
+export class UserSignalsResetForApp extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(
+      id != null,
+      "Cannot save UserSignalsResetForApp entity without an ID",
+    );
+    if (id) {
+      assert(
+        id.kind == ValueKind.STRING,
+        `Entities of type UserSignalsResetForApp must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`,
+      );
+      store.set("UserSignalsResetForApp", id.toString(), this);
+    }
+  }
+
+  static loadInBlock(id: string): UserSignalsResetForApp | null {
+    return changetype<UserSignalsResetForApp | null>(
+      store.get_in_block("UserSignalsResetForApp", id),
+    );
+  }
+
+  static load(id: string): UserSignalsResetForApp | null {
+    return changetype<UserSignalsResetForApp | null>(
+      store.get("UserSignalsResetForApp", id),
+    );
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toString();
+    }
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get app(): Bytes {
+    let value = this.get("app");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set app(value: Bytes) {
+    this.set("app", Value.fromBytes(value));
+  }
+
+  get user(): Bytes {
+    let value = this.get("user");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set user(value: Bytes) {
+    this.set("user", Value.fromBytes(value));
+  }
+
+  get previousSignalCount(): BigInt {
+    let value = this.get("previousSignalCount");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set previousSignalCount(value: BigInt) {
+    this.set("previousSignalCount", Value.fromBigInt(value));
+  }
+
+  get transaction(): string {
+    let value = this.get("transaction");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toString();
+    }
+  }
+
+  set transaction(value: string) {
+    this.set("transaction", Value.fromString(value));
+  }
+
+  get emitter(): Bytes {
+    let value = this.get("emitter");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set emitter(value: Bytes) {
+    this.set("emitter", Value.fromBytes(value));
+  }
+
+  get timestamp(): BigInt {
+    let value = this.get("timestamp");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set timestamp(value: BigInt) {
+    this.set("timestamp", Value.fromBigInt(value));
+  }
+}
+
+export class UserSignalsReset extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id != null, "Cannot save UserSignalsReset entity without an ID");
+    if (id) {
+      assert(
+        id.kind == ValueKind.STRING,
+        `Entities of type UserSignalsReset must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`,
+      );
+      store.set("UserSignalsReset", id.toString(), this);
+    }
+  }
+
+  static loadInBlock(id: string): UserSignalsReset | null {
+    return changetype<UserSignalsReset | null>(
+      store.get_in_block("UserSignalsReset", id),
+    );
+  }
+
+  static load(id: string): UserSignalsReset | null {
+    return changetype<UserSignalsReset | null>(
+      store.get("UserSignalsReset", id),
+    );
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toString();
+    }
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get user(): Bytes {
+    let value = this.get("user");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set user(value: Bytes) {
+    this.set("user", Value.fromBytes(value));
+  }
+
+  get appsCount(): BigInt {
+    let value = this.get("appsCount");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set appsCount(value: BigInt) {
+    this.set("appsCount", Value.fromBigInt(value));
+  }
+
+  get transaction(): string {
+    let value = this.get("transaction");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toString();
+    }
+  }
+
+  set transaction(value: string) {
+    this.set("transaction", Value.fromString(value));
+  }
+
+  get emitter(): Bytes {
+    let value = this.get("emitter");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set emitter(value: Bytes) {
+    this.set("emitter", Value.fromBytes(value));
+  }
+
+  get timestamp(): BigInt {
+    let value = this.get("timestamp");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set timestamp(value: BigInt) {
+    this.set("timestamp", Value.fromBigInt(value));
+  }
+}
+
 export class NodeDelegation extends Entity {
   constructor(id: string) {
     super();
@@ -10290,6 +10682,42 @@ export class AppEndorsementLoader extends Entity {
   }
 }
 
+export class UserSignalLoader extends Entity {
+  _entity: string;
+  _field: string;
+  _id: string;
+
+  constructor(entity: string, id: string, field: string) {
+    super();
+    this._entity = entity;
+    this._id = id;
+    this._field = field;
+  }
+
+  load(): UserSignal[] {
+    let value = store.loadRelated(this._entity, this._id, this._field);
+    return changetype<UserSignal[]>(value);
+  }
+}
+
+export class UserSignalsResetForAppLoader extends Entity {
+  _entity: string;
+  _field: string;
+  _id: string;
+
+  constructor(entity: string, id: string, field: string) {
+    super();
+    this._entity = entity;
+    this._id = id;
+    this._field = field;
+  }
+
+  load(): UserSignalsResetForApp[] {
+    let value = store.loadRelated(this._entity, this._id, this._field);
+    return changetype<UserSignalsResetForApp[]>(value);
+  }
+}
+
 export class AppRoundWithdrawalReasonLoader extends Entity {
   _entity: string;
   _field: string;
@@ -10665,6 +11093,24 @@ export class PassportScoreLoader extends Entity {
   load(): PassportScore[] {
     let value = store.loadRelated(this._entity, this._id, this._field);
     return changetype<PassportScore[]>(value);
+  }
+}
+
+export class UserSignalsResetLoader extends Entity {
+  _entity: string;
+  _field: string;
+  _id: string;
+
+  constructor(entity: string, id: string, field: string) {
+    super();
+    this._entity = entity;
+    this._id = id;
+    this._field = field;
+  }
+
+  load(): UserSignalsReset[] {
+    let value = store.loadRelated(this._entity, this._id, this._field);
+    return changetype<UserSignalsReset[]>(value);
   }
 }
 

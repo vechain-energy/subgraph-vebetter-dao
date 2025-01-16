@@ -331,6 +331,9 @@ dataSources:
       language: wasm/assemblyscript
       entities:
         - Passport
+        - UserSignal
+        - UserSignalsReset
+        - UserSignalsResetForApp
       abis:
         - name: Passport
           file: ./abis/VeBetterDAO-ve-better-passport.json
@@ -357,6 +360,12 @@ dataSources:
           handler: handleUserBlacklisted
         - event: RemovedUserFromBlacklist(indexed address,indexed address)
           handler: handleRemovedUserFromBlacklist
+        - event: UserSignaled(indexed address,indexed address,indexed bytes32,string)
+          handler: handleUserSignaled
+        - event: UserSignalsReset(indexed address,string)
+          handler: handleUserSignalsReset
+        - event: UserSignalsResetForApp(indexed address,indexed bytes32,string)
+          handler: handleUserSignalsResetForApp
       file: ./src/Passport.ts
 
   # NodeManagement
