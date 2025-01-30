@@ -1050,6 +1050,7 @@ type UserSignal implements Event @entity {
   user: Account!
   app: App!
   signalCount: BigInt!
+  reason: String!
 
   transaction: Transaction!
   emitter: Account!
@@ -1061,6 +1062,7 @@ type UserSignalsResetForApp implements Event @entity(immutable: true) {
   app: App!
   user: Account!
   previousSignalCount: BigInt!
+  reason: String!
 
   transaction: Transaction!
   emitter: Account!
@@ -1071,6 +1073,7 @@ type UserSignalsReset implements Event @entity(immutable: true) {
   id: ID!
   user: Account!
   appsCount: BigInt!
+  reason: String!
 
   transaction: Transaction!
   emitter: Account!

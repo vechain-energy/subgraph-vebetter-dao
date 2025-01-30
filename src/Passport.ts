@@ -1,5 +1,5 @@
 import { PassportDelegation, PassportEntityLink, VeDelegateAccount, PassportWhitelist, PassportBlacklist, PassportScore, UserSignal, UserSignalsReset, UserSignalsResetForApp } from '../generated/schema'
-import { 
+import {
     DelegationPending as DelegationPendingEvent,
     DelegationCreated as DelegationCreatedEvent,
     DelegationRevoked as DelegationRevokedEvent,
@@ -219,6 +219,7 @@ export function handleUserSignaled(event: UserSignaledEvent): void {
         signal.user = fetchAccount(event.params.user).id
         signal.app = fetchApp(event.params.app).id
         signal.signalCount = constants.BIGINT_ZERO
+        signal.reason = event.params.reason
     }
 
     signal.signalCount = signal.signalCount.plus(constants.BIGINT_ONE)
@@ -233,6 +234,7 @@ export function handleUserSignalsReset(event: UserSignalsResetEvent): void {
     const reset = new UserSignalsReset(events.id(event))
     reset.user = fetchAccount(event.params.user).id
     reset.appsCount = constants.BIGINT_ZERO
+    reset.reason = event.params.reason
 
     // Since we can't query all signals for a user directly in AssemblyScript,
     // we'll just create the reset event. The signals will be considered reset
@@ -247,11 +249,12 @@ export function handleUserSignalsReset(event: UserSignalsResetEvent): void {
 export function handleUserSignalsResetForApp(event: UserSignalsResetForAppEvent): void {
     const id = [event.params.user.toHexString(), event.params.app.toHexString()].join('/')
     const signal = UserSignal.load(id)
-    
+
     const reset = new UserSignalsResetForApp(events.id(event))
     reset.user = fetchAccount(event.params.user).id
     reset.app = fetchApp(event.params.app).id
     reset.previousSignalCount = signal ? signal.signalCount : constants.BIGINT_ZERO
+    reset.reason = event.params.reason
 
     if (signal) {
         store.remove('UserSignal', id)

@@ -9838,6 +9838,19 @@ export class UserSignal extends Entity {
     this.set("signalCount", Value.fromBigInt(value));
   }
 
+  get reason(): string {
+    let value = this.get("reason");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toString();
+    }
+  }
+
+  set reason(value: string) {
+    this.set("reason", Value.fromString(value));
+  }
+
   get transaction(): string {
     let value = this.get("transaction");
     if (!value || value.kind == ValueKind.NULL) {
@@ -9963,6 +9976,19 @@ export class UserSignalsResetForApp extends Entity {
     this.set("previousSignalCount", Value.fromBigInt(value));
   }
 
+  get reason(): string {
+    let value = this.get("reason");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toString();
+    }
+  }
+
+  set reason(value: string) {
+    this.set("reason", Value.fromString(value));
+  }
+
   get transaction(): string {
     let value = this.get("transaction");
     if (!value || value.kind == ValueKind.NULL) {
@@ -10070,6 +10096,19 @@ export class UserSignalsReset extends Entity {
 
   set appsCount(value: BigInt) {
     this.set("appsCount", Value.fromBigInt(value));
+  }
+
+  get reason(): string {
+    let value = this.get("reason");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toString();
+    }
+  }
+
+  set reason(value: string) {
+    this.set("reason", Value.fromString(value));
   }
 
   get transaction(): string {
