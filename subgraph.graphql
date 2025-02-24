@@ -42,6 +42,7 @@ type App @entity {
   metadata: AppMetadata
   metadataURI: String
   votingEligibility: Boolean
+  isBlacklisted: Boolean
   poolAllocations: BigDecimal!
   poolAllocationsExact: BigInt!
   poolBalance: BigDecimal!

@@ -2,6 +2,7 @@ import {
     AppAdded as AppAddedEvent,
     AppMetadataURIUpdated as AppMetadataURIUpdatedEvent,
     VotingEligibilityUpdated as VotingEligibilityUpdatedEvent,
+    BlacklistUpdated as BlacklistUpdatedEvent,
     AppEndorsed as AppEndorsedEvent,
     AppEndorsementStatusUpdated as AppEndorsementStatusUpdatedEvent,
     XApps,
@@ -17,6 +18,7 @@ export function handleAppAdded(event: AppAddedEvent): void {
     const app = fetchApp(event.params.id)
     app.name = event.params.name
     app.votingEligibility = event.params.appAvailableForAllocationVoting
+    app.isBlacklisted = false
     app.createdAtBlockNumber = event.block.number
     app.updatedAtBlockNumber = event.block.number
     app.createdAt = event.block.timestamp
@@ -37,6 +39,13 @@ export function handleAppMetadataURIUpdated(event: AppMetadataURIUpdatedEvent): 
 export function handleAppVotingEligibilityUpdated(event: VotingEligibilityUpdatedEvent): void {
     const app = fetchApp(event.params.appId)
     app.votingEligibility = event.params.isAvailable
+    app.updatedAtBlockNumber = event.block.number
+    app.save()
+}
+
+export function handleAppBlackListUpdated(event: BlacklistUpdatedEvent): void {
+    const app = fetchApp(event.params.appId)
+    app.isBlacklisted = event.params.isBlacklisted
     app.updatedAtBlockNumber = event.block.number
     app.save()
 }

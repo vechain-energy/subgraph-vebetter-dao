@@ -499,6 +499,19 @@ export class App extends Entity {
     this.set("votingEligibility", Value.fromBoolean(value));
   }
 
+  get isBlacklisted(): boolean {
+    let value = this.get("isBlacklisted");
+    if (!value || value.kind == ValueKind.NULL) {
+      return false;
+    } else {
+      return value.toBoolean();
+    }
+  }
+
+  set isBlacklisted(value: boolean) {
+    this.set("isBlacklisted", Value.fromBoolean(value));
+  }
+
   get poolAllocations(): BigDecimal {
     let value = this.get("poolAllocations");
     if (!value || value.kind == ValueKind.NULL) {

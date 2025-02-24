@@ -148,6 +148,8 @@ dataSources:
           handler: handleAppMetadataURIUpdated
         - event: VotingEligibilityUpdated(indexed bytes32,bool)
           handler: handleAppVotingEligibilityUpdated
+        - event: BlacklistUpdated(indexed bytes32,bool)
+          handler: handleAppBlackListUpdated
         - event: AppEndorsed(indexed bytes32,uint256,bool)
           handler: handleAppEndorsed
         - event: AppEndorsementStatusUpdated(indexed bytes32,bool)
