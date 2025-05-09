@@ -27,6 +27,8 @@ type RoundStatistic @entity {
   weightExact: BigInt!
   weightTotal: BigDecimal!
   weightTotalExact: BigInt!
+  gmWeightTotal: BigDecimal!
+  gmWeightTotalExact: BigInt!
   totalRewardsClaimed: BigDecimal!
   totalRewardsClaimedExact: BigInt!
   totalActionScores: BigInt!
