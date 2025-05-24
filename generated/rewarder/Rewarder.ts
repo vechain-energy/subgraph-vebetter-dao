@@ -120,6 +120,36 @@ export class RewardClaimed__Params {
   }
 }
 
+export class RewardClaimedV2 extends ethereum.Event {
+  get params(): RewardClaimedV2__Params {
+    return new RewardClaimedV2__Params(this);
+  }
+}
+
+export class RewardClaimedV2__Params {
+  _event: RewardClaimedV2;
+
+  constructor(event: RewardClaimedV2) {
+    this._event = event;
+  }
+
+  get cycle(): BigInt {
+    return this._event.parameters[0].value.toBigInt();
+  }
+
+  get voter(): Address {
+    return this._event.parameters[1].value.toAddress();
+  }
+
+  get reward(): BigInt {
+    return this._event.parameters[2].value.toBigInt();
+  }
+
+  get gmReward(): BigInt {
+    return this._event.parameters[3].value.toBigInt();
+  }
+}
+
 export class RoleAdminChanged extends ethereum.Event {
   get params(): RoleAdminChanged__Params {
     return new RoleAdminChanged__Params(this);
@@ -242,6 +272,36 @@ export class VoteRegistered__Params {
   }
 
   get rewardWeightedVote(): BigInt {
+    return this._event.parameters[3].value.toBigInt();
+  }
+}
+
+export class GMVoteRegistered extends ethereum.Event {
+  get params(): GMVoteRegistered__Params {
+    return new GMVoteRegistered__Params(this);
+  }
+}
+
+export class GMVoteRegistered__Params {
+  _event: GMVoteRegistered;
+
+  constructor(event: GMVoteRegistered) {
+    this._event = event;
+  }
+
+  get cycle(): BigInt {
+    return this._event.parameters[0].value.toBigInt();
+  }
+
+  get tokenId(): BigInt {
+    return this._event.parameters[1].value.toBigInt();
+  }
+
+  get level(): BigInt {
+    return this._event.parameters[2].value.toBigInt();
+  }
+
+  get multiplier(): BigInt {
     return this._event.parameters[3].value.toBigInt();
   }
 }

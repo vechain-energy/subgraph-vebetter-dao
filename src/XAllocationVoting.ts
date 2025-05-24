@@ -215,6 +215,8 @@ export function fetchStatistic(_id: string, suffix: string): RoundStatistic {
         stats.weightExact = constants.BIGINT_ZERO
         stats.weightTotal = constants.BIGDECIMAL_ZERO
         stats.weightTotalExact = constants.BIGINT_ZERO
+        stats.gmVotersCount = constants.BIGINT_ZERO
+        stats.gmWeightTotal = constants.BIGINT_ZERO
         stats.totalRewardsClaimed = constants.BIGDECIMAL_ZERO
         stats.totalRewardsClaimedExact = constants.BIGINT_ZERO
         stats.totalActionScores = constants.BIGINT_ZERO

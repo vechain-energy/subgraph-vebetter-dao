@@ -3,7 +3,6 @@ import {
 } from '@graphprotocol/graph-ts'
 
 import {
-	ERC721Transfer,
 	VeDelegateAccount
 } from '../generated/schema'
 
@@ -42,16 +41,6 @@ export function handleTransfer(event: TransferEvent): void {
 
 		contract.save()
 		token.save()
-
-		let ev = new ERC721Transfer(events.id(event))
-		ev.emitter = contract.id
-		ev.transaction = transactions.log(event).id
-		ev.timestamp = event.block.timestamp
-		ev.contract = contract.id
-		ev.token = token.id
-		ev.from = from.id
-		ev.to = to.id
-		ev.save()
 
 		const veDelegateToken = new ERC721Token(token.id)
 		let erc721 = IVeDelegate.bind(Address.fromBytes(event.address))
