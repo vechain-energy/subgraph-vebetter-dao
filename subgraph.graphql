@@ -14,6 +14,7 @@ type Round @entity {
   veDelegateStatistic: RoundStatistic!
 }
 
+
 type RoundStatistic @entity {
   id: ID!
   b3tr: BigDecimal!
@@ -27,12 +28,22 @@ type RoundStatistic @entity {
   weightExact: BigInt!
   weightTotal: BigDecimal!
   weightTotalExact: BigInt!
-  gmWeightTotal: BigDecimal!
-  gmWeightTotalExact: BigInt!
+  gmVotersCount: BigInt!
+  gmWeightTotal: BigInt!
   totalRewardsClaimed: BigDecimal!
   totalRewardsClaimedExact: BigInt!
   totalActionScores: BigInt!
+  gmLevelStats: [GMVoteLevel!]! @derivedFrom(field: "roundStatistic")
 }
+
+type GMVoteLevel @entity {
+  id: ID!
+  roundStatistic: RoundStatistic!
+  level: BigInt!
+  voterCount: BigInt!
+  weightTotal: BigInt!
+}
+
 
 """
 X-2-Earn Apps
@@ -199,15 +210,11 @@ type Account @entity {
   ERC721tokens: [ERC721Token!]! @derivedFrom(field: "owner")
   ERC721operatorOwner: [ERC721Operator!]! @derivedFrom(field: "owner")
   ERC721operatorOperator: [ERC721Operator!]! @derivedFrom(field: "operator")
-  ERC721transferFromEvent: [ERC721Transfer!]! @derivedFrom(field: "from")
-  ERC721transferToEvent: [ERC721Transfer!]! @derivedFrom(field: "to")
   asERC20: ERC20Contract
   ERC20balances: [ERC20Balance!]! @derivedFrom(field: "account")
   VBDbalance: VBDBalance @derivedFrom(field: "account")
   ERC20approvalsOwner: [ERC20Approval!]! @derivedFrom(field: "owner")
   ERC20approvalsSpender: [ERC20Approval!]! @derivedFrom(field: "spender")
-  ERC20transferFromEvent: [ERC20Transfer!]! @derivedFrom(field: "from")
-  ERC20transferToEvent: [ERC20Transfer!]! @derivedFrom(field: "to")
   asVoting: VotingContract
   delegationFrom: [VoteDelegation!]! @derivedFrom(field: "delegator")
   delegationTo: [VoteDelegation!]! @derivedFrom(field: "delegatee")
@@ -253,7 +260,6 @@ type ERC721Contract @entity(immutable: true) {
   symbol: String
   tokens: [ERC721Token!]! @derivedFrom(field: "contract")
   operators: [ERC721Operator!]! @derivedFrom(field: "contract")
-  transfers: [ERC721Transfer!]! @derivedFrom(field: "contract")
 }
 
 type ERC721Token @entity {
@@ -263,7 +269,6 @@ type ERC721Token @entity {
   owner: Account!
   approval: Account!
   uri: String
-  transfers: [ERC721Transfer!]! @derivedFrom(field: "token")
   poolAddress: Account
 }
 
@@ -273,17 +278,6 @@ type ERC721Operator @entity {
   owner: Account!
   operator: Account!
   approved: Boolean!
-}
-
-type ERC721Transfer implements Event @entity(immutable: true) {
-  id: ID!
-  emitter: Account!
-  transaction: Transaction!
-  timestamp: BigInt!
-  contract: ERC721Contract!
-  token: ERC721Token!
-  from: Account!
-  to: Account!
 }
 
 """
@@ -298,7 +292,6 @@ type ERC20Contract @entity(immutable: true) {
   totalSupply: ERC20Balance!
   balances: [ERC20Balance!]! @derivedFrom(field: "contract")
   approvals: [ERC20Approval!]! @derivedFrom(field: "contract")
-  transfers: [ERC20Transfer!]! @derivedFrom(field: "contract")
 }
 
 type VBDBalance @entity {
@@ -317,8 +310,6 @@ type ERC20Balance @entity {
   account: Account
   value: BigDecimal!
   valueExact: BigInt!
-  transferFromEvent: [ERC20Transfer!]! @derivedFrom(field: "fromBalance")
-  transferToEvent: [ERC20Transfer!]! @derivedFrom(field: "toBalance")
 }
 
 type ERC20Approval @entity {
@@ -326,35 +317,6 @@ type ERC20Approval @entity {
   contract: ERC20Contract!
   owner: Account!
   spender: Account!
-  value: BigDecimal!
-  valueExact: BigInt!
-}
-
-type ERC20Transfer implements Event @entity(immutable: true) {
-  id: ID!
-  emitter: Account!
-  transaction: Transaction!
-  timestamp: BigInt!
-  contract: ERC20Contract!
-  from: Account
-  fromBalance: ERC20Balance
-  to: Account
-  toBalance: ERC20Balance
-  value: BigDecimal!
-  valueExact: BigInt!
-}
-
-type VeDelegateTransfer implements Event @entity(immutable: true) {
-  id: ID!
-  isDeposit: Boolean!
-  emitter: Account!
-  transaction: Transaction!
-  timestamp: BigInt!
-  contract: ERC20Contract!
-  from: Account
-  fromBalance: ERC20Balance
-  to: Account
-  toBalance: ERC20Balance
   value: BigDecimal!
   valueExact: BigInt!
 }

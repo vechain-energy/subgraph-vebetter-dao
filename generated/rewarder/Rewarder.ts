@@ -120,16 +120,16 @@ export class RewardClaimed__Params {
   }
 }
 
-export class RewardClaimed2 extends ethereum.Event {
-  get params(): RewardClaimed2__Params {
-    return new RewardClaimed2__Params(this);
+export class RewardClaimedV2 extends ethereum.Event {
+  get params(): RewardClaimedV2__Params {
+    return new RewardClaimedV2__Params(this);
   }
 }
 
-export class RewardClaimed2__Params {
-  _event: RewardClaimed2;
+export class RewardClaimedV2__Params {
+  _event: RewardClaimedV2;
 
-  constructor(event: RewardClaimed2) {
+  constructor(event: RewardClaimedV2) {
     this._event = event;
   }
 

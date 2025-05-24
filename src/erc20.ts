@@ -4,9 +4,7 @@ import {
 
 import {
 	VBDBalance,
-	ERC20Transfer,
 	VeDelegateAccount,
-	VeDelegateTransfer
 } from '../generated/schema'
 
 import {
@@ -38,13 +36,6 @@ import { constants } from '@amxx/graphprotocol-utils'
 
 export function handleTransfer(event: TransferEvent): void {
 	let contract = fetchERC20(event.address)
-	let ev = new ERC20Transfer(events.id(event))
-	ev.emitter = contract.id
-	ev.transaction = transactions.log(event).id
-	ev.timestamp = event.block.timestamp
-	ev.contract = contract.id
-	ev.value = decimals.toDecimals(event.params.value, contract.decimals)
-	ev.valueExact = event.params.value
 
 	// Convert B3TR between VOT3
 	if (
@@ -101,9 +92,6 @@ export function handleTransfer(event: TransferEvent): void {
 			}
 			tvl.save()
 		}
-
-		ev.from = from.id
-		ev.fromBalance = balance.id
 	}
 
 	if (event.params.to == Address.zero()) {
@@ -148,14 +136,6 @@ export function handleTransfer(event: TransferEvent): void {
 			}
 			tvl.save()
 		}
-
-		ev.to = to.id
-		ev.toBalance = balance.id
-	}
-	ev.save()
-
-	if (isVeDelegateTransferReceiver || isVeDelegateTransferSender) {
-		cloneErc20ToVeDelegateTransfer(ev, isVeDelegateTransferReceiver)
 	}
 }
 
@@ -169,26 +149,6 @@ export function handleApproval(event: ApprovalEvent): void {
 	approval.value = decimals.toDecimals(event.params.value, contract.decimals)
 	approval.save()
 }
-
-
-function cloneErc20ToVeDelegateTransfer(transfer: ERC20Transfer, isDeposit: boolean): void {
-	const vdTransfer = new VeDelegateTransfer(`${transfer.id}-vd`)
-	vdTransfer.isDeposit = isDeposit
-	vdTransfer.emitter = transfer.emitter
-	vdTransfer.transaction = transfer.transaction
-	vdTransfer.timestamp = transfer.timestamp
-	vdTransfer.contract = transfer.contract
-	vdTransfer.from = transfer.from
-	vdTransfer.fromBalance = transfer.fromBalance
-	vdTransfer.to = transfer.to
-	vdTransfer.toBalance = transfer.toBalance
-	vdTransfer.value = transfer.value
-	vdTransfer.valueExact = transfer.valueExact
-	vdTransfer.save()
-}
-
-
-
 
 function fetchVBDBalance(account: OZAccount | null): VBDBalance {
 	let id = account ? account.id.toHex() : 'totalSupply'

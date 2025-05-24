@@ -96,7 +96,7 @@ dataSources:
       eventHandlers:
         - event: RewardClaimed(indexed uint256,indexed address,uint256)
           handler: handleReward
-        - event: RewardClaimed2(indexed uint256,indexed address,uint256,uint256)
+        - event: RewardClaimedV2(indexed uint256,indexed address,uint256,uint256)
           handler: handleReward2
         - event: VoteRegistered(indexed uint256,indexed address,uint256,uint256)
           handler: handleVoteRegistered

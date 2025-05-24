@@ -1,12 +1,11 @@
-
 import {
     RewardClaimed as RewardClaimedEvent,
-    RewardClaimed2 as RewardClaimed2Event,
+    RewardClaimedV2 as RewardClaimedV2Event,
     VoteRegistered as VoteRegisteredEvent,
     GMVoteRegistered as GMVoteRegisteredEvent,
 } from '../generated/rewarder/Rewarder'
-import { RewardClaimed, VeDelegateAccount } from '../generated/schema'
-import { decimals, transactions } from '@amxx/graphprotocol-utils'
+import { RewardClaimed, VeDelegateAccount, GMVoteLevel } from '../generated/schema'
+import { constants, decimals, transactions } from '@amxx/graphprotocol-utils'
 import { fetchRound, fetchStatistic } from './XAllocationVoting'
 import { fetchAccount } from '@openzeppelin/subgraphs/src/fetch/account'
 
@@ -39,7 +38,7 @@ export function handleReward(event: RewardClaimedEvent): void {
 }
 
 
-export function handleReward2(event: RewardClaimed2Event): void {
+export function handleReward2(event: RewardClaimedV2Event): void {
     const id = event.params.cycle.toString()
 
     const round = fetchRound(id)
@@ -89,10 +88,26 @@ export function handleVoteRegistered(event: VoteRegisteredEvent): void {
 
 export function handleGMVoteRegistered(event: GMVoteRegisteredEvent): void {
     const roundId = event.params.cycle.toString()
-
     const stats = fetchStatistic(roundId, "")
 
-    stats.gmWeightTotalExact = stats.gmWeightTotalExact.plus(event.params.multiplier)
-    stats.gmWeightTotal = decimals.toDecimals(stats.gmWeightTotalExact, 18)
+    // Update general GM stats
+    stats.gmVotersCount = stats.gmVotersCount.plus(constants.BIGINT_ONE)
+    stats.gmWeightTotal = stats.gmWeightTotal.plus(event.params.multiplier)
     stats.save()
+
+    // Track level-specific stats
+    const levelId = [roundId, event.params.level.toString()].join('/')
+    let levelStats = GMVoteLevel.load(levelId)
+    
+    if (levelStats == null) {
+        levelStats = new GMVoteLevel(levelId)
+        levelStats.roundStatistic = stats.id
+        levelStats.level = event.params.level
+        levelStats.voterCount = constants.BIGINT_ZERO
+        levelStats.weightTotal = constants.BIGINT_ZERO
+    }
+
+    levelStats.voterCount = levelStats.voterCount.plus(constants.BIGINT_ONE)
+    levelStats.weightTotal = levelStats.weightTotal.plus(event.params.multiplier)
+    levelStats.save()
 }
