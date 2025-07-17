@@ -81,6 +81,15 @@ export function levelToPoints(level: i32): i32 {
     else if (level === 7) { // MjolnirX
         return 100
     }
+    else if (level === 8) { // Dawn
+        return 0
+    }
+    else if (level === 9) { // Lightning
+        return 0
+    }
+    else if (level === 7) { // Flash
+        return 0
+    }
     else {
         return 0
     }

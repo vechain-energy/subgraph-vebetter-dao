@@ -420,6 +420,27 @@ dataSources:
         - event: LevelChanged(indexed uint256,indexed address,uint8,uint8)
           handler: handleLevelChanged
       file: ./src/ThorNode.ts
+  # Stargate Nodes
+  - kind: ethereum/contract
+    name: Stargate
+    network: mainnet
+    source:
+      address: "0x1856C533aC2D94340aAa8544D35a5c1d4A21DeE7"
+      abi: Stargate
+      startBlock: 22049248
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - IERC721
+      abis:
+        - name: Stargate
+          file: ./abis/StargateNFT.json
+      eventHandlers:
+        - event: Transfer(indexed address,indexed address,indexed uint256)
+          handler: handleTransfer
+      file: ./src/ThorNode.ts
 
   # Account: vet.domains names
   - kind: ethereum/contract

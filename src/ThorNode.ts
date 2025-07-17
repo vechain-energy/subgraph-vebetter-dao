@@ -4,6 +4,9 @@ import {
     ThorNode as IThorNode,
 } from '../generated/ThorNode/ThorNode'
 import {
+    Stargate as IStargate,
+} from '../generated/Stargate/Stargate'
+import {
     Transfer as TransferEvent,
     LevelChanged as LevelChangedEvent,
 } from '../generated/ThorNode/ThorNode'
@@ -15,8 +18,9 @@ import { levelToPoints } from './NodeManagement';
 
 export function handleTransfer(event: TransferEvent): void {
     const node = fetchNode(event.params._tokenId)
-    if (!node.level) {
 
+    // Legacy ThorNodes
+    if (!node.level && Address.fromBytes(event.address) == Address.fromString("0xb81E9C5f9644Dec9e5e3Cac86b4461A222072302")) {
         let thorNode = IThorNode.bind(Address.fromBytes(event.address))
         let try_getMetadata = thorNode.try_getMetadata(node.identifier)
         node.isX = try_getMetadata.reverted ? false : try_getMetadata.value.getValue1() >= 4
@@ -29,6 +33,21 @@ export function handleTransfer(event: TransferEvent): void {
         stats.save()
     }
 
+    // Stargate Nodes
+    if (!node.level && Address.fromBytes(event.address) == Address.fromString("0x1856C533aC2D94340aAa8544D35a5c1d4A21DeE7")) {
+        let stargate = IStargate.bind(Address.fromBytes(event.address))
+        let try_isXToken = stargate.try_isXToken(node.identifier)
+        node.isX = try_isXToken.reverted ? false : try_isXToken.value
+
+        let try_getTokenLevel = stargate.try_getTokenLevel(node.identifier)
+        node.level = try_getTokenLevel.reverted ? false : try_getTokenLevel.value
+        node.points = levelToPoints(node.level)
+
+        const stats = fetchStatsEndorsements('all')
+        stats.nodeCount += 1
+        stats.points += levelToPoints(node.level)
+        stats.save()
+    }
     node.owner = fetchAccount(event.params._to).id
 
     if (event.params._to === constants.ADDRESS_ZERO) {
