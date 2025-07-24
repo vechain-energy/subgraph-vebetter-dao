@@ -1172,3 +1172,8 @@ type Lock2EarnTermRenewed implements Event @entity(immutable: true) {
   emitter: Account!
   timestamp: BigInt!
 }
+
+type CurrentRound @entity {
+  id: ID!         # always "singleton"
+  roundId: BigInt!
+}

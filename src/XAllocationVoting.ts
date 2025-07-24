@@ -8,6 +8,7 @@ import { fetchAccount } from '../node_modules/@openzeppelin/subgraphs/src/fetch/
 import { fetchApp } from './XApps'
 import { bigInt } from '@graphprotocol/graph-ts'
 import { getUserPassportForRound } from './Passport'
+import { CurrentRound } from '../generated/schema'
 
 export function handleVoteCast(event: AllocationVoteCastEvent): void {
     const appCount = event.params.appsIds.length
@@ -121,6 +122,14 @@ export function handleRoundCreated(event: RoundCreatedEvent): void {
     const round = fetchRound(id)
     round.voteStart = event.params.voteStart
     round.voteEnd = event.params.voteEnd
+
+    // Cache current roundId in singleton entity
+    let current = CurrentRound.load("singleton")
+    if (current == null) {
+        current = new CurrentRound("singleton")
+    }
+    current.roundId = event.params.roundId
+    current.save()
 
     const appCount = event.params.appsIds.length
     for (let index = 0; index < appCount; index += 1) {

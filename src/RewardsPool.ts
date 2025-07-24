@@ -13,6 +13,7 @@ import { SustainabilityProof as SustainabilityProofTemplate } from '../generated
 import { XAllocationVoting } from '../generated/RewardsPool/XAllocationVoting'
 import { incrementLock2EarnTermRewards } from './Lock2Earn'
 import { VeDelegateAccount } from '../generated/schema'
+import { CurrentRound } from '../generated/schema'
 
 
 
@@ -27,7 +28,9 @@ export function handleNewDeposit(event: NewDepositEvent): void {
     ev.amountExact = event.params.amount
     ev.amount = decimals.toDecimals(event.params.amount, 18)
     ev.depositor = fetchAccount(event.params.depositor).id
-    ev.round = getCurrentRound().id
+    let current = CurrentRound.load("singleton")
+    if (current == null) { return }
+    ev.round = current.roundId.toString()
     ev.save()
 
     const transfer = new RewardPoolTransfer(['transfer', events.id(event)].join('/'))
@@ -540,17 +543,8 @@ export function isDigitsOnly(s: string): boolean {
     return true;
 }
 
-export function getCurrentRoundId(): string {
-    let b3trGov = XAllocationVoting.bind(Address.fromString("0x89A00Bb0947a30FF95BEeF77a66AEdE3842Fe5B7"))
-
-    let try_currentRoundId = b3trGov.try_currentRoundId()
-    if (try_currentRoundId.reverted) { return "0" }
-
-    return try_currentRoundId.value.toString()
-}
-
 export function getCurrentRound(): Round {
-    return fetchRound(getCurrentRoundId())
+    return fetchRound(CurrentRound.load("singleton")!.roundId.toString())
 }
 
 export function fetchAppRoundSummary(app: App, round: Round): AppRoundSummary {
