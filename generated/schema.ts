@@ -1900,6 +1900,31 @@ export class VeDelegateAccount extends Entity {
       this.set("nodeDelegation", Value.fromString(<string>value));
     }
   }
+
+  get asLock2EarnTerm(): Lock2EarnTermLoader {
+    return new Lock2EarnTermLoader(
+      "VeDelegateAccount",
+      this.get("id")!.toBytes().toHexString(),
+      "asLock2EarnTerm",
+    );
+  }
+
+  get lock2EarnTermId(): string | null {
+    let value = this.get("lock2EarnTermId");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set lock2EarnTermId(value: string | null) {
+    if (!value) {
+      this.unset("lock2EarnTermId");
+    } else {
+      this.set("lock2EarnTermId", Value.fromString(<string>value));
+    }
+  }
 }
 
 export class VeDelegateConfig extends Entity {
@@ -10332,21 +10357,17 @@ export class Lock2EarnTerm extends Entity {
     this.set("amountExact", Value.fromBigInt(value));
   }
 
-  get veDelegatePool(): Bytes | null {
-    let value = this.get("veDelegatePool");
+  get veDelegateAccount(): Bytes {
+    let value = this.get("veDelegateAccount");
     if (!value || value.kind == ValueKind.NULL) {
-      return null;
+      throw new Error("Cannot return null for a required field.");
     } else {
       return value.toBytes();
     }
   }
 
-  set veDelegatePool(value: Bytes | null) {
-    if (!value) {
-      this.unset("veDelegatePool");
-    } else {
-      this.set("veDelegatePool", Value.fromBytes(<Bytes>value));
-    }
+  set veDelegateAccount(value: Bytes) {
+    this.set("veDelegateAccount", Value.fromBytes(value));
   }
 
   get rewards(): BigDecimal {
@@ -11151,6 +11172,24 @@ export class AppRoundWithdrawalReasonLoader extends Entity {
   }
 }
 
+export class Lock2EarnTermLoader extends Entity {
+  _entity: string;
+  _field: string;
+  _id: string;
+
+  constructor(entity: string, id: string, field: string) {
+    super();
+    this._entity = entity;
+    this._id = id;
+    this._field = field;
+  }
+
+  load(): Lock2EarnTerm[] {
+    let value = store.loadRelated(this._entity, this._id, this._field);
+    return changetype<Lock2EarnTerm[]>(value);
+  }
+}
+
 export class ERC721TokenLoader extends Entity {
   _entity: string;
   _field: string;
@@ -11400,24 +11439,6 @@ export class ProposalCallLoader extends Entity {
   load(): ProposalCall[] {
     let value = store.loadRelated(this._entity, this._id, this._field);
     return changetype<ProposalCall[]>(value);
-  }
-}
-
-export class Lock2EarnTermLoader extends Entity {
-  _entity: string;
-  _field: string;
-  _id: string;
-
-  constructor(entity: string, id: string, field: string) {
-    super();
-    this._entity = entity;
-    this._id = id;
-    this._field = field;
-  }
-
-  load(): Lock2EarnTerm[] {
-    let value = store.loadRelated(this._entity, this._id, this._field);
-    return changetype<Lock2EarnTerm[]>(value);
   }
 }
 

@@ -186,6 +186,8 @@ type VeDelegateAccount @entity {
   token: ERC721Token!
   passportDelegation: PassportDelegation
   nodeDelegation: NodeDelegation
+  asLock2EarnTerm: Lock2EarnTerm @derivedFrom(field: "veDelegateAccount")
+  lock2EarnTermId: String
 }
 
 type VeDelegateConfig @entity {
@@ -1112,7 +1114,7 @@ type Lock2EarnTerm @entity {
   updatedAt: BigInt!
   amount: BigDecimal!      # normalized (amountExact / 1e18)
   amountExact: BigInt!     # raw on-chain value
-  veDelegatePool: Account  # account of the veDelegatePoolTokenId
+  veDelegateAccount: VeDelegateAccount!
   rewards: BigDecimal!     # normalized, sum of rewards received (reset on renewal)
   rewardsExact: BigInt!    # raw, sum of rewards received (reset on renewal)
 }

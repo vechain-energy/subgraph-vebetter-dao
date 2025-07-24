@@ -11,6 +11,8 @@ import { fetchAccount } from '@openzeppelin/subgraphs/src/fetch/account'
 import { fetchRound } from './XAllocationVoting'
 import { SustainabilityProof as SustainabilityProofTemplate } from '../generated/templates'
 import { XAllocationVoting } from '../generated/RewardsPool/XAllocationVoting'
+import { incrementLock2EarnTermRewards } from './Lock2Earn'
+import { VeDelegateAccount } from '../generated/schema'
 
 
 
@@ -182,6 +184,12 @@ export function handleRewardDistribution(event: RewardDistributedEvent): void {
         const appRoundSummary = AppRoundSummary.load([app.id.toHexString(), ev.round].join('/'))!
         appRoundSummary.activeUserCount = appRoundSummary.activeUserCount.plus(constants.BIGINT_ONE)
         appRoundSummary.save()
+    }
+
+    // Wire in Lock2Earn reward increment
+    let veDelegateAccount = VeDelegateAccount.load(event.params.receiver)
+    if (veDelegateAccount && veDelegateAccount.asLock2EarnTerm && veDelegateAccount.lock2EarnTermId != null) {
+        incrementLock2EarnTermRewards(veDelegateAccount.lock2EarnTermId as string, event.params.amount)
     }
 }
 
