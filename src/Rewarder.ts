@@ -57,9 +57,8 @@ export function handleReward2(event: RewardClaimedV2Event): void {
     }
 
     // Wire in Lock2Earn reward increment
-    let veDelegateAccount = VeDelegateAccount.load(event.params.voter)
-    if (veDelegateAccount && veDelegateAccount.asLock2EarnTerm && veDelegateAccount.lock2EarnTermId != null) {
-        incrementLock2EarnTermRewards(veDelegateAccount.lock2EarnTermId as string, event.params.reward.plus(event.params.gmReward))
+    if (veAccount && veAccount.asLock2EarnTerm && veAccount.lock2EarnTermId != null) {
+        incrementLock2EarnTermRewards(veAccount.lock2EarnTermId as string, event.params.reward.plus(event.params.gmReward))
     }
 
     const ev = new RewardClaimed([event.params.voter.toHexString(), event.params.cycle.toString()].join('/'))

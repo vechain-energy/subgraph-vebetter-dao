@@ -190,9 +190,9 @@ export function handleRewardDistribution(event: RewardDistributedEvent): void {
     }
 
     // Wire in Lock2Earn reward increment
-    let veDelegateAccount = VeDelegateAccount.load(event.params.receiver)
-    if (veDelegateAccount && veDelegateAccount.asLock2EarnTerm && veDelegateAccount.lock2EarnTermId != null) {
-        incrementLock2EarnTermRewards(veDelegateAccount.lock2EarnTermId as string, event.params.amount)
+    let veAccount = VeDelegateAccount.load(event.params.receiver)
+    if (veAccount && veAccount.asLock2EarnTerm && veAccount.lock2EarnTermId != null) {
+        incrementLock2EarnTermRewards(veAccount.lock2EarnTermId as string, event.params.amount)
     }
 }
 
