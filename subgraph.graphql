@@ -1,3 +1,4 @@
+scalar Timestamp
 """
 Weekly Voting Rounds
 """
@@ -185,6 +186,8 @@ type VeDelegateAccount @entity {
   token: ERC721Token!
   passportDelegation: PassportDelegation
   nodeDelegation: NodeDelegation
+  asLock2EarnTerm: Lock2EarnTerm @derivedFrom(field: "veDelegateAccount")
+  lock2EarnTermId: String
 }
 
 type VeDelegateConfig @entity {
@@ -233,6 +236,7 @@ type Account @entity {
   proposedCalls: [ProposalCall!]! @derivedFrom(field: "target")
   events: [Event!]! @derivedFrom(field: "emitter")
   sustainability: AccountSustainability @derivedFrom(field: "account")
+  lock2EarnTerms: [Lock2EarnTerm!]! @derivedFrom(field: "owner")
 
   passportDelegator: PassportDelegation @derivedFrom(field: "delegator")
   passportDelegatee: PassportDelegation @derivedFrom(field: "delegatee")
@@ -1092,4 +1096,84 @@ type StatsEndorsement @entity {
   nodeCount: Int!
   points: Int!
   delegatedPoints: Int!
+}
+
+"""
+Lock2Earn Term Tracking
+"""
+type Lock2EarnTerm @entity {
+  id: ID!
+  tokenId: BigInt!
+  owner: Account!
+  startTime: BigInt!
+  termLength: BigInt!
+  termInterval: BigInt!
+  endTime: BigInt!
+  closed: Boolean!
+  createdAt: BigInt!
+  updatedAt: BigInt!
+  amount: BigDecimal!      # normalized (amountExact / 1e18)
+  amountExact: BigInt!     # raw on-chain value
+  veDelegateAccount: VeDelegateAccount!
+  rewards: BigDecimal!     # normalized, sum of rewards received (reset on renewal)
+  rewardsExact: BigInt!    # raw, sum of rewards received (reset on renewal)
+}
+
+"""
+Aggregated statistics for Lock2Earn terms
+- Use id: "global" for singleton
+- All ...Exact fields are raw BigInt sums
+- All other fields are normalized BigDecimal sums (divided by 1e18)
+- totalRewards: sum of all rewards received by all terms (reset on renewal)
+"""
+type Lock2EarnStats @entity {
+  id: ID!
+  totalAmount: BigDecimal!
+  totalAmountExact: BigInt!
+  activeAmount: BigDecimal!
+  activeAmountExact: BigInt!
+  closedAmount: BigDecimal!
+  closedAmountExact: BigInt!
+  termCount: BigInt!
+  activeTermCount: BigInt!
+  closedTermCount: BigInt!
+  totalRewards: BigDecimal!
+  totalRewardsExact: BigInt!
+}
+
+type Lock2EarnTermAdded implements Event @entity(immutable: true) {
+  id: ID!
+  term: Lock2EarnTerm!
+  owner: Account!
+  startTime: BigInt!
+  termLength: BigInt!
+  termInterval: BigInt!
+  endTime: BigInt!
+  transaction: Transaction!
+  emitter: Account!
+  timestamp: BigInt!
+}
+
+type Lock2EarnTermClosed implements Event @entity(immutable: true) {
+  id: ID!
+  term: Lock2EarnTerm!
+  owner: Account!
+  transaction: Transaction!
+  emitter: Account!
+  timestamp: BigInt!
+}
+
+type Lock2EarnTermRenewed implements Event @entity(immutable: true) {
+  id: ID!
+  term: Lock2EarnTerm!
+  owner: Account!
+  newEndTime: BigInt!
+  transaction: Transaction!
+  emitter: Account!
+  timestamp: BigInt!
+}
+
+type CurrentRound @entity {
+  id: ID!         # always "singleton"
+  roundId: BigInt!
 }

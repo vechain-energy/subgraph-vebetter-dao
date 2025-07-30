@@ -26,3 +26,8 @@ export function handleTransfer(event: TransferEvent): void {
     token.poolAddress = account.id;
     token.save()
 }
+
+
+export function fetchVeDelegateAccount(address: Address): VeDelegateAccount {
+	return VeDelegateAccount.load(address)!
+}

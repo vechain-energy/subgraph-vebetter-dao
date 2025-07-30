@@ -8,6 +8,7 @@ import { RewardClaimed, VeDelegateAccount, GMVoteLevel } from '../generated/sche
 import { constants, decimals, transactions } from '@amxx/graphprotocol-utils'
 import { fetchRound, fetchStatistic } from './XAllocationVoting'
 import { fetchAccount } from '@openzeppelin/subgraphs/src/fetch/account'
+import { incrementLock2EarnTermRewards } from './Lock2Earn'
 
 export function handleReward(event: RewardClaimedEvent): void {
     const id = event.params.cycle.toString()
@@ -55,6 +56,11 @@ export function handleReward2(event: RewardClaimedV2Event): void {
         veDelegateStatistic.save()
     }
 
+    // Wire in Lock2Earn reward increment
+    if (veAccount && veAccount.asLock2EarnTerm && veAccount.lock2EarnTermId != null) {
+        incrementLock2EarnTermRewards(veAccount.lock2EarnTermId as string, event.params.reward.plus(event.params.gmReward))
+    }
+
     const ev = new RewardClaimed([event.params.voter.toHexString(), event.params.cycle.toString()].join('/'))
     ev.emitter = event.address
     ev.voter = fetchAccount(event.params.voter).id
@@ -98,7 +104,7 @@ export function handleGMVoteRegistered(event: GMVoteRegisteredEvent): void {
     // Track level-specific stats
     const levelId = [roundId, event.params.level.toString()].join('/')
     let levelStats = GMVoteLevel.load(levelId)
-    
+
     if (levelStats == null) {
         levelStats = new GMVoteLevel(levelId)
         levelStats.roundStatistic = stats.id

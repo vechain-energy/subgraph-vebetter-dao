@@ -420,6 +420,7 @@ dataSources:
         - event: LevelChanged(indexed uint256,indexed address,uint8,uint8)
           handler: handleLevelChanged
       file: ./src/ThorNode.ts
+
   # Stargate Nodes
   - kind: ethereum/contract
     name: Stargate
@@ -441,6 +442,40 @@ dataSources:
         - event: Transfer(indexed address,indexed address,indexed uint256)
           handler: handleTransfer
       file: ./src/ThorNode.ts
+
+  # Lock2Earn
+  - kind: ethereum/contract
+    name: Lock2Earn
+    network: mainnet
+    source:
+      address: "0x807496420F89fF2AbF2e97C3AaA0886d6881dB8B"
+      abi: Lock2Earn
+      startBlock: 22081654
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - IERC721
+        - Lock2EarnTerm
+        - Lock2EarnTermAdded
+        - Lock2EarnTermClosed
+        - Lock2EarnTermRenewed
+      abis:
+        - name: Lock2Earn
+          file: ./abis/Lock2Earn.json
+        - name: VeDelegate
+          file: ./abis/VeDelegate.json   
+      eventHandlers:
+        - event: TermAdded(indexed uint256,indexed address,uint256,uint256,bool)
+          handler: handleTermAdded
+        - event: TermClosed(indexed uint256,indexed address,uint256,uint256)
+          handler: handleTermClosed
+        - event: TermRenewed(indexed uint256,indexed address,uint256,uint256,bool)
+          handler: handleTermRenewed
+        - event: Transfer(indexed address,indexed address,indexed uint256)
+          handler: handleTransfer
+      file: ./src/Lock2Earn.ts
 
   # Account: vet.domains names
   - kind: ethereum/contract

@@ -11,6 +11,9 @@ import { fetchAccount } from '@openzeppelin/subgraphs/src/fetch/account'
 import { fetchRound } from './XAllocationVoting'
 import { SustainabilityProof as SustainabilityProofTemplate } from '../generated/templates'
 import { XAllocationVoting } from '../generated/RewardsPool/XAllocationVoting'
+import { incrementLock2EarnTermRewards } from './Lock2Earn'
+import { VeDelegateAccount } from '../generated/schema'
+import { CurrentRound } from '../generated/schema'
 
 
 
@@ -25,7 +28,9 @@ export function handleNewDeposit(event: NewDepositEvent): void {
     ev.amountExact = event.params.amount
     ev.amount = decimals.toDecimals(event.params.amount, 18)
     ev.depositor = fetchAccount(event.params.depositor).id
-    ev.round = getCurrentRound().id
+    let current = CurrentRound.load("singleton")
+    if (current == null) { return }
+    ev.round = current.roundId.toString()
     ev.save()
 
     const transfer = new RewardPoolTransfer(['transfer', events.id(event)].join('/'))
@@ -182,6 +187,12 @@ export function handleRewardDistribution(event: RewardDistributedEvent): void {
         const appRoundSummary = AppRoundSummary.load([app.id.toHexString(), ev.round].join('/'))!
         appRoundSummary.activeUserCount = appRoundSummary.activeUserCount.plus(constants.BIGINT_ONE)
         appRoundSummary.save()
+    }
+
+    // Wire in Lock2Earn reward increment
+    let veAccount = VeDelegateAccount.load(event.params.receiver)
+    if (veAccount && veAccount.asLock2EarnTerm && veAccount.lock2EarnTermId != null) {
+        incrementLock2EarnTermRewards(veAccount.lock2EarnTermId as string, event.params.amount)
     }
 }
 
@@ -532,17 +543,8 @@ export function isDigitsOnly(s: string): boolean {
     return true;
 }
 
-export function getCurrentRoundId(): string {
-    let b3trGov = XAllocationVoting.bind(Address.fromString("0x89A00Bb0947a30FF95BEeF77a66AEdE3842Fe5B7"))
-
-    let try_currentRoundId = b3trGov.try_currentRoundId()
-    if (try_currentRoundId.reverted) { return "0" }
-
-    return try_currentRoundId.value.toString()
-}
-
 export function getCurrentRound(): Round {
-    return fetchRound(getCurrentRoundId())
+    return fetchRound(CurrentRound.load("singleton")!.roundId.toString())
 }
 
 export function fetchAppRoundSummary(app: App, round: Round): AppRoundSummary {
