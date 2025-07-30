@@ -29,7 +29,5 @@ export function handleTransfer(event: TransferEvent): void {
 
 
 export function fetchVeDelegateAccount(address: Address): VeDelegateAccount {
-	let account = new VeDelegateAccount(address)
-	account.save()
-	return account
+	return VeDelegateAccount.load(address)!
 }
