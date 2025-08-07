@@ -237,6 +237,7 @@ type Account @entity {
   events: [Event!]! @derivedFrom(field: "emitter")
   sustainability: AccountSustainability @derivedFrom(field: "account")
   lock2EarnTerms: [Lock2EarnTerm!]! @derivedFrom(field: "owner")
+  asVeDelegateAccount: [VeDelegateAccount!]! @derivedFrom(field: "account")
 
   passportDelegator: PassportDelegation @derivedFrom(field: "delegator")
   passportDelegatee: PassportDelegation @derivedFrom(field: "delegatee")

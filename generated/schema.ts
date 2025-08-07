@@ -2400,6 +2400,14 @@ export class Account extends Entity {
     );
   }
 
+  get asVeDelegateAccount(): VeDelegateAccountLoader {
+    return new VeDelegateAccountLoader(
+      "Account",
+      this.get("id")!.toBytes().toHexString(),
+      "asVeDelegateAccount",
+    );
+  }
+
   get passportDelegator(): PassportDelegationLoader {
     return new PassportDelegationLoader(
       "Account",
@@ -11494,6 +11502,24 @@ export class ProposalCallLoader extends Entity {
   load(): ProposalCall[] {
     let value = store.loadRelated(this._entity, this._id, this._field);
     return changetype<ProposalCall[]>(value);
+  }
+}
+
+export class VeDelegateAccountLoader extends Entity {
+  _entity: string;
+  _field: string;
+  _id: string;
+
+  constructor(entity: string, id: string, field: string) {
+    super();
+    this._entity = entity;
+    this._id = id;
+    this._field = field;
+  }
+
+  load(): VeDelegateAccount[] {
+    let value = store.loadRelated(this._entity, this._id, this._field);
+    return changetype<VeDelegateAccount[]>(value);
   }
 }
 
