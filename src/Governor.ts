@@ -133,8 +133,8 @@ export function handleVoteCast(event: VoteCastEvent): void {
 	support.voter = support.voter.plus(constants.BIGINT_ONE)
 	support.save()
 
-	const receiptId = ((event.block.number.toI64() * 10000000) + (event.transaction.index.toI64() * 10000) + event.transactionLogIndex.toI64()).toString()
-	const receipt = new VoteReceipt(receiptId)
+	const receiptId = ((event.block.number.toI64() * 10000000) + (event.transaction.index.toI64() * 10000) + event.transactionLogIndex.toI64())
+	const receipt = new VoteReceipt(receiptId.toString())
 	receipt.proposal = proposal.id
 	receipt.voter = fetchAccount(event.params.voter).id
 	receipt.support = support.id

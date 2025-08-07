@@ -1,5 +1,5 @@
 {
-  "name": "sample-subgraph",
+  "name": "vebetterdao-subgraph",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -8,8 +8,6 @@
     "deploy-dev": "graph deploy vebetter/dao-dev --ipfs $GRAPH_NODE_URL:5001 --node $GRAPH_NODE_URL:8020 subgraph.yaml --version-label 1",
     "create": "graph create vebetter/dao --node $GRAPH_NODE_URL:8020",
     "deploy": "graph deploy vebetter/dao --ipfs $GRAPH_NODE_URL:5001 --node $GRAPH_NODE_URL:8020 subgraph.yaml --version-label 1",
-    "create2": "graph create vebetter/dao --node $GRAPH_NODE_URL:8020",
-    "deploy2": "graph deploy vebetter/dao --ipfs $GRAPH_NODE_URL:5001 --node $GRAPH_NODE_URL:8020 subgraph.yaml --version-label 1",
     "test": "echo \"Error: no test specified\" && exit 1",
     "codegen": "graph codegen subgraph.yaml",
     "build": "graph build subgraph.yaml",
@@ -20,8 +18,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@graphprotocol/graph-cli": "^0.77.0",
-    "@graphprotocol/graph-ts": "^0.35.1",
+    "@graphprotocol/graph-cli": "^0.97.1",
+    "@graphprotocol/graph-ts": "^0.38.1",
     "@openzeppelin/subgraphs": "^0.1.8-5"
   }
 }

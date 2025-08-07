@@ -110,7 +110,7 @@ export function handleRewardDistribution(event: RewardDistributedEvent): void {
     ev.by = fetchAccount(event.params.distributor).id
     ev.round = getCurrentRound().id
 
-    const sustainabilityId = ((event.block.number.toI64() * 10000000) + (event.transaction.index.toI64() * 10000) + (event.transactionLogIndex.toI64() * 100)).toString()
+    const sustainabilityId = ((event.block.number.toI64() * 10000000) + (event.transaction.index.toI64() * 10000) + (event.transactionLogIndex.toI64() * 100))
 
     /**
      * the first valid proof is available with block #19145969
@@ -121,13 +121,13 @@ export function handleRewardDistribution(event: RewardDistributedEvent): void {
     if (event.block.number.toI64() >= 19145969) {
         if (event.params.proof.startsWith("ipfs://")) {
             const context = new DataSourceContext()
-            context.set('proofId', Value.fromString(sustainabilityId))
+            context.set('proofId', Value.fromI64(sustainabilityId))
             context.set('timestamp', Value.fromI64(event.block.timestamp.toI64()))
             context.set('transaction', Value.fromString(transactions.log(event).id))
             context.set('appId', Value.fromBytes(app.id))
             context.set('accountId', Value.fromBytes(ev.to))
             context.set('amount', Value.fromBigInt(event.params.amount))
-            context.set('sustainabilityId', Value.fromString(sustainabilityId))
+            context.set('sustainabilityId', Value.fromI64(sustainabilityId))
             context.set('roundId', Value.fromString(ev.round))
             SustainabilityProofTemplate.createWithContext(event.params.proof, context)
             ev.proof = event.params.proof
@@ -201,7 +201,7 @@ export function handleRewardDistribution(event: RewardDistributedEvent): void {
 export function handleSustainabilityProof(content: Bytes, context: DataSourceContext): void {
     const jsonData = json.try_fromBytes(content)
     if (jsonData.isError || jsonData.value.kind !== JSONValueKind.OBJECT) { return }
-    const proof = generateSustainabilityProofFromJson(context.get('proofId')!.toString(), jsonData.value.toObject())
+    const proof = generateSustainabilityProofFromJson(context.get('proofId')!.toI64(), jsonData.value.toObject())
     proof.timestamp = context.get('timestamp')!.toI64()
     proof.transaction = context.get('transaction')!.toString()
     proof.account = context.get('accountId')!.toBytes()
@@ -210,7 +210,7 @@ export function handleSustainabilityProof(content: Bytes, context: DataSourceCon
     proof.round = context.get('roundId')!.toString()
     proof.save()
 
-    updateAppSustainability(context.get('sustainabilityId')!.toString(), proof)
+    updateAppSustainability(context.get('sustainabilityId')!.toI64(), proof)
     const newParticipantStatus = updateAccountSustainability(proof)
     if (newParticipantStatus[0]) {
         const app = App.load(proof.app)!
@@ -255,8 +255,8 @@ function updateAppRoundSustainability(proof: SustainabilityProof): void {
     sustainabilityStats.save()
 }
 
-function generateSustainabilityProofFromJson(id: string, proofObject: TypedMap<string, JSONValue>): SustainabilityProof {
-    const proof = new SustainabilityProof(id)
+function generateSustainabilityProofFromJson(id: i64, proofObject: TypedMap<string, JSONValue>): SustainabilityProof {
+    const proof = new SustainabilityProof(id.toString())
 
     proof.reward = constants.BIGINT_ZERO
     proof.carbon = constants.BIGINT_ZERO
@@ -374,7 +374,7 @@ function generateSustainabilityProofFromJson(id: string, proofObject: TypedMap<s
 }
 
 
-function updateAppSustainability(sustainabilityId: string, proof: SustainabilityProof): void {
+function updateAppSustainability(sustainabilityId: i64, proof: SustainabilityProof): void {
     const appSustainability = new AppSustainability(sustainabilityId)
     appSustainability.round = proof.round
     appSustainability.reward = proof.reward

@@ -6,7 +6,7 @@ import { Round, AllocationVote, RoundStatistic, ERC20Balance, AllocationResult, 
 import { decimals, transactions, constants } from '@amxx/graphprotocol-utils'
 import { fetchAccount } from '../node_modules/@openzeppelin/subgraphs/src/fetch/account'
 import { fetchApp } from './XApps'
-import { bigInt } from '@graphprotocol/graph-ts'
+import { bigInt, Int8 } from '@graphprotocol/graph-ts'
 import { getUserPassportForRound } from './Passport'
 import { CurrentRound } from '../generated/schema'
 
@@ -40,7 +40,7 @@ export function handleVoteCast(event: AllocationVoteCastEvent): void {
         const app = event.params.appsIds[index]
         const appId = app.toHexString()
         const id = (event.block.number.toI64() * 10000000) + (event.transaction.index.toI64() * 10000) + (event.transactionLogIndex.toI64() * 100) + index
-        const vote = new AllocationVote(id.toString())
+        const vote = new AllocationVote(id)
         const votesCast = event.params.voteWeights[index]
         const newQFVotes = votesCast.gt(bigInt.fromString("1000000000000000000")) ? votesCast.sqrt() : votesCast.div(bigInt.fromString("1000000000"))
         vote.voter = voterId

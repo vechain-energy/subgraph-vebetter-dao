@@ -2,7 +2,7 @@ scalar Timestamp
 """
 Weekly Voting Rounds
 """
-type Round @entity {
+type Round @entity(immutable: false) {
   id: ID!
   number: BigInt!
   voteStart: BigInt!
@@ -16,7 +16,7 @@ type Round @entity {
 }
 
 
-type RoundStatistic @entity {
+type RoundStatistic @entity(immutable: false) {
   id: ID!
   b3tr: BigDecimal!
   b3trExact: BigInt!
@@ -37,7 +37,7 @@ type RoundStatistic @entity {
   gmLevelStats: [GMVoteLevel!]! @derivedFrom(field: "roundStatistic")
 }
 
-type GMVoteLevel @entity {
+type GMVoteLevel @entity(immutable: false) {
   id: ID!
   roundStatistic: RoundStatistic!
   level: BigInt!
@@ -49,7 +49,7 @@ type GMVoteLevel @entity {
 """
 X-2-Earn Apps
 """
-type App @entity {
+type App @entity(immutable: false) {
   id: Bytes!
   endorsed: Boolean!
   name: String
@@ -82,7 +82,7 @@ type App @entity {
   userSignalsResetForApps: [UserSignalsResetForApp!]! @derivedFrom(field: "app")
 }
 
-type AppMetadata @entity {
+type AppMetadata @entity(immutable: false) {
   id: ID!
   title: String
   description: String
@@ -91,7 +91,7 @@ type AppMetadata @entity {
   bannerUrl: String
 }
 
-type AppRoundSummary @entity {
+type AppRoundSummary @entity(immutable: false) {
   id: ID!
   app: App!
   round: Round!
@@ -112,7 +112,7 @@ type AppRoundSummary @entity {
   passportScore: BigInt!
 }
 
-type AppRoundWithdrawalReason @entity {
+type AppRoundWithdrawalReason @entity(immutable: false) {
   id: ID!
   appRoundSummary: AppRoundSummary!
   reason: String!
@@ -123,7 +123,7 @@ type AppRoundWithdrawalReason @entity {
 """
 Allocation Voting
 """
-type AllocationResult @entity {
+type AllocationResult @entity(immutable: false) {
   id: ID!
   round: Round!
   app: App!
@@ -180,7 +180,7 @@ type RewardClaimed implements Event @entity(immutable: true) {
 """
 Account Information
 """
-type VeDelegateAccount @entity {
+type VeDelegateAccount @entity(immutable: false) {
   id: Bytes!
   account: Account!
   token: ERC721Token!
@@ -190,19 +190,19 @@ type VeDelegateAccount @entity {
   lock2EarnTermId: String
 }
 
-type VeDelegateConfig @entity {
+type VeDelegateConfig @entity(immutable: false) {
   id: ID!
   account: Account!
   configId: String!
   value: BigInt!
 }
 
-type VetDomainsNames @entity {
+type VetDomainsNames @entity(immutable: false) {
   id: String!
   address: Bytes!
 }
 
-type Account @entity {
+type Account @entity(immutable: false) {
   id: Bytes!
   name: String
   asVeDelegate: [ERC721Token!]! @derivedFrom(field: "poolAddress")
@@ -267,7 +267,7 @@ type ERC721Contract @entity(immutable: true) {
   operators: [ERC721Operator!]! @derivedFrom(field: "contract")
 }
 
-type ERC721Token @entity {
+type ERC721Token @entity(immutable: false) {
   id: ID!
   contract: ERC721Contract!
   identifier: BigInt!
@@ -277,7 +277,7 @@ type ERC721Token @entity {
   poolAddress: Account
 }
 
-type ERC721Operator @entity {
+type ERC721Operator @entity(immutable: false) {
   id: ID!
   contract: ERC721Contract!
   owner: Account!
@@ -299,7 +299,7 @@ type ERC20Contract @entity(immutable: true) {
   approvals: [ERC20Approval!]! @derivedFrom(field: "contract")
 }
 
-type VBDBalance @entity {
+type VBDBalance @entity(immutable: false) {
   id: ID!
   account: Account
   convertedB3tr: BigDecimal!
@@ -309,7 +309,7 @@ type VBDBalance @entity {
   qfWeight: BigInt!
 }
 
-type ERC20Balance @entity {
+type ERC20Balance @entity(immutable: false) {
   id: ID!
   contract: ERC20Contract!
   account: Account
@@ -317,7 +317,7 @@ type ERC20Balance @entity {
   valueExact: BigInt!
 }
 
-type ERC20Approval @entity {
+type ERC20Approval @entity(immutable: false) {
   id: ID!
   contract: ERC20Contract!
   owner: Account!
@@ -340,7 +340,7 @@ type VotingContract @entity(immutable: true) {
     @derivedFrom(field: "contract")
 }
 
-type VoteDelegation @entity {
+type VoteDelegation @entity(immutable: false) {
   id: ID!
   contract: VotingContract!
   delegator: Account!
@@ -348,7 +348,7 @@ type VoteDelegation @entity {
   delegateChangedEvent: [DelegateChanged!]! @derivedFrom(field: "delegation")
 }
 
-type VoteWeight @entity {
+type VoteWeight @entity(immutable: false) {
   id: ID!
   contract: VotingContract!
   account: Account
@@ -397,7 +397,7 @@ enum TimelockStatus {
   CANCELED
 }
 
-type TimelockOperation @entity {
+type TimelockOperation @entity(immutable: false) {
   id: ID!
   contract: Timelock!
   status: TimelockStatus!
@@ -474,7 +474,7 @@ type Governor @entity(immutable: true) {
 """
 Governance Proposals
 """
-type Proposal @entity {
+type Proposal @entity(immutable: false) {
   id: ID!
   governor: Governor!
   proposalId: BigInt!
@@ -502,7 +502,7 @@ type Proposal @entity {
   weightCast: BigInt!
 }
 
-type ProposalMetadata @entity {
+type ProposalMetadata @entity(immutable: false) {
   id: ID!
   title: String
   shortDescription: String
@@ -519,7 +519,7 @@ type ProposalCall @entity(immutable: true) {
   calldata: Bytes!
 }
 
-type ProposalSupport @entity {
+type ProposalSupport @entity(immutable: false) {
   id: ID!
   proposal: Proposal!
   support: Int!
@@ -740,7 +740,7 @@ type SustainabilityProof @entity(immutable: true) {
   version: Int!
 }
 
-type AccountSustainability @entity {
+type AccountSustainability @entity(immutable: false) {
   id: ID!
   app: App!
   receivedRewards: BigInt!
@@ -765,7 +765,7 @@ type AccountSustainability @entity {
   biodiversity: BigInt!
 }
 
-type AccountRoundSustainability @entity {
+type AccountRoundSustainability @entity(immutable: false) {
   id: ID!
   app: App!
   round: Round!
@@ -929,7 +929,7 @@ type StatsAccountSustainability
     @aggregate(fn: "sum", arg: "biodiversity", cumulative: true)
 }
 
-type SustainabilityStats @entity {
+type SustainabilityStats @entity(immutable: false) {
   id: ID!
   rewards: BigInt!
 
@@ -960,7 +960,7 @@ type SustainabilityStats @entity {
 """
 VePassport
 """
-type PassportDelegation implements Event @entity {
+type PassportDelegation implements Event @entity(immutable: false) {
   id: ID!
   active: Boolean!
 
@@ -972,7 +972,7 @@ type PassportDelegation implements Event @entity {
   timestamp: BigInt!
 }
 
-type PassportEntityLink implements Event @entity {
+type PassportEntityLink implements Event @entity(immutable: false) {
   id: ID!
   active: Boolean!
 
@@ -984,14 +984,14 @@ type PassportEntityLink implements Event @entity {
   timestamp: BigInt!
 }
 
-type PassportWhitelist @entity {
+type PassportWhitelist @entity(immutable: false) {
   id: Bytes!
   user: Account!
   whitelistedBy: Account!
   active: Boolean!
 }
 
-type PassportBlacklist @entity {
+type PassportBlacklist @entity(immutable: false) {
   id: Bytes!
   user: Account!
   blacklistedBy: Account!
@@ -1015,7 +1015,7 @@ type PassportScore implements Event @entity(immutable: true) {
 """
 User Signals
 """
-type UserSignal implements Event @entity {
+type UserSignal implements Event @entity(immutable: false) {
   id: ID!
   user: Account!
   app: App!
@@ -1053,7 +1053,7 @@ type UserSignalsReset implements Event @entity(immutable: true) {
 """
 NodeDelegation
 """
-type NodeDelegation implements Event @entity {
+type NodeDelegation implements Event @entity(immutable: false) {
   id: ID!
   active: Boolean!
 
@@ -1065,7 +1065,7 @@ type NodeDelegation implements Event @entity {
   timestamp: BigInt!
 }
 
-type ThorNode @entity {
+type ThorNode @entity(immutable: false) {
   id: ID!
   identifier: BigInt!
   owner: Account!
@@ -1080,7 +1080,7 @@ type ThorNode @entity {
 """
 App Endorsement
 """
-type AppEndorsement implements Event @entity {
+type AppEndorsement implements Event @entity(immutable: false) {
   id: ID!
   active: Boolean!
 
@@ -1092,7 +1092,7 @@ type AppEndorsement implements Event @entity {
   timestamp: BigInt!
 }
 
-type StatsEndorsement @entity {
+type StatsEndorsement @entity(immutable: false) {
   id: ID!
   nodeCount: Int!
   points: Int!
@@ -1102,7 +1102,7 @@ type StatsEndorsement @entity {
 """
 Lock2Earn Term Tracking
 """
-type Lock2EarnTerm @entity {
+type Lock2EarnTerm @entity(immutable: false) {
   id: ID!
   tokenId: BigInt!
   owner: Account!
@@ -1127,7 +1127,7 @@ Aggregated statistics for Lock2Earn terms
 - All other fields are normalized BigDecimal sums (divided by 1e18)
 - totalRewards: sum of all rewards received by all terms (reset on renewal)
 """
-type Lock2EarnStats @entity {
+type Lock2EarnStats @entity(immutable: false) {
   id: ID!
   totalAmount: BigDecimal!
   totalAmountExact: BigInt!
@@ -1174,7 +1174,7 @@ type Lock2EarnTermRenewed implements Event @entity(immutable: true) {
   timestamp: BigInt!
 }
 
-type CurrentRound @entity {
+type CurrentRound @entity(immutable: false) {
   id: ID!         # always "singleton"
   roundId: BigInt!
 }

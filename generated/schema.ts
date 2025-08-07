@@ -9,6 +9,7 @@ import {
   Bytes,
   BigInt,
   BigDecimal,
+  Int8,
 } from "@graphprotocol/graph-ts";
 
 export class Round extends Entity {
@@ -1494,9 +1495,9 @@ export class AllocationResult extends Entity {
 }
 
 export class AllocationVote extends Entity {
-  constructor(id: string) {
+  constructor(id: Int8) {
     super();
-    this.set("id", Value.fromString(id));
+    this.set("id", Value.fromI64(id));
   }
 
   save(): void {
@@ -1504,21 +1505,23 @@ export class AllocationVote extends Entity {
     assert(id != null, "Cannot save AllocationVote entity without an ID");
     if (id) {
       assert(
-        id.kind == ValueKind.STRING,
-        `Entities of type AllocationVote must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`,
+        id.kind == ValueKind.INT8,
+        `Entities of type AllocationVote must have an ID of type Int8 but the id '${id.displayData()}' is of type ${id.displayKind()}`,
       );
-      store.set("AllocationVote", id.toString(), this);
+      store.set("AllocationVote", id.toI64().toString(), this);
     }
   }
 
-  static loadInBlock(id: string): AllocationVote | null {
+  static loadInBlock(id: Int8): AllocationVote | null {
     return changetype<AllocationVote | null>(
-      store.get_in_block("AllocationVote", id),
+      store.get_in_block("AllocationVote", id.toString()),
     );
   }
 
-  static load(id: string): AllocationVote | null {
-    return changetype<AllocationVote | null>(store.get("AllocationVote", id));
+  static load(id: Int8): AllocationVote | null {
+    return changetype<AllocationVote | null>(
+      store.get("AllocationVote", id.toString()),
+    );
   }
 
   get id(): i64 {
@@ -5611,9 +5614,9 @@ export class VoteReceipt extends Entity {
 }
 
 export class ProposalVote extends Entity {
-  constructor(id: string) {
+  constructor(id: Int8) {
     super();
-    this.set("id", Value.fromString(id));
+    this.set("id", Value.fromI64(id));
   }
 
   save(): void {
@@ -5621,21 +5624,23 @@ export class ProposalVote extends Entity {
     assert(id != null, "Cannot save ProposalVote entity without an ID");
     if (id) {
       assert(
-        id.kind == ValueKind.STRING,
-        `Entities of type ProposalVote must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`,
+        id.kind == ValueKind.INT8,
+        `Entities of type ProposalVote must have an ID of type Int8 but the id '${id.displayData()}' is of type ${id.displayKind()}`,
       );
-      store.set("ProposalVote", id.toString(), this);
+      store.set("ProposalVote", id.toI64().toString(), this);
     }
   }
 
-  static loadInBlock(id: string): ProposalVote | null {
+  static loadInBlock(id: Int8): ProposalVote | null {
     return changetype<ProposalVote | null>(
-      store.get_in_block("ProposalVote", id),
+      store.get_in_block("ProposalVote", id.toString()),
     );
   }
 
-  static load(id: string): ProposalVote | null {
-    return changetype<ProposalVote | null>(store.get("ProposalVote", id));
+  static load(id: Int8): ProposalVote | null {
+    return changetype<ProposalVote | null>(
+      store.get("ProposalVote", id.toString()),
+    );
   }
 
   get id(): i64 {
@@ -8209,9 +8214,9 @@ export class AccountRoundSustainability extends Entity {
 }
 
 export class AppSustainability extends Entity {
-  constructor(id: string) {
+  constructor(id: Int8) {
     super();
-    this.set("id", Value.fromString(id));
+    this.set("id", Value.fromI64(id));
   }
 
   save(): void {
@@ -8219,22 +8224,22 @@ export class AppSustainability extends Entity {
     assert(id != null, "Cannot save AppSustainability entity without an ID");
     if (id) {
       assert(
-        id.kind == ValueKind.STRING,
-        `Entities of type AppSustainability must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`,
+        id.kind == ValueKind.INT8,
+        `Entities of type AppSustainability must have an ID of type Int8 but the id '${id.displayData()}' is of type ${id.displayKind()}`,
       );
-      store.set("AppSustainability", id.toString(), this);
+      store.set("AppSustainability", id.toI64().toString(), this);
     }
   }
 
-  static loadInBlock(id: string): AppSustainability | null {
+  static loadInBlock(id: Int8): AppSustainability | null {
     return changetype<AppSustainability | null>(
-      store.get_in_block("AppSustainability", id),
+      store.get_in_block("AppSustainability", id.toString()),
     );
   }
 
-  static load(id: string): AppSustainability | null {
+  static load(id: Int8): AppSustainability | null {
     return changetype<AppSustainability | null>(
-      store.get("AppSustainability", id),
+      store.get("AppSustainability", id.toString()),
     );
   }
 
