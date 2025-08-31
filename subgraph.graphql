@@ -242,7 +242,7 @@ type Account @entity(immutable: false) {
   passportDelegator: PassportDelegation @derivedFrom(field: "delegator")
   passportDelegatee: PassportDelegation @derivedFrom(field: "delegatee")
 
-  nodeDelegatee: NodeDelegation @derivedFrom(field: "delegatee")
+  nodeDelegatees: [NodeDelegation!]! @derivedFrom(field: "delegatee")
 
   passportEntities: [PassportEntityLink!]! @derivedFrom(field: "passport")
   passportScores: [PassportScore!]! @derivedFrom(field: "passport")

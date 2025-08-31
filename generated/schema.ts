@@ -2427,11 +2427,11 @@ export class Account extends Entity {
     );
   }
 
-  get nodeDelegatee(): NodeDelegationLoader {
+  get nodeDelegatees(): NodeDelegationLoader {
     return new NodeDelegationLoader(
       "Account",
       this.get("id")!.toBytes().toHexString(),
-      "nodeDelegatee",
+      "nodeDelegatees",
     );
   }
 
