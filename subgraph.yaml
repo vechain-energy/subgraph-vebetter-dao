@@ -128,6 +128,28 @@ dataSources:
           handler: handleRoundCreated
       file: ./src/XAllocationVoting.ts
 
+  # X2Apps: Allocation Pool
+  - kind: ethereum/contract
+    name: xallocationpool
+    network: mainnet
+    source:
+      address: "0x4191776f05f4be4848d3f4d587345078b439c7d3"
+      abi: XAllocationPool
+      startBlock: 18868869
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - App
+      abis:
+        - name: XAllocationPool
+          file: ./abis/VeBetterDAO-x-allocation-pool.json
+      eventHandlers:
+        - event: AllocationRewardsClaimed(indexed bytes32,uint256,uint256,indexed address,address,uint256,uint256,uint256)
+          handler: handleAllocationRewardsClaimed
+      file: ./src/RewardsPool.ts
+
   # App Information
   - kind: ethereum/contract
     name: x2earnapps

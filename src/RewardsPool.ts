@@ -3,6 +3,9 @@ import {
     TeamWithdrawal as TeamWithdrawalEvent,
     RewardDistributed as RewardDistributedEvent,
 } from '../generated/RewardsPool/RewardsPool'
+import {
+    AllocationRewardsClaimed as AllocationRewardsClaimedEvent,
+} from '../generated/xallocationpool/XAllocationPool'
 import { App, AppRoundSummary, RewardPoolTransfer, RewardPoolDeposit, RewardPoolWithdraw, RewardPoolDistribution, SustainabilityProof, SustainabilityStats, AppSustainability, AccountSustainability, AccountRoundSustainability, Round, AppRoundWithdrawalReason } from '../generated/schema'
 import { events, transactions, decimals, constants } from '@amxx/graphprotocol-utils'
 import { DataSourceContext, JSONValueKind, Value, json, Bytes, dataSource, JSONValue, TypedMap, bigInt, Address } from '@graphprotocol/graph-ts'
@@ -48,12 +51,17 @@ export function handleNewDeposit(event: NewDepositEvent): void {
     updateAppRoundSummary(transfer)
 
     app.poolBalanceExact = app.poolBalanceExact.plus(ev.amountExact)
-    app.poolDepositsExact = app.poolDepositsExact.plus(ev.amountExact)
-    // deposit coming from X Allocation Pool equals an allocation for the app
-    if (transfer.from.equals(Address.fromString("0x4191776f05f4be4848d3f4d587345078b439c7d3"))) {
-        app.poolAllocationsExact = app.poolAllocationsExact.plus(ev.amountExact)
-        app.poolAllocations = decimals.toDecimals(app.poolAllocationsExact, 18)
+    
+    // Check if this deposit is from the X Allocation Pool - if so, don't count it as a deposit
+    // since allocations are handled separately by the AllocationRewardsClaimed event handler
+    if (ev.depositor.equals(Address.fromString("0x4191776f05f4be4848d3f4d587345078b439c7d3"))) {
+        // This is an allocation, not a regular deposit - skip counting it here
+        // Allocations are tracked in handleAllocationRewardsClaimed
+    } else {
+        // This is a regular deposit from a user/app
+        app.poolDepositsExact = app.poolDepositsExact.plus(ev.amountExact)
     }
+    
     app.poolBalance = decimals.toDecimals(app.poolBalanceExact, 18)
     app.poolDeposits = decimals.toDecimals(app.poolDepositsExact, 18)
     app.save()
@@ -196,6 +204,24 @@ export function handleRewardDistribution(event: RewardDistributedEvent): void {
     }
 }
 
+export function handleAllocationRewardsClaimed(event: AllocationRewardsClaimedEvent): void {
+    const app = fetchApp(event.params.appId)
+
+    // Add 1 to the roundId because thats thats the round where the allocation will be used
+    const nextRoundId = event.params.roundId.plus(constants.BIGINT_ONE)
+    const nextRound = fetchRound(nextRoundId.toString())
+    
+    // Update app allocation amounts using the event data
+    app.poolAllocationsExact = app.poolAllocationsExact.plus(event.params.totalAmount)
+    app.poolAllocations = decimals.toDecimals(app.poolAllocationsExact, 18)
+    app.save()
+    
+    // Update app round summary allocation amounts
+    const appRoundSummary = fetchAppRoundSummary(app, nextRound)
+    appRoundSummary.poolAllocationsExact = appRoundSummary.poolAllocationsExact.plus(event.params.totalAmount)
+    appRoundSummary.poolAllocations = decimals.toDecimals(appRoundSummary.poolAllocationsExact, 18)
+    appRoundSummary.save()
+}
 
 
 export function handleSustainabilityProof(content: Bytes, context: DataSourceContext): void {
@@ -493,12 +519,13 @@ function updateAppRoundSummary(transfer: RewardPoolTransfer): void {
     const appRoundSummary = fetchAppRoundSummary(app, round)
 
     if (transfer.deposit != null) {
-        // deposit coming from X Allocation Pool equals an allocation for the app
+        // Check if this deposit is from the X Allocation Pool - if so, don't count it as a deposit
+        // since allocations are handled separately by the AllocationRewardsClaimed event handler
         if (transfer.from.equals(Address.fromString("0x4191776f05f4be4848d3f4d587345078b439c7d3"))) {
-            appRoundSummary.poolAllocationsExact = appRoundSummary.poolAllocationsExact.plus(transfer.amountExact)
-            appRoundSummary.poolAllocations = decimals.toDecimals(appRoundSummary.poolAllocationsExact, 18)
-        }
-        else {
+            // This is an allocation, not a regular deposit - skip counting it here
+            // Allocations are tracked in handleAllocationRewardsClaimed
+        } else {
+            // This is a regular deposit from a user/app
             appRoundSummary.poolDepositsExact = appRoundSummary.poolDepositsExact.plus(transfer.amountExact)
             appRoundSummary.poolDeposits = decimals.toDecimals(appRoundSummary.poolDepositsExact, 18)
         }
