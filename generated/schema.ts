@@ -512,6 +512,50 @@ export class GMVoteLevel extends Entity {
   }
 }
 
+export class GMVoteCycleToken extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id != null, "Cannot save GMVoteCycleToken entity without an ID");
+    if (id) {
+      assert(
+        id.kind == ValueKind.STRING,
+        `Entities of type GMVoteCycleToken must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`,
+      );
+      store.set("GMVoteCycleToken", id.toString(), this);
+    }
+  }
+
+  static loadInBlock(id: string): GMVoteCycleToken | null {
+    return changetype<GMVoteCycleToken | null>(
+      store.get_in_block("GMVoteCycleToken", id),
+    );
+  }
+
+  static load(id: string): GMVoteCycleToken | null {
+    return changetype<GMVoteCycleToken | null>(
+      store.get("GMVoteCycleToken", id),
+    );
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toString();
+    }
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+}
+
 export class App extends Entity {
   constructor(id: Bytes) {
     super();

@@ -5,6 +5,7 @@ import {
     GMVoteRegistered as GMVoteRegisteredEvent,
 } from '../generated/rewarder/Rewarder'
 import { RewardClaimed, VeDelegateAccount, GMVoteLevel } from '../generated/schema'
+import { store, Entity } from '@graphprotocol/graph-ts'
 import { constants, decimals, transactions } from '@amxx/graphprotocol-utils'
 import { fetchRound, fetchStatistic } from './XAllocationVoting'
 import { fetchAccount } from '@openzeppelin/subgraphs/src/fetch/account'
@@ -96,8 +97,18 @@ export function handleGMVoteRegistered(event: GMVoteRegisteredEvent): void {
     const roundId = event.params.cycle.toString()
     const stats = fetchStatistic(roundId, "")
 
-    // Update general GM stats
-    stats.gmVotersCount = stats.gmVotersCount.plus(constants.BIGINT_ONE)
+    // Deduplicate voter count per cycle by tokenId
+    const cycleTokenKey = [roundId, event.params.tokenId.toString()].join('/')
+    let isNewCycleToken = false
+    if (store.get('GMVoteCycleToken', cycleTokenKey) == null) {
+        const e = new Entity()
+        store.set('GMVoteCycleToken', cycleTokenKey, e)
+        isNewCycleToken = true
+    }
+
+    if (isNewCycleToken) {
+        stats.gmVotersCount = stats.gmVotersCount.plus(constants.BIGINT_ONE)
+    }
     stats.gmWeightTotal = stats.gmWeightTotal.plus(event.params.multiplier)
     stats.save()
 
@@ -113,7 +124,10 @@ export function handleGMVoteRegistered(event: GMVoteRegisteredEvent): void {
         levelStats.weightTotal = constants.BIGINT_ZERO
     }
 
-    levelStats.voterCount = levelStats.voterCount.plus(constants.BIGINT_ONE)
+    // Use the same deduplication check for level stats
+    if (isNewCycleToken) {
+        levelStats.voterCount = levelStats.voterCount.plus(constants.BIGINT_ONE)
+    }
     levelStats.weightTotal = levelStats.weightTotal.plus(event.params.multiplier)
     levelStats.save()
 }

@@ -4,10 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "create-dev": "graph create vebetter/dao-dev --node $GRAPH_NODE_URL:8020",
-    "deploy-dev": "graph deploy vebetter/dao-dev --ipfs $GRAPH_NODE_URL:5001 --node $GRAPH_NODE_URL:8020 subgraph.yaml --version-label 1",
-    "create": "graph create vebetter/dao --node $GRAPH_NODE_URL:8020",
-    "deploy": "graph deploy vebetter/dao --ipfs $GRAPH_NODE_URL:5001 --node $GRAPH_NODE_URL:8020 subgraph.yaml --version-label 1",
+    "create-dev": "graph create vebetter/dao-dev --node $GRAPH_NODE_URL",
+    "deploy-dev": "graph deploy vebetter/dao-dev --ipfs $IPFS_NODE_URL --node $GRAPH_NODE_URL subgraph.yaml --version-label 1",
+    "create": "graph create vebetter/dao --node $GRAPH_NODE_URL",
+    "deploy": "graph deploy vebetter/dao --ipfs $IPFS_NODE_URL --node $GRAPH_NODE_URL subgraph.yaml --version-label 1",
     "test": "echo \"Error: no test specified\" && exit 1",
     "codegen": "graph codegen subgraph.yaml",
     "build": "graph build subgraph.yaml",
@@ -18,8 +18,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@graphprotocol/graph-cli": "^0.97.1",
-    "@graphprotocol/graph-ts": "^0.38.1",
+    "@graphprotocol/graph-cli": "^0.98.1",
+    "@graphprotocol/graph-ts": "^0.38.2",
     "@openzeppelin/subgraphs": "^0.1.8-5"
   }
 }

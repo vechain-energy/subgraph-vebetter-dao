@@ -45,6 +45,11 @@ type GMVoteLevel @entity(immutable: false) {
   weightTotal: BigInt!
 }
 
+# Dedup helper for GMVoteRegistered - tracks unique tokenIds per cycle
+type GMVoteCycleToken @entity(immutable: false) {
+  id: ID!
+}
+
 
 """
 X-2-Earn Apps
