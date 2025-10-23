@@ -200,6 +200,32 @@ export class TeamWithdrawal__Params {
   }
 }
 
+export class FundsDistributedToApp extends ethereum.Event {
+  get params(): FundsDistributedToApp__Params {
+    return new FundsDistributedToApp__Params(this);
+  }
+}
+
+export class FundsDistributedToApp__Params {
+  _event: FundsDistributedToApp;
+
+  constructor(event: FundsDistributedToApp) {
+    this._event = event;
+  }
+
+  get appId(): Bytes {
+    return this._event.parameters[0].value.toBytes();
+  }
+
+  get amount(): BigInt {
+    return this._event.parameters[1].value.toBigInt();
+  }
+
+  get roundId(): BigInt {
+    return this._event.parameters[2].value.toBigInt();
+  }
+}
+
 export class Upgraded extends ethereum.Event {
   get params(): Upgraded__Params {
     return new Upgraded__Params(this);

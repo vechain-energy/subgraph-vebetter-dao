@@ -2,6 +2,7 @@ import {
     NewDeposit as NewDepositEvent,
     TeamWithdrawal as TeamWithdrawalEvent,
     RewardDistributed as RewardDistributedEvent,
+    FundsDistributedToApp as FundsDistributedToAppEvent,
 } from '../generated/RewardsPool/RewardsPool'
 import {
     AllocationRewardsClaimed as AllocationRewardsClaimedEvent,
@@ -51,17 +52,20 @@ export function handleNewDeposit(event: NewDepositEvent): void {
     updateAppRoundSummary(transfer)
 
     app.poolBalanceExact = app.poolBalanceExact.plus(ev.amountExact)
-    
+
     // Check if this deposit is from the X Allocation Pool - if so, don't count it as a deposit
     // since allocations are handled separately by the AllocationRewardsClaimed event handler
     if (ev.depositor.equals(Address.fromString("0x4191776f05f4be4848d3f4d587345078b439c7d3"))) {
         // This is an allocation, not a regular deposit - skip counting it here
         // Allocations are tracked in handleAllocationRewardsClaimed
+    } else if (ev.depositor.equals(Address.fromString("0x98c1d097c39969bb5de754266f60d22bd105b368"))) {
+        // This is the overflow deposit that originally went into the Treasury and flows back to dApps as minimum allocation
+        // its tracked with FundsDistributedToApp events
     } else {
         // This is a regular deposit from a user/app
         app.poolDepositsExact = app.poolDepositsExact.plus(ev.amountExact)
     }
-    
+
     app.poolBalance = decimals.toDecimals(app.poolBalanceExact, 18)
     app.poolDeposits = decimals.toDecimals(app.poolDepositsExact, 18)
     app.save()
@@ -210,15 +214,31 @@ export function handleAllocationRewardsClaimed(event: AllocationRewardsClaimedEv
     // Add 1 to the roundId because thats thats the round where the allocation will be used
     const nextRoundId = event.params.roundId.plus(constants.BIGINT_ONE)
     const nextRound = fetchRound(nextRoundId.toString())
-    
+
     // Update app allocation amounts using the event data
     app.poolAllocationsExact = app.poolAllocationsExact.plus(event.params.totalAmount)
     app.poolAllocations = decimals.toDecimals(app.poolAllocationsExact, 18)
     app.save()
-    
+
     // Update app round summary allocation amounts
     const appRoundSummary = fetchAppRoundSummary(app, nextRound)
     appRoundSummary.poolAllocationsExact = appRoundSummary.poolAllocationsExact.plus(event.params.totalAmount)
+    appRoundSummary.poolAllocations = decimals.toDecimals(appRoundSummary.poolAllocationsExact, 18)
+    appRoundSummary.save()
+}
+
+export function handleFundsDistributedToApp(event: FundsDistributedToAppEvent): void {
+    const app = fetchApp(event.params.appId)
+    const round = fetchRound(event.params.roundId.toString())
+
+    // Update app allocation amounts using the event data
+    app.poolAllocationsExact = app.poolAllocationsExact.plus(event.params.amount)
+    app.poolAllocations = decimals.toDecimals(app.poolAllocationsExact, 18)
+    app.save()
+
+    // Update app round summary allocation amounts
+    const appRoundSummary = fetchAppRoundSummary(app, round)
+    appRoundSummary.poolAllocationsExact = appRoundSummary.poolAllocationsExact.plus(event.params.amount)
     appRoundSummary.poolAllocations = decimals.toDecimals(appRoundSummary.poolAllocationsExact, 18)
     appRoundSummary.save()
 }

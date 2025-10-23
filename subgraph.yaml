@@ -209,6 +209,8 @@ dataSources:
           handler: handleTeamWithdrawal
         - event: RewardDistributed(uint256,indexed bytes32,indexed address,string,indexed address)
           handler: handleRewardDistribution
+        - event: FundsDistributedToApp(indexed bytes32,uint256,indexed uint256)
+          handler: handleFundsDistributedToApp
       file: ./src/RewardsPool.ts
 
   # veDelegate.vet Wallets
