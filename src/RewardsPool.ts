@@ -2,8 +2,10 @@ import {
     NewDeposit as NewDepositEvent,
     TeamWithdrawal as TeamWithdrawalEvent,
     RewardDistributed as RewardDistributedEvent,
-    FundsDistributedToApp as FundsDistributedToAppEvent,
 } from '../generated/RewardsPool/RewardsPool'
+import {
+    FundsDistributedToApp as FundsDistributedToAppEvent,
+} from '../generated/DynamicBaseAllocations/DynamicBaseAllocations'
 import {
     AllocationRewardsClaimed as AllocationRewardsClaimedEvent,
 } from '../generated/xallocationpool/XAllocationPool'
