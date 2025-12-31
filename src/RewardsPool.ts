@@ -11,7 +11,7 @@ import {
 } from '../generated/xallocationpool/XAllocationPool'
 import { App, AppRoundSummary, RewardPoolTransfer, RewardPoolDeposit, RewardPoolWithdraw, RewardPoolDistribution, SustainabilityProof, SustainabilityStats, AppSustainability, AccountSustainability, AccountRoundSustainability, Round, AppRoundWithdrawalReason } from '../generated/schema'
 import { events, transactions, decimals, constants } from '@amxx/graphprotocol-utils'
-import { DataSourceContext, JSONValueKind, Value, json, Bytes, dataSource, JSONValue, TypedMap, bigInt, Address } from '@graphprotocol/graph-ts'
+import { DataSourceContext, JSONValueKind, Value, json, Bytes, dataSource, JSONValue, TypedMap, bigInt, Address, BigInt } from '@graphprotocol/graph-ts'
 import { fetchApp } from './XApps'
 import { fetchAccount } from '@openzeppelin/subgraphs/src/fetch/account'
 import { fetchRound } from './XAllocationVoting'
@@ -373,17 +373,17 @@ function generateSustainabilityProofFromJson(id: i64, proofObject: TypedMap<stri
         if (proofObject.isSet("impact") && proofObject.get("impact")!.kind === JSONValueKind.OBJECT) {
             const impact = proofObject.get("impact")!.toObject()
 
-            if (impact.isSet('carbon') && impact.get('carbon')!.kind === JSONValueKind.NUMBER) { proof.carbon = impact.get('carbon')!.toBigInt() }
-            if (impact.isSet('water') && impact.get('water')!.kind === JSONValueKind.NUMBER) { proof.water = impact.get('water')!.toBigInt() }
-            if (impact.isSet('energy') && impact.get('energy')!.kind === JSONValueKind.NUMBER) { proof.energy = impact.get('energy')!.toBigInt() }
-            if (impact.isSet('waste_mass') && impact.get('waste_mass')!.kind === JSONValueKind.NUMBER) { proof.wasteMass = impact.get('waste_mass')!.toBigInt() }
-            if (impact.isSet('plastic') && impact.get('plastic')!.kind === JSONValueKind.NUMBER) { proof.plastic = impact.get('plastic')!.toBigInt() }
-            if (impact.isSet('timber') && impact.get('timber')!.kind === JSONValueKind.NUMBER) { proof.timber = impact.get('timber')!.toBigInt() }
-            if (impact.isSet('education_time') && impact.get('education_time')!.kind === JSONValueKind.NUMBER) { proof.educationTime = impact.get('education_time')!.toBigInt() }
-            if (impact.isSet('trees_planted') && impact.get('trees_planted')!.kind === JSONValueKind.NUMBER) { proof.treesPlanted = impact.get('trees_planted')!.toBigInt() }
-            if (impact.isSet('calories_burned') && impact.get('calories_burned')!.kind === JSONValueKind.NUMBER) { proof.caloriesBurned = impact.get('calories_burned')!.toBigInt() }
-            if (impact.isSet('sleep_quality_percentage') && impact.get('sleep_quality_percentage')!.kind === JSONValueKind.NUMBER) { proof.sleepQualityPercentage = impact.get('sleep_quality_percentage')!.toBigInt() }
-            if (impact.isSet('clean_energy_production') && impact.get('clean_energy_production')!.kind === JSONValueKind.NUMBER) { proof.cleanEnergyProduction = impact.get('clean_energy_production')!.toBigInt() }
+            if (impact.isSet('carbon') && impact.get('carbon')!.kind === JSONValueKind.NUMBER) { proof.carbon = numberToBigInt(impact.get('carbon')!) }
+            if (impact.isSet('water') && impact.get('water')!.kind === JSONValueKind.NUMBER) { proof.water = numberToBigInt(impact.get('water')!) }
+            if (impact.isSet('energy') && impact.get('energy')!.kind === JSONValueKind.NUMBER) { proof.energy = numberToBigInt(impact.get('energy')!) }
+            if (impact.isSet('waste_mass') && impact.get('waste_mass')!.kind === JSONValueKind.NUMBER) { proof.wasteMass = numberToBigInt(impact.get('waste_mass')!) }
+            if (impact.isSet('plastic') && impact.get('plastic')!.kind === JSONValueKind.NUMBER) { proof.plastic = numberToBigInt(impact.get('plastic')!) }
+            if (impact.isSet('timber') && impact.get('timber')!.kind === JSONValueKind.NUMBER) { proof.timber = numberToBigInt(impact.get('timber')!) }
+            if (impact.isSet('education_time') && impact.get('education_time')!.kind === JSONValueKind.NUMBER) { proof.educationTime = numberToBigInt(impact.get('education_time')!) }
+            if (impact.isSet('trees_planted') && impact.get('trees_planted')!.kind === JSONValueKind.NUMBER) { proof.treesPlanted = numberToBigInt(impact.get('trees_planted')!) }
+            if (impact.isSet('calories_burned') && impact.get('calories_burned')!.kind === JSONValueKind.NUMBER) { proof.caloriesBurned = numberToBigInt(impact.get('calories_burned')!) }
+            if (impact.isSet('sleep_quality_percentage') && impact.get('sleep_quality_percentage')!.kind === JSONValueKind.NUMBER) { proof.sleepQualityPercentage = numberToBigInt(impact.get('sleep_quality_percentage')!) }
+            if (impact.isSet('clean_energy_production') && impact.get('clean_energy_production')!.kind === JSONValueKind.NUMBER) { proof.cleanEnergyProduction = numberToBigInt(impact.get('clean_energy_production')!) }
         }
     }
 
@@ -590,6 +590,20 @@ export function isDigitsOnly(s: string): boolean {
         }
     }
     return true;
+}
+
+/**
+ * Converts a JSONValue NUMBER (which may be a decimal) to BigInt
+ * Truncates decimals to maintain compatibility with existing integer values
+ * Example: 2.5 becomes 2, 2.9 becomes 2, 10 stays 10
+ */
+function numberToBigInt(value: JSONValue): BigInt {
+    // Convert NUMBER to f64 first, then to string
+    const num = value.toF64()
+    const str = num.toString()
+    const parts = str.split('.')
+    
+    return bigInt.fromString(parts[0])
 }
 
 export function getCurrentRound(): Round {
