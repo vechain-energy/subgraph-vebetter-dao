@@ -5283,6 +5283,40 @@ export class ProposalMetadata extends Entity {
       this.set("markdownDescription", Value.fromString(<string>value));
     }
   }
+
+  get type(): string | null {
+    let value = this.get("type");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set type(value: string | null) {
+    if (!value) {
+      this.unset("type");
+    } else {
+      this.set("type", Value.fromString(<string>value));
+    }
+  }
+
+  get rawJson(): string | null {
+    let value = this.get("rawJson");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set rawJson(value: string | null) {
+    if (!value) {
+      this.unset("rawJson");
+    } else {
+      this.set("rawJson", Value.fromString(<string>value));
+    }
+  }
 }
 
 export class ProposalCall extends Entity {

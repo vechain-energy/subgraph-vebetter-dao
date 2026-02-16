@@ -512,6 +512,8 @@ type ProposalMetadata @entity(immutable: false) {
   title: String
   shortDescription: String
   markdownDescription: String
+  type: String
+  rawJson: String
 }
 
 type ProposalCall @entity(immutable: true) {
