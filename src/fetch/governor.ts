@@ -14,7 +14,7 @@ import {
 
 import {
 	fetchAccount
-} from '../../node_modules/@openzeppelin/subgraphs/src/fetch/account'
+} from '../account'
 
 import {
 	constants,

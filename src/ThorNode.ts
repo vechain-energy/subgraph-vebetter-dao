@@ -11,7 +11,7 @@ import {
     LevelChanged as LevelChangedEvent,
 } from '../generated/ThorNode/ThorNode'
 import { constants } from '@amxx/graphprotocol-utils'
-import { fetchAccount } from '../node_modules/@openzeppelin/subgraphs/src/fetch/account'
+import { fetchAccount } from './account'
 import { fetchStatsEndorsements } from './XApps';
 import { levelToPoints } from './NodeManagement';
 

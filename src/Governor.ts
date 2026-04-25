@@ -6,9 +6,6 @@ import {
 	ProposalExecuted,
 	ProposalCanceled,
 	ProposalDeposit,
-	VoteCast,
-	VoteReceipt,
-	ProposalVote
 } from '../generated/schema'
 import { ProposalMetadata as ProposalMetadataTemplate } from '../generated/templates'
 
@@ -24,13 +21,12 @@ import {
 import {
 	constants,
 	decimals,
-	events,
-	transactions,
 } from '@amxx/graphprotocol-utils'
 
 import {
 	fetchAccount,
-} from '../node_modules/@openzeppelin/subgraphs/src/fetch/account'
+	incrementAccountProposalActivity,
+} from './account'
 
 import {
 	fetchGovernor,
@@ -39,6 +35,7 @@ import {
 	fetchProposalSupport
 } from './fetch/governor'
 import { fetchRound } from './XAllocationVoting'
+import { ensureTransaction, eventEntityId } from './ids'
 
 export function handleProposalCreated(event: ProposalCreatedEvent): void {
 	ProposalMetadataTemplate.create(event.params.description)
@@ -65,9 +62,9 @@ export function handleProposalCreated(event: ProposalCreatedEvent): void {
 		call.save()
 	}
 
-	let ev = new ProposalCreated(events.id(event))
+	let ev = new ProposalCreated(eventEntityId(event))
 	ev.emitter = governor.id
-	ev.transaction = transactions.log(event).id
+	ev.transaction = ensureTransaction(event).id
 	ev.timestamp = event.block.timestamp
 	ev.governor = proposal.governor
 	ev.proposal = proposal.id
@@ -82,9 +79,9 @@ export function handleProposalQueued(event: ProposalQueuedEvent): void {
 	proposal.queued = true
 	proposal.save()
 
-	let ev = new ProposalQueued(events.id(event))
+	let ev = new ProposalQueued(eventEntityId(event))
 	ev.emitter = governor.id
-	ev.transaction = transactions.log(event).id
+	ev.transaction = ensureTransaction(event).id
 	ev.timestamp = event.block.timestamp
 	ev.governor = governor.id
 	ev.proposal = proposal.id
@@ -99,9 +96,9 @@ export function handleProposalExecuted(event: ProposalExecutedEvent): void {
 	proposal.executed = true
 	proposal.save()
 
-	let ev = new ProposalExecuted(events.id(event))
+	let ev = new ProposalExecuted(eventEntityId(event))
 	ev.emitter = governor.id
-	ev.transaction = transactions.log(event).id
+	ev.transaction = ensureTransaction(event).id
 	ev.timestamp = event.block.timestamp
 	ev.governor = governor.id
 	ev.proposal = proposal.id
@@ -115,9 +112,9 @@ export function handleProposalCanceled(event: ProposalCanceledEvent): void {
 	proposal.canceled = true
 	proposal.save()
 
-	let ev = new ProposalCanceled(events.id(event))
+	let ev = new ProposalCanceled(eventEntityId(event))
 	ev.emitter = governor.id
-	ev.transaction = transactions.log(event).id
+	ev.transaction = ensureTransaction(event).id
 	ev.timestamp = event.block.timestamp
 	ev.governor = governor.id
 	ev.proposal = proposal.id
@@ -128,55 +125,26 @@ export function handleVoteCast(event: VoteCastEvent): void {
 	let governor = fetchGovernor(event.address)
 	let proposal = fetchProposal(governor, event.params.proposalId)
 	let support = fetchProposalSupport(proposal, event.params.support)
+	let voter = fetchAccount(event.params.voter)
 	support.weight = support.weight.plus(event.params.weight)
 	support.power = support.power.plus(event.params.power)
 	support.voter = support.voter.plus(constants.BIGINT_ONE)
 	support.save()
 
-	const receiptId = ((event.block.number.toI64() * 10000000) + (event.transaction.index.toI64() * 10000) + event.transactionLogIndex.toI64())
-	const receipt = new VoteReceipt(receiptId.toString())
-	receipt.proposal = proposal.id
-	receipt.voter = fetchAccount(event.params.voter).id
-	receipt.support = support.id
-	receipt.weight = event.params.weight
-	receipt.power = event.params.power
-	receipt.reason = event.params.reason
-	receipt.save()
-	let ev = new VoteCast(events.id(event))
-	ev.emitter = governor.id
-	ev.transaction = transactions.log(event).id
-	ev.timestamp = event.block.timestamp
-	ev.governor = governor.id
-	ev.proposal = receipt.proposal
-	ev.support = receipt.support
-	ev.receipt = receipt.id.toString()
-	ev.voter = receipt.voter
-	ev.save()
-
 	proposal.voterCount = proposal.voterCount.plus(constants.BIGINT_ONE)
-	proposal.votesCast = proposal.votesCast.plus(receipt.weight)
-	proposal.weightCast = proposal.weightCast.plus(receipt.power)
+	proposal.votesCast = proposal.votesCast.plus(event.params.weight)
+	proposal.weightCast = proposal.weightCast.plus(event.params.power)
 	proposal.save()
-
-	const proposalVote = new ProposalVote(receiptId)
-	proposalVote.timestamp = event.block.timestamp.toI64()
-	proposalVote.proposal = receipt.proposal
-	proposalVote.voter = receipt.voter
-	proposalVote.support = receipt.support
-	proposalVote.weight = receipt.weight
-	proposalVote.power = receipt.power
-	proposalVote.totalPowerCast = proposal.weightCast
-	proposalVote.totalWeightCast = proposal.votesCast
-	proposalVote.save()
+	incrementAccountProposalActivity(voter, event.params.weight, event.params.power, event.block.timestamp)
 }
 
 export function handleProposalDeposit(event: ProposalDepositEvent): void {
 	let governor = fetchGovernor(event.address)
 	let proposal = fetchProposal(governor, event.params.proposalId)
 
-	let deposit = new ProposalDeposit(events.id(event))
+	let deposit = new ProposalDeposit(eventEntityId(event))
 	deposit.emitter = governor.id
-	deposit.transaction = transactions.log(event).id
+	deposit.transaction = ensureTransaction(event).id
 	deposit.timestamp = event.block.timestamp
 	deposit.depositor = fetchAccount(event.params.depositor).id
 	deposit.proposal = proposal.id

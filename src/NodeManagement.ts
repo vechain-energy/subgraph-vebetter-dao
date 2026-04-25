@@ -2,11 +2,10 @@ import { NodeDelegation, VeDelegateAccount } from '../generated/schema'
 import {
     NodeDelegated as NodeDelegatedEvent,
 } from '../generated/NodeManagement/NodeManagement'
-import { fetchAccount } from '../node_modules/@openzeppelin/subgraphs/src/fetch/account'
-import { transactions } from '@amxx/graphprotocol-utils'
-import { store } from '@graphprotocol/graph-ts'
+import { fetchAccount } from './account'
 import { fetchNode } from './ThorNode'
 import { fetchStatsEndorsements } from './XApps'
+import { ensureTransaction } from './ids'
 
 export function handleDelegateNode(event: NodeDelegatedEvent): void {
     const id = [event.params.nodeId.toString(), 'delegation', 'node'].join('/').toString()
@@ -32,9 +31,9 @@ export function handleDelegateNode(event: NodeDelegatedEvent): void {
     delegation.delegatee = fetchAccount(event.params.delegatee).id
     delegation.active = event.params.delegated
 
-    delegation.emitter = event.address
+    delegation.emitter = fetchAccount(event.address).id
     delegation.timestamp = event.block.timestamp
-    delegation.transaction = transactions.log(event).id
+    delegation.transaction = ensureTransaction(event).id
     delegation.node = node.id
 
     delegation.save()

@@ -10,9 +10,11 @@ import {
 import { App, AppEndorsement, NodeDelegation, StatsEndorsement, VeDelegateAccount } from '../generated/schema'
 import { Bytes } from "@graphprotocol/graph-ts";
 import { AppMetadata as AppMetadataTemplate } from '../generated/templates'
-import { constants, transactions } from '@amxx/graphprotocol-utils'
+import { constants } from '@amxx/graphprotocol-utils'
+import { fetchAccount } from './account';
 import { fetchNode } from './ThorNode';
 import { levelToPoints } from './NodeManagement';
+import { ensureTransaction } from './ids';
 
 export function handleAppAdded(event: AppAddedEvent): void {
     const app = fetchApp(event.params.id)
@@ -64,9 +66,9 @@ export function handleAppEndorsed(event: AppEndorsedEvent): void {
     endorsement.app = app.id
 
 
-    endorsement.emitter = event.address
+    endorsement.emitter = fetchAccount(event.address).id
     endorsement.timestamp = event.block.timestamp
-    endorsement.transaction = transactions.log(event).id
+    endorsement.transaction = ensureTransaction(event).id
 
     endorsement.save()
 

@@ -1,40 +1,48 @@
-This subgraph indexes different data from VeChain's VeBetterDAO:
+This subgraph indexes VeBetterDAO activity with a storage-cut profile tuned for fresh reindexing.
 
-1. B3TR, VOT3 and veB3TR Tokens with OpenZeppelin's ERC20 Template
-2. Government contracts based on OpenZeppelin's voting, timelock, and governor templates
-3. Rounds, with information about:
-    - Allocation Votes
-    - Reward Claims
-4. Apps including their IPFS Metadata
-5. Proposals including their IPFS Metadata
-6. veDelegate.vet Token Bound Accounts (NFTs + Account Abstraction Wallets)
-7. Timeseries of Allocation votes by app and round
-8. Sustainability Proofs including Timeseries of impacts
-9. Passport scoring and linking
+It keeps:
 
-The data provided offers information about:
+1. ERC20 balances, approvals, and total supply snapshots for `B3TR`, `VOT3`, and `veB3TR`
+2. Governance rounds, allocation aggregates, reward claim aggregates, and proposal aggregates
+3. App metadata, proposal metadata, and veDelegate account state
+4. Passport delegation/linking state plus compact passport score counters
+5. Reward-pool summaries plus one raw reward transfer feed
 
-1. Generic Token Activity
-2. Round Statistics
-3. App Allocation Voting Behavior
-4. Insight into a subset of veDelegate.vet behavior
-5. Proposal Metadata
-6. Insight into Sustainability Proofs
-7. Balance and activity of users (single or all tokens aggregated)
-8. Passports (delegations, entities, scores, white/blacklists)
+It does not keep:
 
-The subgraph is deployed publicly on: https://graph.vet/subgraphs/name/vebetter/dao  
-It powers the statistic pages on https://veDelegate.vet/stats 
+1. Raw allocation vote entities
+2. Raw governance vote receipt entities
+3. Raw sustainability proof entities
+4. Raw `PassportScore` entities
+5. Raw `DelegateVotesChanged` entities
+6. Raw reward-pool deposit, withdraw, and distribution entities as separate tables
 
-To deploy locally, run a graph-node connected to VeChain as explained in [vechain-energy/graph-node](https://github.com/vechain-energy/graph-node) and deploy it with:
+## Storage Rules
 
+- `RewardPoolTransfer` is the only raw reward-pool event entity.
+- `RewardPoolTransfer.kind` is `DEPOSIT`, `WITHDRAW`, or `DISTRIBUTION`.
+- `RewardPoolTransfer.reason` is only set for team withdrawals.
+- Hot synthetic IDs now use `Bytes` for compact storage where human-readable IDs are not needed.
+- Zero-value `ERC20Balance`, `VBDBalance`, and `ERC20Approval` rows are removed from store. Missing row means zero.
+- `indexerHints.prune: auto` is enabled in [`subgraph.yaml`](subgraph.yaml).
 
-```shell
+## Query Notes
+
+- Prefer natural-field filters over direct `id` lookups for hashed summary tables.
+- Use `rewardPoolTransfers(where: { app: "...", round: "1", kind: DISTRIBUTION })` for reward history.
+- Use `appRoundSummaries(where: { app: "...", round: "1" })` for app round summaries.
+- Use `accountSustainabilities(where: { account: "...", app: "..." })` for account reward totals.
+- Use `accountRoundSustainabilities(where: { account: "...", app: "...", round: "1" })` for per-round reward totals.
+- Use `erc20Balances(where: { contract: "...", account: "..." })` and `erc20Approvals(where: { contract: "...", owner: "...", spender: "..." })` for live token state.
+
+Full API notes live in [`docs/storage-optimized-subgraph.md`](docs/storage-optimized-subgraph.md).
+
+## Local Work
+
+```sh
 npx graph codegen subgraph.yaml
-npx graph create vebetter/dao --node http://127.0.0.1:8020
-npx graph deploy vebetter/dao --ipfs http://127.0.0.1:5001 --node http://127.0.0.1:8020 subgraph.yaml --version-label 1
+npx graph test
+npx graph build subgraph.yaml
 ```
 
---
-
-Contributions to improve the indexing or widen the scope are very welcome!
+For local deploys, run a `graph-node` connected to VeChain and then deploy with your normal `graph create` and `graph deploy` commands.

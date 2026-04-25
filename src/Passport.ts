@@ -1,4 +1,4 @@
-import { PassportDelegation, PassportEntityLink, VeDelegateAccount, PassportWhitelist, PassportBlacklist, PassportScore, UserSignal, UserSignalsReset, UserSignalsResetForApp } from '../generated/schema'
+import { PassportBlacklist, PassportDelegation, PassportEntityLink, PassportWhitelist, UserSignal, UserSignalsReset, UserSignalsResetForApp, VeDelegateAccount } from '../generated/schema'
 import {
     DelegationPending as DelegationPendingEvent,
     DelegationCreated as DelegationCreatedEvent,
@@ -15,14 +15,15 @@ import {
     UserSignalsReset as UserSignalsResetEvent,
     UserSignalsResetForApp as UserSignalsResetForAppEvent
 } from '../generated/passport/Passport'
-import { fetchAccount } from '../node_modules/@openzeppelin/subgraphs/src/fetch/account'
-import { transactions, events, constants } from '@amxx/graphprotocol-utils'
+import { constants } from '@amxx/graphprotocol-utils'
 import { store, Address, BigInt } from '@graphprotocol/graph-ts'
 import { fetchApp } from './XApps'
 import { fetchRound, fetchStatistic } from './XAllocationVoting'
 import { fetchAppRoundSummary, fetchAccountRoundSustainability } from './RewardsPool'
 import { XAllocationVoting } from '../generated/RewardsPool/XAllocationVoting'
 import { Passport } from '../generated/passport/Passport'
+import { ensureTransaction, eventEntityId } from './ids'
+import { fetchAccount, incrementAccountPassportActivity } from './account'
 
 export function handleDelegationPending(event: DelegationPendingEvent): void {
     const id = [event.params.delegator.toHexString(), event.params.delegatee.toHexString(), 'delegation'].join('/').toString()
@@ -35,9 +36,9 @@ export function handleDelegationPending(event: DelegationPendingEvent): void {
     passport.delegator = fetchAccount(event.params.delegator).id
     passport.active = false
 
-    passport.emitter = event.address
+    passport.emitter = fetchAccount(event.address).id
     passport.timestamp = event.block.timestamp
-    passport.transaction = transactions.log(event).id
+    passport.transaction = ensureTransaction(event).id
 
     passport.save()
 }
@@ -53,9 +54,9 @@ export function handleDelegationCreated(event: DelegationCreatedEvent): void {
     passport.delegator = fetchAccount(event.params.delegator).id
     passport.active = true
 
-    passport.emitter = event.address
+    passport.emitter = fetchAccount(event.address).id
     passport.timestamp = event.block.timestamp
-    passport.transaction = transactions.log(event).id
+    passport.transaction = ensureTransaction(event).id
 
     passport.save()
 
@@ -97,9 +98,9 @@ export function handleLinkPending(event: LinkPendingEvent): void {
     entityLink.entity = fetchAccount(event.params.entity).id
     entityLink.active = false
 
-    entityLink.emitter = event.address
+    entityLink.emitter = fetchAccount(event.address).id
     entityLink.timestamp = event.block.timestamp
-    entityLink.transaction = transactions.log(event).id
+    entityLink.transaction = ensureTransaction(event).id
 
     entityLink.save()
 }
@@ -115,9 +116,9 @@ export function handleLinkCreated(event: LinkCreatedEvent): void {
     entityLink.entity = fetchAccount(event.params.entity).id
     entityLink.active = true
 
-    entityLink.emitter = event.address
+    entityLink.emitter = fetchAccount(event.address).id
     entityLink.timestamp = event.block.timestamp
-    entityLink.transaction = transactions.log(event).id
+    entityLink.transaction = ensureTransaction(event).id
 
     entityLink.save()
 }
@@ -152,17 +153,11 @@ export function handleRegisteredAction(event: RegisteredActionEvent): void {
     stats.totalActionScores = stats.totalActionScores.plus(event.params.actionScore)
     stats.save()
 
-    const passportScore = new PassportScore(events.id(event))
-    passportScore.user = fetchAccount(event.params.user).id
-    passportScore.passport = fetchAccount(event.params.passport).id
-    passportScore.round = round.id
-    passportScore.app = app.id
-    passportScore.score = event.params.actionScore
-
-    passportScore.emitter = event.address
-    passportScore.transaction = transactions.log(event).id
-    passportScore.timestamp = event.block.timestamp
-    passportScore.save()
+    incrementAccountPassportActivity(
+        fetchAccount(event.params.passport),
+        event.params.actionScore,
+        event.block.timestamp,
+    )
 }
 
 export function handleUserWhitelisted(event: UserWhitelistedEvent): void {
@@ -223,15 +218,15 @@ export function handleUserSignaled(event: UserSignaledEvent): void {
     }
 
     signal.signalCount = signal.signalCount.plus(constants.BIGINT_ONE)
-    signal.emitter = event.address
+    signal.emitter = fetchAccount(event.address).id
     signal.timestamp = event.block.timestamp
-    signal.transaction = transactions.log(event).id
+    signal.transaction = ensureTransaction(event).id
 
     signal.save()
 }
 
 export function handleUserSignalsReset(event: UserSignalsResetEvent): void {
-    const reset = new UserSignalsReset(events.id(event))
+    const reset = new UserSignalsReset(eventEntityId(event))
     reset.user = fetchAccount(event.params.user).id
     reset.appsCount = constants.BIGINT_ZERO
     reset.reason = event.params.reason
@@ -239,9 +234,9 @@ export function handleUserSignalsReset(event: UserSignalsResetEvent): void {
     // Since we can't query all signals for a user directly in AssemblyScript,
     // we'll just create the reset event. The signals will be considered reset
     // when querying by checking if there's a reset event after their timestamp
-    reset.emitter = event.address
+    reset.emitter = fetchAccount(event.address).id
     reset.timestamp = event.block.timestamp
-    reset.transaction = transactions.log(event).id
+    reset.transaction = ensureTransaction(event).id
 
     reset.save()
 }
@@ -250,7 +245,7 @@ export function handleUserSignalsResetForApp(event: UserSignalsResetForAppEvent)
     const id = [event.params.user.toHexString(), event.params.app.toHexString()].join('/')
     const signal = UserSignal.load(id)
 
-    const reset = new UserSignalsResetForApp(events.id(event))
+    const reset = new UserSignalsResetForApp(eventEntityId(event))
     reset.user = fetchAccount(event.params.user).id
     reset.app = fetchApp(event.params.app).id
     reset.previousSignalCount = signal ? signal.signalCount : constants.BIGINT_ZERO
@@ -260,9 +255,9 @@ export function handleUserSignalsResetForApp(event: UserSignalsResetForAppEvent)
         store.remove('UserSignal', id)
     }
 
-    reset.emitter = event.address
+    reset.emitter = fetchAccount(event.address).id
     reset.timestamp = event.block.timestamp
-    reset.transaction = transactions.log(event).id
+    reset.transaction = ensureTransaction(event).id
 
     reset.save()
 }
