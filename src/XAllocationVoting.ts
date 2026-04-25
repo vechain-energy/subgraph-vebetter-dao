@@ -2,13 +2,13 @@ import {
     AllocationVoteCast as AllocationVoteCastEvent,
     RoundCreated as RoundCreatedEvent
 } from '../generated/xallocationvoting/XAllocationVoting'
-import { Round, AllocationVote, RoundStatistic, ERC20Balance, AllocationResult, VeDelegateAccount, StatsEndorsement } from '../generated/schema'
-import { decimals, transactions, constants } from '@amxx/graphprotocol-utils'
-import { fetchAccount } from '../node_modules/@openzeppelin/subgraphs/src/fetch/account'
+import { Round, RoundStatistic, ERC20Balance, AllocationResult, VeDelegateAccount, StatsAllocationVote } from '../generated/schema'
+import { decimals, constants } from '@amxx/graphprotocol-utils'
 import { fetchApp } from './XApps'
-import { bigInt, Int8 } from '@graphprotocol/graph-ts'
-import { getUserPassportForRound } from './Passport'
+import { bigInt, BigInt, Bytes } from '@graphprotocol/graph-ts'
 import { CurrentRound } from '../generated/schema'
+import { fetchAccount, incrementAccountAllocationActivity } from './account'
+import { erc20TotalSupplyId } from './ids'
 
 export function handleVoteCast(event: AllocationVoteCastEvent): void {
     const appCount = event.params.appsIds.length
@@ -23,33 +23,14 @@ export function handleVoteCast(event: AllocationVoteCastEvent): void {
         veDelegateStats.voters = veDelegateStats.voters.plus(constants.BIGINT_ONE)
     }
 
-
-    const voterId = fetchAccount(event.params.voter).id
-
-    let passportId = voterId
-    // after VePassport has been deployed
-    if (event.block.number.toI64() >= 19820804) {
-        // get passport at that time
-        passportId = fetchAccount(getUserPassportForRound(event.params.voter, roundId)).id
-    }
-
-
+    const voter = fetchAccount(event.params.voter)
     let totalQFVotesAdjustment = constants.BIGINT_ZERO
     let totalQFVotesAdjustmentVD = constants.BIGINT_ZERO
     for (let index = 0; index < appCount; index += 1) {
         const app = event.params.appsIds[index]
         const appId = app.toHexString()
-        const id = (event.block.number.toI64() * 10000000) + (event.transaction.index.toI64() * 10000) + (event.transactionLogIndex.toI64() * 100) + index
-        const vote = new AllocationVote(id)
         const votesCast = event.params.voteWeights[index]
         const newQFVotes = votesCast.gt(bigInt.fromString("1000000000000000000")) ? votesCast.sqrt() : votesCast.div(bigInt.fromString("1000000000"))
-        vote.voter = voterId
-        vote.passport = passportId
-        vote.round = roundId
-        vote.app = app;
-        vote.weightExact = votesCast
-        vote.weight = decimals.toDecimals(vote.weightExact, 18)
-
 
         // Get the current sum of the square roots of individual votes for the given project
         let allocation = AllocationResult.load([roundId, appId].join('/'))
@@ -78,12 +59,8 @@ export function handleVoteCast(event: AllocationVoteCastEvent): void {
         allocation.votesCast = decimals.toDecimals(allocation.votesCastExact, 18)
         allocation.voters = allocation.voters.plus(constants.BIGINT_ONE)
         allocation.save()
-
-        vote.qfWeightExact = newQFVotes
-        vote.qfWeight = decimals.toDecimals(newQFVotes, 9)
-        vote.timestamp = event.block.timestamp.toI64()
-        vote.transaction = transactions.log(event).id
-        vote.save()
+        updateStatsAllocationVotes(event.block.timestamp.toI64(), roundId, app, allocation)
+        incrementAccountAllocationActivity(voter, votesCast, newQFVotes, event.block.timestamp)
 
         stats.votesCastExact = stats.votesCastExact.plus(votesCast)
         stats.votesCast = decimals.toDecimals(stats.votesCastExact, 18)
@@ -115,6 +92,44 @@ export function handleVoteCast(event: AllocationVoteCastEvent): void {
     }
 
     veDelegateStats.save()
+}
+
+function updateStatsAllocationVotes(timestamp: i64, roundId: string, app: Bytes, allocation: AllocationResult): void {
+    updateStatsAllocationVote(timestamp, roundId, app, allocation, 'HOUR', 3600)
+    updateStatsAllocationVote(timestamp, roundId, app, allocation, 'DAY', 86400)
+}
+
+function updateStatsAllocationVote(
+    timestamp: i64,
+    roundId: string,
+    app: Bytes,
+    allocation: AllocationResult,
+    interval: string,
+    window: i64
+): void {
+    const bucketStart = timestamp - (timestamp % window)
+    const id = [interval, roundId, app.toHexString(), bucketStart.toString()].join('/')
+    let bucket = StatsAllocationVote.load(id)
+
+    if (bucket == null) {
+        bucket = new StatsAllocationVote(id)
+        bucket.interval = interval
+        bucket.timestamp = BigInt.fromI64(bucketStart)
+        bucket.app = app
+        bucket.round = roundId
+        bucket.votes = constants.BIGINT_ZERO
+        bucket.weight = constants.BIGDECIMAL_ZERO
+        bucket.weightExact = constants.BIGINT_ZERO
+        bucket.qfWeight = constants.BIGDECIMAL_ZERO
+        bucket.qfWeightExact = constants.BIGINT_ZERO
+    }
+
+    bucket.votes = bucket.votes.plus(BigInt.fromI32(1))
+    bucket.weight = allocation.votesCast
+    bucket.weightExact = allocation.votesCastExact
+    bucket.qfWeight = allocation.weight
+    bucket.qfWeightExact = allocation.weightExact
+    bucket.save()
 }
 
 export function handleRoundCreated(event: RoundCreatedEvent): void {
@@ -165,13 +180,17 @@ export function handleRoundCreated(event: RoundCreatedEvent): void {
     let stats = fetchStatistic(id, "")
     round.statistic = stats.id
 
-    const totalB3trSupply = ERC20Balance.load(["0x5ef79995fe8a89e0812330e4378eb2660cede699", "totalSupply"].join('/'))
+    const totalB3trSupply = ERC20Balance.load(
+        erc20TotalSupplyId(Bytes.fromHexString('0x5ef79995fe8a89e0812330e4378eb2660cede699') as Bytes)
+    )
     if (totalB3trSupply) {
         stats.b3tr = totalB3trSupply.value
         stats.b3trExact = totalB3trSupply.valueExact
     }
 
-    const totalVot3Supply = ERC20Balance.load(["0x76ca782b59c74d088c7d2cce2f211bc00836c602", "totalSupply"].join('/'))
+    const totalVot3Supply = ERC20Balance.load(
+        erc20TotalSupplyId(Bytes.fromHexString('0x76ca782b59c74d088c7d2cce2f211bc00836c602') as Bytes)
+    )
     if (totalVot3Supply) {
         stats.vot3 = totalVot3Supply.value
         stats.vot3Exact = totalVot3Supply.valueExact

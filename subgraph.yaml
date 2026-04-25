@@ -1,8 +1,9 @@
 specVersion: 1.2.0
 features:
-  - grafting
   - ipfsOnEthereumContracts
   - nonDeterministicIpfs
+indexerHints:
+  prune: auto
 schema:
   file: subgraph.graphql
 dataSources:
@@ -119,8 +120,6 @@ dataSources:
       abis:
         - name: XAllocationVoting
           file: ./abis/VeBetterDAO-allocations-voting.json
-        - name: Passport
-          file: ./abis/VeBetterDAO-ve-better-passport.json
       eventHandlers:
         - event: AllocationVoteCast(indexed address,indexed uint256,bytes32[],uint256[])
           handler: handleVoteCast
@@ -200,8 +199,6 @@ dataSources:
       abis:
         - name: RewardsPool
           file: ./abis/VeBetterDAO-x-2-earns-rewards-pool.json
-        - name: XAllocationVoting
-          file: ./abis/VeBetterDAO-allocations-voting.json
       eventHandlers:
         - event: NewDeposit(uint256,indexed bytes32,indexed address)
           handler: handleNewDeposit
@@ -305,7 +302,7 @@ dataSources:
           handler: handleDelegateChanged
         - event: DelegateVotesChanged(indexed address,uint256,uint256)
           handler: handleDelegateVotesChanged
-      file: ./node_modules/@openzeppelin/subgraphs/src/datasources/voting.ts
+      file: ./src/Voting.ts
 
   # Gov: Call Handling
   - kind: ethereum/contract
@@ -333,7 +330,7 @@ dataSources:
           handler: handleCancelled
         - event: MinDelayChange(uint256,uint256)
           handler: handleMinDelayChange
-      file: ./node_modules/@openzeppelin/subgraphs/src/datasources/timelock.ts
+      file: ./src/Timelock.ts
 
   # Gov: Proposals
   - kind: ethereum/contract
@@ -573,16 +570,3 @@ templates:
       abis:
         - name: Governor
           file: ./abis/VeBetterDAO-b3tr-governor.json
-  - kind: file/ipfs
-    name: SustainabilityProof
-    network: mainnet
-    mapping:
-      apiVersion: 0.0.7
-      language: wasm/assemblyscript
-      file: ./src/RewardsPool.ts
-      handler: handleSustainabilityProof
-      entities:
-        - SustainabilityProof
-      abis:
-        - name: RewardsPool
-          file: ./abis/VeBetterDAO-x-2-earns-rewards-pool.json

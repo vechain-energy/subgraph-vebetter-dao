@@ -1,4 +1,15 @@
 scalar Timestamp
+
+enum StatsInterval {
+  HOUR
+  DAY
+}
+
+enum RewardPoolTransferKind {
+  DEPOSIT
+  WITHDRAW
+  DISTRIBUTION
+}
 """
 Weekly Voting Rounds
 """
@@ -68,14 +79,11 @@ type App @entity(immutable: false) {
   poolBalanceExact: BigInt!
   poolDeposits: BigDecimal!
   poolDepositsExact: BigInt!
-  poolDepositEvent: [RewardPoolDeposit!]! @derivedFrom(field: "app")
   poolWithdrawals: BigDecimal!
   poolWithdrawalsExact: BigInt!
-  poolWithdrawEvent: [RewardPoolWithdraw!]! @derivedFrom(field: "app")
   poolDistributions: BigDecimal!
   poolDistributionsExact: BigInt!
-  poolDistributionEvent: [RewardPoolDistribution!]! @derivedFrom(field: "app")
-  sustainabilityProof: [SustainabilityProof!]! @derivedFrom(field: "app")
+  poolTransfers: [RewardPoolTransfer!]! @derivedFrom(field: "app")
   participants: [AccountSustainability!]! @derivedFrom(field: "app")
   participantsCount: BigInt!
   createdAtBlockNumber: BigInt!
@@ -97,7 +105,7 @@ type AppMetadata @entity(immutable: false) {
 }
 
 type AppRoundSummary @entity(immutable: false) {
-  id: ID!
+  id: Bytes!
   app: App!
   round: Round!
   activeUserCount: BigInt!
@@ -139,40 +147,24 @@ type AllocationResult @entity(immutable: false) {
   votesCastExact: BigInt!
 }
 
-type AllocationVote @entity(immutable: true, timeseries: true) {
-  id: Int8!
-  voter: Account!
-  passport: Account!
-  round: Round!
+type StatsAllocationVote @entity(immutable: false) {
+  id: ID!
+  interval: StatsInterval!
+  timestamp: BigInt!
   app: App!
+  round: Round!
+  votes: BigInt!
   weight: BigDecimal!
   weightExact: BigInt!
   qfWeight: BigDecimal!
   qfWeightExact: BigInt!
-  timestamp: Timestamp!
-  transaction: Transaction!
-}
-
-type StatsAllocationVote
-  @aggregation(intervals: ["hour", "day"], source: "AllocationVote") {
-  id: Int8!
-  timestamp: Timestamp!
-  app: App!
-  round: Round!
-  votes: BigInt! @aggregate(fn: "count", cumulative: false)
-  weight: BigDecimal! @aggregate(fn: "sum", arg: "weight", cumulative: true)
-  weightExact: BigInt!
-    @aggregate(fn: "sum", arg: "weightExact", cumulative: true)
-  qfWeight: BigDecimal! @aggregate(fn: "sum", arg: "qfWeight", cumulative: true)
-  qfWeightExact: BigInt!
-    @aggregate(fn: "sum", arg: "qfWeightExact", cumulative: true)
 }
 
 """
 B3TR Voting Rewards
 """
-type RewardClaimed implements Event @entity(immutable: true) {
-  id: ID!
+type RewardClaimed @entity(immutable: true) {
+  id: Bytes!
   emitter: Account!
   voter: Account!
   round: Round!
@@ -212,8 +204,6 @@ type Account @entity(immutable: false) {
   name: String
   asVeDelegate: [ERC721Token!]! @derivedFrom(field: "poolAddress")
   asERC721: ERC721Contract
-  AllocationVotes: [AllocationVote!]! @derivedFrom(field: "voter")
-  ProposalVotes: [VoteReceipt!]! @derivedFrom(field: "voter")
   B3TRRewards: [RewardClaimed!] @derivedFrom(field: "voter")
   ERC721tokens: [ERC721Token!]! @derivedFrom(field: "owner")
   ERC721operatorOwner: [ERC721Operator!]! @derivedFrom(field: "owner")
@@ -231,13 +221,10 @@ type Account @entity(immutable: false) {
   delegateChangedFromEvent: [DelegateChanged!]!
     @derivedFrom(field: "fromDelegate")
   delegateChangedToEvent: [DelegateChanged!]! @derivedFrom(field: "toDelegate")
-  delegateVotesChangedEvent: [DelegateVotesChanged!]!
-    @derivedFrom(field: "delegate")
   asTimelock: Timelock
   timelockedCalls: [TimelockCall!]! @derivedFrom(field: "target")
   asGovernor: Governor
   proposed: [Proposal!]! @derivedFrom(field: "proposer")
-  voted: [VoteReceipt!]! @derivedFrom(field: "voter")
   proposedCalls: [ProposalCall!]! @derivedFrom(field: "target")
   events: [Event!]! @derivedFrom(field: "emitter")
   sustainability: AccountSustainability @derivedFrom(field: "account")
@@ -250,13 +237,22 @@ type Account @entity(immutable: false) {
   nodeDelegatees: [NodeDelegation!]! @derivedFrom(field: "delegatee")
 
   passportEntities: [PassportEntityLink!]! @derivedFrom(field: "passport")
-  passportScores: [PassportScore!]! @derivedFrom(field: "passport")
 
   userSignals: [UserSignal!]! @derivedFrom(field: "user")
   userSignalsResets: [UserSignalsReset!]! @derivedFrom(field: "user")
   userSignalsResetForApps: [UserSignalsResetForApp!]! @derivedFrom(field: "user")
 
   asThorNode: ThorNode @derivedFrom(field: "owner")
+  allocationVoteCount: BigInt
+  allocationVotesCastExact: BigInt
+  allocationQfWeightExact: BigInt
+  proposalVoteCount: BigInt
+  proposalVotesCast: BigInt
+  proposalWeightCast: BigInt
+  rewardClaimCount: BigInt
+  passportActionCount: BigInt
+  passportScoreTotal: BigInt
+  lastActivityTimestamp: BigInt
 }
 
 """
@@ -305,7 +301,7 @@ type ERC20Contract @entity(immutable: true) {
 }
 
 type VBDBalance @entity(immutable: false) {
-  id: ID!
+  id: Bytes!
   account: Account
   convertedB3tr: BigDecimal!
   convertedB3trExact: BigInt!
@@ -315,7 +311,7 @@ type VBDBalance @entity(immutable: false) {
 }
 
 type ERC20Balance @entity(immutable: false) {
-  id: ID!
+  id: Bytes!
   contract: ERC20Contract!
   account: Account
   value: BigDecimal!
@@ -323,7 +319,7 @@ type ERC20Balance @entity(immutable: false) {
 }
 
 type ERC20Approval @entity(immutable: false) {
-  id: ID!
+  id: Bytes!
   contract: ERC20Contract!
   owner: Account!
   spender: Account!
@@ -341,8 +337,6 @@ type VotingContract @entity(immutable: true) {
   weight: [VoteWeight!]! @derivedFrom(field: "contract")
   delegation: [VoteDelegation!]! @derivedFrom(field: "contract")
   delegateChangedEvent: [DelegateChanged!]! @derivedFrom(field: "contract")
-  delegateVotesChangedEvent: [DelegateVotesChanged!]!
-    @derivedFrom(field: "contract")
 }
 
 type VoteDelegation @entity(immutable: false) {
@@ -358,8 +352,6 @@ type VoteWeight @entity(immutable: false) {
   contract: VotingContract!
   account: Account
   value: BigInt!
-  delegateVotesChangedEvent: [DelegateVotesChanged!]!
-    @derivedFrom(field: "voteWeight")
 }
 
 type DelegateChanged implements Event @entity(immutable: true) {
@@ -372,18 +364,6 @@ type DelegateChanged implements Event @entity(immutable: true) {
   delegator: Account!
   fromDelegate: Account!
   toDelegate: Account!
-}
-
-type DelegateVotesChanged implements Event @entity(immutable: true) {
-  id: ID!
-  emitter: Account!
-  transaction: Transaction!
-  timestamp: BigInt!
-  voteWeight: VoteWeight
-  contract: VotingContract!
-  delegate: Account!
-  oldValue: BigInt!
-  newValue: BigInt!
 }
 
 type Timelock @entity(immutable: true) {
@@ -473,7 +453,6 @@ type Governor @entity(immutable: true) {
   proposalQueued: [ProposalQueued!]! @derivedFrom(field: "governor")
   proposalExecuted: [ProposalExecuted!]! @derivedFrom(field: "governor")
   proposalCanceled: [ProposalCanceled!]! @derivedFrom(field: "governor")
-  votecast: [VoteCast!]! @derivedFrom(field: "governor")
 }
 
 """
@@ -492,12 +471,10 @@ type Proposal @entity(immutable: false) {
   executed: Boolean!
   calls: [ProposalCall!]! @derivedFrom(field: "proposal")
   supports: [ProposalSupport!]! @derivedFrom(field: "proposal")
-  receipts: [VoteReceipt!]! @derivedFrom(field: "proposal")
   proposalCreated: [ProposalCreated!]! @derivedFrom(field: "proposal")
   proposalQueued: [ProposalQueued!]! @derivedFrom(field: "proposal")
   proposalExecuted: [ProposalExecuted!]! @derivedFrom(field: "proposal")
   proposalCanceled: [ProposalCanceled!]! @derivedFrom(field: "proposal")
-  votecast: [VoteCast!]! @derivedFrom(field: "proposal")
   deposits: [ProposalDeposit!] @derivedFrom(field: "proposal")
   depositCount: BigInt!
   depositAmount: BigInt!
@@ -533,43 +510,6 @@ type ProposalSupport @entity(immutable: false) {
   voter: BigInt!
   weight: BigInt!
   power: BigInt!
-  votes: [VoteReceipt!]! @derivedFrom(field: "support")
-}
-
-type VoteReceipt @entity(immutable: true) {
-  id: ID!
-  proposal: Proposal!
-  voter: Account!
-  support: ProposalSupport!
-  weight: BigInt!
-  power: BigInt!
-  reason: String!
-  params: Bytes
-}
-
-type ProposalVote @entity(immutable: true, timeseries: true) {
-  id: Int8!
-  timestamp: Timestamp!
-  proposal: Proposal!
-  voter: Account!
-  support: ProposalSupport!
-  weight: BigInt!
-  power: BigInt!
-  totalWeightCast: BigInt!
-  totalPowerCast: BigInt!
-}
-
-type StatsProposalVote
-  @aggregation(intervals: ["hour", "day"], source: "ProposalVote") {
-  id: Int8!
-  timestamp: Timestamp!
-  proposal: Proposal!
-  support: ProposalSupport!
-  weight: BigInt! @aggregate(fn: "sum", arg: "weight", cumulative: true)
-  power: BigDecimal! @aggregate(fn: "sum", arg: "power", cumulative: true)
-  voters: BigInt! @aggregate(fn: "count", cumulative: true)
-  totalWeightCast: BigInt! @aggregate(fn: "max", arg: "totalWeightCast")
-  totalPowerCast: BigInt! @aggregate(fn: "max", arg: "totalPowerCast")
 }
 
 type ProposalCreated implements Event @entity(immutable: true) {
@@ -610,18 +550,6 @@ type ProposalCanceled implements Event @entity(immutable: true) {
   proposal: Proposal!
 }
 
-type VoteCast implements Event @entity(immutable: true) {
-  id: ID!
-  emitter: Account!
-  transaction: Transaction!
-  timestamp: BigInt!
-  governor: Governor!
-  proposal: Proposal!
-  support: ProposalSupport!
-  receipt: VoteReceipt!
-  voter: Account!
-}
-
 type ProposalDeposit implements Event @entity(immutable: true) {
   id: ID!
   transaction: Transaction!
@@ -643,7 +571,7 @@ interface Event {
 }
 
 type Transaction @entity(immutable: true) {
-  id: ID!
+  id: Bytes!
   timestamp: BigInt!
   blockNumber: BigInt!
   events: [Event!]! @derivedFrom(field: "transaction")
@@ -652,48 +580,8 @@ type Transaction @entity(immutable: true) {
 """
 Rewards Pool Allocation Management
 """
-type RewardPoolDeposit implements Event @entity(immutable: true) {
-  id: ID!
-  transaction: Transaction!
-  emitter: Account!
-  timestamp: BigInt!
-  app: App!
-  round: Round!
-  amount: BigDecimal!
-  amountExact: BigInt!
-  depositor: Account!
-}
-
-type RewardPoolWithdraw implements Event @entity(immutable: true) {
-  id: ID!
-  transaction: Transaction!
-  emitter: Account!
-  timestamp: BigInt!
-  app: App!
-  round: Round!
-  amount: BigDecimal!
-  amountExact: BigInt!
-  by: Account!
-  to: Account!
-  reason: String!
-}
-
-type RewardPoolDistribution implements Event @entity(immutable: true) {
-  id: ID!
-  transaction: Transaction!
-  emitter: Account!
-  timestamp: BigInt!
-  app: App!
-  round: Round!
-  amount: BigDecimal!
-  amountExact: BigInt!
-  by: Account!
-  to: Account!
-  proof: SustainabilityProof
-}
-
-type RewardPoolTransfer implements Event @entity(immutable: true) {
-  id: ID!
+type RewardPoolTransfer @entity(immutable: true) {
+  id: Bytes!
   transaction: Transaction!
   emitter: Account!
   timestamp: BigInt!
@@ -703,265 +591,33 @@ type RewardPoolTransfer implements Event @entity(immutable: true) {
   amountExact: BigInt!
   from: Account!
   to: Account!
-  deposit: RewardPoolDeposit
-  withdraw: RewardPoolWithdraw
-  distribution: RewardPoolDistribution
-}
-
-"""
-Sustainability Proofs
-"""
-type SustainabilityProof @entity(immutable: true) {
-  id: ID!
-  timestamp: Timestamp!
-  app: App!
-  round: Round!
-  account: Account!
-  proofType: String
-  proofData: String
-  description: String
-  additionalInfo: String
-
-  reward: BigInt!
-  transaction: Transaction!
-
-  carbon: BigInt!
-  water: BigInt!
-  energy: BigInt!
-  wasteMass: BigInt!
-  plastic: BigInt!
-  timber: BigInt!
-  educationTime: BigInt!
-  treesPlanted: BigInt!
-  caloriesBurned: BigInt!
-  sleepQualityPercentage: BigInt!
-  cleanEnergyProduction: BigInt!
-
-  """
-  deprecated entries
-  """
-  wasteItems: BigInt!
-  people: BigInt!
-  biodiversity: BigInt!
-
-  version: Int!
+  kind: RewardPoolTransferKind!
+  reason: String
 }
 
 type AccountSustainability @entity(immutable: false) {
-  id: ID!
+  id: Bytes!
   app: App!
   receivedRewards: BigInt!
   account: Account!
-  carbon: BigInt!
-  water: BigInt!
-  energy: BigInt!
-  wasteMass: BigInt!
-  plastic: BigInt!
-  timber: BigInt!
-  educationTime: BigInt!
-  treesPlanted: BigInt!
-  caloriesBurned: BigInt!
-  sleepQualityPercentage: BigInt!
-  cleanEnergyProduction: BigInt!
-
-  """
-  deprecated entries
-  """
-  wasteItems: BigInt!
-  people: BigInt!
-  biodiversity: BigInt!
 }
 
 type AccountRoundSustainability @entity(immutable: false) {
-  id: ID!
+  id: Bytes!
   app: App!
   round: Round!
   receivedRewards: BigInt!
   passportScore: BigInt!
   account: Account!
-  carbon: BigInt!
-  water: BigInt!
-  energy: BigInt!
-  wasteMass: BigInt!
-  plastic: BigInt!
-  timber: BigInt!
-  educationTime: BigInt!
-  treesPlanted: BigInt!
-  caloriesBurned: BigInt!
-  sleepQualityPercentage: BigInt!
-  cleanEnergyProduction: BigInt!
-
-  """
-  deprecated entries
-  """
-  wasteItems: BigInt!
-  people: BigInt!
-  biodiversity: BigInt!
-}
-
-type AppSustainability @entity(immutable: true, timeseries: true) {
-  id: Int8!
-  app: App!
-  round: Round!
-  account: Account!
-  timestamp: Timestamp!
-  reward: BigInt!
-  participantsCount: BigInt!
-
-  carbon: BigInt!
-  water: BigInt!
-  energy: BigInt!
-  wasteMass: BigInt!
-  plastic: BigInt!
-  timber: BigInt!
-  educationTime: BigInt!
-  treesPlanted: BigInt!
-  caloriesBurned: BigInt!
-  sleepQualityPercentage: BigInt!
-  cleanEnergyProduction: BigInt!
-
-  """
-  deprecated entries
-  """
-  wasteItems: BigInt!
-  people: BigInt!
-  biodiversity: BigInt!
-}
-
-type StatsAppSustainability
-  @aggregation(intervals: ["hour", "day"], source: "AppSustainability") {
-  id: Int8!
-  timestamp: Timestamp!
-  app: App!
-
-  actions: BigInt! @aggregate(fn: "count", cumulative: false)
-  rewards: BigInt! @aggregate(fn: "sum", arg: "reward", cumulative: false)
-  carbon: BigInt! @aggregate(fn: "sum", arg: "carbon", cumulative: false)
-  water: BigInt! @aggregate(fn: "sum", arg: "water", cumulative: false)
-  energy: BigInt! @aggregate(fn: "sum", arg: "energy", cumulative: false)
-  wasteMass: BigInt! @aggregate(fn: "sum", arg: "wasteMass", cumulative: false)
-  plastic: BigInt! @aggregate(fn: "sum", arg: "plastic", cumulative: false)
-  timber: BigInt! @aggregate(fn: "sum", arg: "timber", cumulative: false)
-  educationTime: BigInt!
-    @aggregate(fn: "sum", arg: "educationTime", cumulative: false)
-  treesPlanted: BigInt!
-    @aggregate(fn: "sum", arg: "treesPlanted", cumulative: false)
-  caloriesBurned: BigInt! @aggregate(fn: "sum", arg: "caloriesBurned", cumulative: false)
-  sleepQualityPercentage: BigInt! @aggregate(fn: "sum", arg: "sleepQualityPercentage", cumulative: false)
-  cleanEnergyProduction: BigInt! @aggregate(fn: "sum", arg: "cleanEnergyProduction", cumulative: false)
-
-  actionsTotal: BigInt! @aggregate(fn: "count", cumulative: true)
-  carbonTotal: BigInt! @aggregate(fn: "sum", arg: "carbon", cumulative: true)
-  waterTotal: BigInt! @aggregate(fn: "sum", arg: "water", cumulative: true)
-  energyTotal: BigInt! @aggregate(fn: "sum", arg: "energy", cumulative: true)
-  wasteMassTotal: BigInt!
-    @aggregate(fn: "sum", arg: "wasteMass", cumulative: true)
-  plasticTotal: BigInt! @aggregate(fn: "sum", arg: "plastic", cumulative: true)
-  timberTotal: BigInt! @aggregate(fn: "sum", arg: "timber", cumulative: true)
-  educationTimeTotal: BigInt!
-    @aggregate(fn: "sum", arg: "educationTime", cumulative: true)
-  treesPlantedTotal: BigInt!
-    @aggregate(fn: "sum", arg: "treesPlanted", cumulative: true)
-  caloriesBurnedTotal: BigInt! @aggregate(fn: "sum", arg: "caloriesBurned", cumulative: true)
-  sleepQualityPercentageTotal: BigInt! @aggregate(fn: "sum", arg: "sleepQualityPercentage", cumulative: false)
-  cleanEnergyProductionTotal: BigInt! @aggregate(fn: "sum", arg: "cleanEnergyProduction", cumulative: true)
-
-  """
-  deprecated entries
-  """
-  wasteItems: BigInt!
-    @aggregate(fn: "sum", arg: "wasteItems", cumulative: false)
-  people: BigInt! @aggregate(fn: "sum", arg: "people", cumulative: false)
-  biodiversity: BigInt!
-    @aggregate(fn: "sum", arg: "biodiversity", cumulative: false)
-  wasteItemsTotal: BigInt!
-    @aggregate(fn: "sum", arg: "wasteItems", cumulative: true)
-  peopleTotal: BigInt! @aggregate(fn: "sum", arg: "people", cumulative: true)
-  biodiversityTotal: BigInt!
-    @aggregate(fn: "sum", arg: "biodiversity", cumulative: true)
-
-  participantsCount: BigInt! @aggregate(fn: "max", arg: "participantsCount")
-}
-
-type StatsAccountSustainability
-  @aggregation(intervals: ["hour", "day"], source: "AppSustainability") {
-  id: Int8!
-  timestamp: Timestamp!
-  account: Account!
-
-  actions: BigInt! @aggregate(fn: "count", cumulative: false)
-  rewards: BigInt! @aggregate(fn: "sum", arg: "reward", cumulative: false)
-  carbon: BigInt! @aggregate(fn: "sum", arg: "carbon", cumulative: false)
-  water: BigInt! @aggregate(fn: "sum", arg: "water", cumulative: false)
-  energy: BigInt! @aggregate(fn: "sum", arg: "energy", cumulative: false)
-  wasteMass: BigInt! @aggregate(fn: "sum", arg: "wasteMass", cumulative: false)
-  plastic: BigInt! @aggregate(fn: "sum", arg: "plastic", cumulative: false)
-  timber: BigInt! @aggregate(fn: "sum", arg: "timber", cumulative: false)
-  educationTime: BigInt!
-    @aggregate(fn: "sum", arg: "educationTime", cumulative: false)
-  treesPlanted: BigInt!
-    @aggregate(fn: "sum", arg: "treesPlanted", cumulative: false)
-  caloriesBurned: BigInt! @aggregate(fn: "sum", arg: "caloriesBurned", cumulative: false)
-  sleepQualityPercentage: BigInt! @aggregate(fn: "sum", arg: "sleepQualityPercentage", cumulative: false)
-  cleanEnergyProduction: BigInt! @aggregate(fn: "sum", arg: "cleanEnergyProduction", cumulative: false)
-
-  actionsTotal: BigInt! @aggregate(fn: "count", cumulative: true)
-  carbonTotal: BigInt! @aggregate(fn: "sum", arg: "carbon", cumulative: true)
-  waterTotal: BigInt! @aggregate(fn: "sum", arg: "water", cumulative: true)
-  energyTotal: BigInt! @aggregate(fn: "sum", arg: "energy", cumulative: true)
-  wasteMassTotal: BigInt!
-    @aggregate(fn: "sum", arg: "wasteMass", cumulative: true)
-  plasticTotal: BigInt! @aggregate(fn: "sum", arg: "plastic", cumulative: true)
-  timberTotal: BigInt! @aggregate(fn: "sum", arg: "timber", cumulative: true)
-  educationTimeTotal: BigInt!
-    @aggregate(fn: "sum", arg: "educationTime", cumulative: true)
-  treesPlantedTotal: BigInt!
-    @aggregate(fn: "sum", arg: "treesPlanted", cumulative: true)
-  caloriesBurnedTotal: BigInt! @aggregate(fn: "sum", arg: "caloriesBurned", cumulative: true)
-  sleepQualityPercentageTotal: BigInt! @aggregate(fn: "sum", arg: "sleepQualityPercentage", cumulative: false)
-  cleanEnergyProductionTotal: BigInt! @aggregate(fn: "sum", arg: "cleanEnergyProduction", cumulative: true)
-
-  """
-  deprecated entries
-  """
-  wasteItems: BigInt!
-    @aggregate(fn: "sum", arg: "wasteItems", cumulative: false)
-  people: BigInt! @aggregate(fn: "sum", arg: "people", cumulative: false)
-  biodiversity: BigInt!
-    @aggregate(fn: "sum", arg: "biodiversity", cumulative: false)
-  wasteItemsTotal: BigInt!
-    @aggregate(fn: "sum", arg: "wasteItems", cumulative: true)
-  peopleTotal: BigInt! @aggregate(fn: "sum", arg: "people", cumulative: true)
-  biodiversityTotal: BigInt!
-    @aggregate(fn: "sum", arg: "biodiversity", cumulative: true)
 }
 
 type SustainabilityStats @entity(immutable: false) {
-  id: ID!
+  id: Bytes!
   rewards: BigInt!
 
   participantsCountStart: BigInt!
   newUserCount: BigInt!
   actionCount: BigInt!
-
-  carbon: BigInt!
-  water: BigInt!
-  energy: BigInt!
-  wasteMass: BigInt!
-  plastic: BigInt!
-  timber: BigInt!
-  educationTime: BigInt!
-  treesPlanted: BigInt!
-  caloriesBurned: BigInt!
-  sleepQualityPercentage: BigInt!
-  cleanEnergyProduction: BigInt!
-
-  """
-  deprecated entries
-  """
-  wasteItems: BigInt!
-  people: BigInt!
-  biodiversity: BigInt!
 }
 
 """
@@ -1003,20 +659,6 @@ type PassportBlacklist @entity(immutable: false) {
   user: Account!
   blacklistedBy: Account!
   active: Boolean!
-}
-
-type PassportScore implements Event @entity(immutable: true) {
-  id: ID!
-
-  user: Account!
-  passport: Account!
-  round: Round!
-  app: App!
-  score: BigInt!
-
-  transaction: Transaction!
-  emitter: Account!
-  timestamp: BigInt!
 }
 
 """

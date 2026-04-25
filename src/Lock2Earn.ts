@@ -13,11 +13,12 @@ import {
     Transfer as TransferEvent,
     Lock2Earn as Lock2EarnContract,
 } from '../generated/Lock2Earn/Lock2Earn'
-import { fetchAccount } from '../node_modules/@openzeppelin/subgraphs/src/fetch/account'
 import { decimals } from '@amxx/graphprotocol-utils'
 import { VeDelegate as VeDelegateContract } from '../generated/veDelegate/VeDelegate'
 import { VeDelegateAccount } from '../generated/schema'
 import { fetchVeDelegateAccount } from './VeDelegate'
+import { fetchAccount } from './account'
+import { ensureTransaction, eventEntityId } from './ids'
 
 const VE_DELEGATE_CONTRACT_ADDRESS = Address.fromString('0xfc32a9895C78CE00A1047d602Bd81Ea8134CC32b')
 
@@ -135,15 +136,15 @@ export function handleTermAdded(event: TermAddedEvent): void {
     stats.save()
 
     // Store event entity for analytics
-    let evt = new Lock2EarnTermAdded(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
+    let evt = new Lock2EarnTermAdded(eventEntityId(event))
     evt.term = term.id
     evt.owner = owner.id
     evt.startTime = startTime
     evt.termLength = termLength
     evt.termInterval = termInterval
     evt.endTime = endTime
-    evt.transaction = event.transaction.hash.toHex()
-    evt.emitter = event.address
+    evt.transaction = ensureTransaction(event).id
+    evt.emitter = fetchAccount(event.address).id
     evt.timestamp = event.block.timestamp
     evt.save()
 }
@@ -173,11 +174,11 @@ export function handleTermClosed(event: TermClosedEvent): void {
     stats.totalRewards = decimals.toDecimals(stats.totalRewardsExact, 18)
     stats.save()
 
-    let evt = new Lock2EarnTermClosed(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
+    let evt = new Lock2EarnTermClosed(eventEntityId(event))
     evt.term = term.id
     evt.owner = fetchAccount(event.params.owner).id
-    evt.transaction = event.transaction.hash.toHex()
-    evt.emitter = event.address
+    evt.transaction = ensureTransaction(event).id
+    evt.emitter = fetchAccount(event.address).id
     evt.timestamp = event.block.timestamp
     evt.save()
 }
@@ -270,12 +271,12 @@ export function handleTermRenewed(event: TermRenewedEvent): void {
     term.rewards = BigDecimal.zero()
     term.rewardsExact = BigInt.fromI32(0)
 
-    let evt = new Lock2EarnTermRenewed(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
+    let evt = new Lock2EarnTermRenewed(eventEntityId(event))
     evt.term = term.id
     evt.owner = owner.id
     evt.newEndTime = endTime
-    evt.transaction = event.transaction.hash.toHex()
-    evt.emitter = event.address
+    evt.transaction = ensureTransaction(event).id
+    evt.emitter = fetchAccount(event.address).id
     evt.timestamp = event.block.timestamp
     evt.save()
 }

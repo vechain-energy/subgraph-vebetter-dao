@@ -6,10 +6,11 @@ import {
 } from '../generated/rewarder/Rewarder'
 import { RewardClaimed, VeDelegateAccount, GMVoteLevel } from '../generated/schema'
 import { store, Entity } from '@graphprotocol/graph-ts'
-import { constants, decimals, transactions } from '@amxx/graphprotocol-utils'
+import { constants, decimals } from '@amxx/graphprotocol-utils'
 import { fetchRound, fetchStatistic } from './XAllocationVoting'
-import { fetchAccount } from '@openzeppelin/subgraphs/src/fetch/account'
 import { incrementLock2EarnTermRewards } from './Lock2Earn'
+import { fetchAccount, incrementAccountRewardClaims } from './account'
+import { ensureTransaction, eventBytesId } from './ids'
 
 export function handleReward(event: RewardClaimedEvent): void {
     const id = event.params.cycle.toString()
@@ -28,15 +29,17 @@ export function handleReward(event: RewardClaimedEvent): void {
         veDelegateStatistic.save()
     }
 
-    const ev = new RewardClaimed([event.params.voter.toHexString(), event.params.cycle.toString()].join('/'))
-    ev.emitter = event.address
-    ev.voter = fetchAccount(event.params.voter).id
+    const ev = new RewardClaimed(eventBytesId(event))
+    const voter = fetchAccount(event.params.voter)
+    ev.emitter = fetchAccount(event.address).id
+    ev.voter = voter.id
     ev.round = round.id
     ev.rewardExact = event.params.reward
     ev.reward = decimals.toDecimals(ev.rewardExact, 18)
     ev.timestamp = event.block.timestamp
-    ev.transaction = transactions.log(event).id
+    ev.transaction = ensureTransaction(event).id
     ev.save()
+    incrementAccountRewardClaims(voter, event.block.timestamp)
 }
 
 
@@ -62,15 +65,17 @@ export function handleReward2(event: RewardClaimedV2Event): void {
         incrementLock2EarnTermRewards(veAccount.lock2EarnTermId as string, event.params.reward.plus(event.params.gmReward))
     }
 
-    const ev = new RewardClaimed([event.params.voter.toHexString(), event.params.cycle.toString()].join('/'))
-    ev.emitter = event.address
-    ev.voter = fetchAccount(event.params.voter).id
+    const ev = new RewardClaimed(eventBytesId(event))
+    const voter = fetchAccount(event.params.voter)
+    ev.emitter = fetchAccount(event.address).id
+    ev.voter = voter.id
     ev.round = round.id
     ev.rewardExact = event.params.reward.plus(event.params.gmReward)
     ev.reward = decimals.toDecimals(ev.rewardExact, 18)
     ev.timestamp = event.block.timestamp
-    ev.transaction = transactions.log(event).id
+    ev.transaction = ensureTransaction(event).id
     ev.save()
+    incrementAccountRewardClaims(voter, event.block.timestamp)
 }
 
 

@@ -13,21 +13,13 @@ import {
 } from '../generated/erc721/IERC721'
 
 import {
-	events,
-	transactions,
-} from '@amxx/graphprotocol-utils'
-
-import {
-	fetchAccount,
-} from '../node_modules/@openzeppelin/subgraphs/src/fetch/account'
-
-import {
 	fetchERC721,
 	fetchERC721Token,
 	fetchERC721Operator,
 } from '../node_modules/@openzeppelin/subgraphs/src/fetch/erc721'
 import { ERC721Token } from '../generated/schema';
 import { IVeDelegate } from './IVeDelegate';
+import { fetchAccount } from '../node_modules/@openzeppelin/subgraphs/src/fetch/account'
 
 export function handleTransfer(event: TransferEvent): void {
 	let contract = fetchERC721(event.address)
