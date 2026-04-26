@@ -1,0 +1,95 @@
+type AppRegistered @entity(immutable: true) {
+  id: Bytes!
+  app: Bytes!
+  owner: Bytes!
+  name: String!
+  votingEligibility: Boolean!
+  createdAt: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+  logIndex: BigInt!
+  emitter: Bytes!
+}
+
+type AppMetadataChanged @entity(immutable: true) {
+  id: Bytes!
+  app: Bytes!
+  oldMetadataURI: String!
+  metadataURI: String!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+  logIndex: BigInt!
+  emitter: Bytes!
+}
+
+type AppMetadataDocument @entity(immutable: true) {
+  id: ID!
+  title: String
+  description: String
+  externalUrl: String
+  logoUrl: String
+  bannerUrl: String
+  rawJson: String!
+}
+
+type AppVotingEligibilityChanged @entity(immutable: true) {
+  id: Bytes!
+  app: Bytes!
+  votingEligibility: Boolean!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+  logIndex: BigInt!
+  emitter: Bytes!
+}
+
+type AppBlacklistChanged @entity(immutable: true) {
+  id: Bytes!
+  app: Bytes!
+  isBlacklisted: Boolean!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+  logIndex: BigInt!
+  emitter: Bytes!
+}
+
+type AppEndorsementChanged @entity(immutable: true) {
+  id: Bytes!
+  app: Bytes!
+  nodeId: BigInt!
+  endorsed: Boolean!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+  logIndex: BigInt!
+  emitter: Bytes!
+}
+
+type AppEndorsementStatusChanged @entity(immutable: true) {
+  id: Bytes!
+  app: Bytes!
+  endorsed: Boolean!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+  logIndex: BigInt!
+  emitter: Bytes!
+}
+
+type RoundCreatedEvent @entity(immutable: true) {
+  id: Bytes!
+  round: String!
+  roundId: BigInt!
+  creator: Bytes!
+  voteStart: BigInt!
+  voteEnd: BigInt!
+  apps: String!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+  logIndex: BigInt!
+  emitter: Bytes!
+}

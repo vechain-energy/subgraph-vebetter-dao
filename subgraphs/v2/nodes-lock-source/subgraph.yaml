@@ -1,0 +1,166 @@
+specVersion: 1.3.0
+indexerHints:
+  prune: auto
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum/contract
+    name: veDelegate
+    network: mainnet
+    source:
+      address: "0xfc32a9895C78CE00A1047d602Bd81Ea8134CC32b"
+      abi: IVeDelegate
+      startBlock: 18877630
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      entities:
+        - NftTransferEvent
+        - NftApprovalEvent
+        - NftApprovalForAllEvent
+      abis:
+        - name: IVeDelegate
+          file: ../../../abis/VeDelegate.json
+      eventHandlers:
+        - event: Approval(indexed address,indexed address,indexed uint256)
+          handler: handleVeDelegateApproval
+        - event: ApprovalForAll(indexed address,indexed address,bool)
+          handler: handleVeDelegateApprovalForAll
+        - event: Transfer(indexed address,indexed address,indexed uint256)
+          handler: handleVeDelegateTransfer
+      file: ./src/mapping.ts
+  - kind: ethereum/contract
+    name: veDelegateConfigs
+    network: mainnet
+    source:
+      address: "0x763d4da44EDa9DD3d738Ae87F3961c9e92fb5bEe"
+      abi: IVeDelegateConfigs
+      startBlock: 19386843
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      entities:
+        - VeDelegateConfigChangedEvent
+      abis:
+        - name: IVeDelegateConfigs
+          file: ../../../abis/VeDelegate-Configs.json
+      eventHandlers:
+        - event: ConfigUpdated(indexed address,indexed string,uint256)
+          handler: handleConfigUpdated
+      file: ./src/mapping.ts
+  - kind: ethereum/contract
+    name: nodeManagement
+    network: mainnet
+    source:
+      address: "0xB0EF9D89C6b49CbA6BBF86Bf2FDf0Eee4968c6AB"
+      abi: NodeManagement
+      startBlock: 20115949
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      entities:
+        - NodeDelegatedEvent
+      abis:
+        - name: NodeManagement
+          file: ../../../abis/VeBetterDAO-node-management.json
+      eventHandlers:
+        - event: NodeDelegated(indexed uint256,indexed address,bool)
+          handler: handleNodeDelegated
+      file: ./src/mapping.ts
+  - kind: ethereum/contract
+    name: thorNode
+    network: mainnet
+    source:
+      address: "0xb81E9C5f9644Dec9e5e3Cac86b4461A222072302"
+      abi: ThorNode
+      startBlock: 1314209
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      entities:
+        - NftTransferEvent
+        - ThorNodeLevelChangedEvent
+      abis:
+        - name: ThorNode
+          file: ../../../abis/thornode-tokenauction.json
+      eventHandlers:
+        - event: Transfer(indexed address,indexed address,indexed uint256)
+          handler: handleThorNodeTransfer
+        - event: LevelChanged(indexed uint256,indexed address,uint8,uint8)
+          handler: handleThorNodeLevelChanged
+      file: ./src/mapping.ts
+  - kind: ethereum/contract
+    name: stargate
+    network: mainnet
+    source:
+      address: "0x1856C533aC2D94340aAa8544D35a5c1d4A21DeE7"
+      abi: Stargate
+      startBlock: 22049248
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      entities:
+        - NftTransferEvent
+      abis:
+        - name: Stargate
+          file: ../../../abis/StargateNFT.json
+      eventHandlers:
+        - event: Transfer(indexed address,indexed address,indexed uint256)
+          handler: handleStargateTransfer
+      file: ./src/mapping.ts
+  - kind: ethereum/contract
+    name: lock2Earn
+    network: mainnet
+    source:
+      address: "0x807496420F89fF2AbF2e97C3AaA0886d6881dB8B"
+      abi: Lock2Earn
+      startBlock: 22081654
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      entities:
+        - Lock2EarnTermEvent
+        - NftTransferEvent
+      abis:
+        - name: Lock2Earn
+          file: ../../../abis/Lock2Earn.json
+        - name: IVeDelegate
+          file: ../../../abis/VeDelegate.json
+      eventHandlers:
+        - event: TermAdded(indexed uint256,indexed address,uint256,uint256,bool)
+          handler: handleTermAdded
+        - event: TermClosed(indexed uint256,indexed address,uint256,uint256)
+          handler: handleTermClosed
+        - event: TermRenewed(indexed uint256,indexed address,uint256,uint256,bool)
+          handler: handleTermRenewed
+        - event: Transfer(indexed address,indexed address,indexed uint256)
+          handler: handleLock2EarnTransfer
+      file: ./src/mapping.ts
+  - kind: ethereum/contract
+    name: vetDomains
+    network: mainnet
+    source:
+      startBlock: 17600000
+      abi: Resolver
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      entities:
+        - VetDomainAddressChangedEvent
+        - VetDomainNameChangedEvent
+      abis:
+        - name: Resolver
+          file: ../../../abis/vetDomains-PublicResolver.json
+      eventHandlers:
+        - event: "AddrChanged(indexed bytes32,address)"
+          handler: handleAddrChanged
+        - event: "NameChanged(indexed bytes32,string)"
+          handler: handleNameChanged
+      file: ./src/mapping.ts

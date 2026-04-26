@@ -1,0 +1,1125 @@
+scalar Timestamp
+
+enum AppRewardTransferKind {
+  DEPOSIT
+  WITHDRAW
+  DISTRIBUTION
+}
+
+type App @entity(immutable: false) {
+  id: Bytes!
+  owner: Account
+  endorsed: Boolean!
+  name: String
+  metadata: AppMetadata
+  metadataURI: String
+  votingEligibility: Boolean
+  isBlacklisted: Boolean
+  poolAllocations: BigDecimal!
+  poolAllocationsExact: BigInt!
+  poolBalance: BigDecimal!
+  poolBalanceExact: BigInt!
+  poolDeposits: BigDecimal!
+  poolDepositsExact: BigInt!
+  poolWithdrawals: BigDecimal!
+  poolWithdrawalsExact: BigInt!
+  poolDistributions: BigDecimal!
+  poolDistributionsExact: BigInt!
+  participants: [AccountSustainability!]! @derivedFrom(field: "app")
+  participantsCount: BigInt!
+  createdAtBlockNumber: BigInt!
+  updatedAtBlockNumber: BigInt!
+  createdAt: BigInt!
+  endorsers: [AppEndorsement!]! @derivedFrom(field: "app")
+}
+
+type AppMetadata @entity(immutable: false) {
+  id: ID!
+  title: String
+  description: String
+  externalUrl: String
+  logoUrl: String
+  bannerUrl: String
+  rawJson: String
+}
+
+type AppRoundSummary @entity(immutable: false) {
+  id: ID!
+  app: App!
+  round: Round!
+  activeUserCount: BigInt!
+  poolBalance: BigDecimal!
+  poolBalanceExact: BigInt!
+  poolAllocations: BigDecimal!
+  poolAllocationsExact: BigInt!
+  poolDeposits: BigDecimal!
+  poolDepositsExact: BigInt!
+  poolWithdrawals: BigDecimal!
+  poolWithdrawalsExact: BigInt!
+  poolDistributions: BigDecimal!
+  poolDistributionsExact: BigInt!
+  poolWithdrawalsReasons: [AppRoundWithdrawalReason!]! @derivedFrom(field: "appRoundSummary")
+  sustainabilityStats: SustainabilityStats!
+  passportScore: BigInt!
+}
+
+type AppRoundWithdrawalReason @entity(immutable: false) {
+  id: ID!
+  appRoundSummary: AppRoundSummary!
+  reason: String!
+  amount: BigDecimal!
+  amountExact: BigInt!
+}
+
+type SustainabilityStats @entity(immutable: false) {
+  id: ID!
+  rewards: BigInt!
+  participantsCountStart: BigInt!
+  newUserCount: BigInt!
+  actionCount: BigInt!
+  carbon: BigInt!
+  water: BigInt!
+  energy: BigInt!
+  wasteMass: BigInt!
+  plastic: BigInt!
+  timber: BigInt!
+  educationTime: BigInt!
+  treesPlanted: BigInt!
+  caloriesBurned: BigInt!
+  sleepQualityPercentage: BigInt!
+  cleanEnergyProduction: BigInt!
+  wasteItems: BigInt!
+  people: BigInt!
+  biodiversity: BigInt!
+}
+
+type AccountSustainability @entity(immutable: false) {
+  id: ID!
+  app: App!
+  receivedRewards: BigInt!
+  account: Account!
+  carbon: BigInt!
+  water: BigInt!
+  energy: BigInt!
+  wasteMass: BigInt!
+  plastic: BigInt!
+  timber: BigInt!
+  educationTime: BigInt!
+  treesPlanted: BigInt!
+  caloriesBurned: BigInt!
+  sleepQualityPercentage: BigInt!
+  cleanEnergyProduction: BigInt!
+  wasteItems: BigInt!
+  people: BigInt!
+  biodiversity: BigInt!
+}
+
+type AccountRoundSustainability @entity(immutable: false) {
+  id: ID!
+  app: App!
+  round: Round!
+  receivedRewards: BigInt!
+  passportScore: BigInt!
+  account: Account!
+  carbon: BigInt!
+  water: BigInt!
+  energy: BigInt!
+  wasteMass: BigInt!
+  plastic: BigInt!
+  timber: BigInt!
+  educationTime: BigInt!
+  treesPlanted: BigInt!
+  caloriesBurned: BigInt!
+  sleepQualityPercentage: BigInt!
+  cleanEnergyProduction: BigInt!
+  wasteItems: BigInt!
+  people: BigInt!
+  biodiversity: BigInt!
+}
+
+type Round @entity(immutable: false) {
+  id: ID!
+  number: BigInt!
+  voteStart: BigInt!
+  voteEnd: BigInt!
+  apps: [App!]!
+  proposals: [Proposal!]! @derivedFrom(field: "round")
+  allocations: [AllocationResult!]!
+  veDelegateAllocations: [AllocationResult!]!
+  statistic: RoundStatistic!
+  veDelegateStatistic: RoundStatistic!
+}
+
+type RoundStatistic @entity(immutable: false) {
+  id: ID!
+  b3tr: BigDecimal!
+  b3trExact: BigInt!
+  vot3: BigDecimal!
+  vot3Exact: BigInt!
+  voters: BigInt!
+  votesCast: BigDecimal!
+  votesCastExact: BigInt!
+  weight: BigDecimal!
+  weightExact: BigInt!
+  weightTotal: BigDecimal!
+  weightTotalExact: BigInt!
+  gmVotersCount: BigInt!
+  gmWeightTotal: BigInt!
+  totalRewardsClaimed: BigDecimal!
+  totalRewardsClaimedExact: BigInt!
+  totalActionScores: BigInt!
+  gmLevelStats: [GMVoteLevel!]! @derivedFrom(field: "roundStatistic")
+}
+
+type GMVoteLevel @entity(immutable: false) {
+  id: ID!
+  roundStatistic: RoundStatistic!
+  level: BigInt!
+  voterCount: BigInt!
+  weightTotal: BigInt!
+}
+
+type GMVoteCycleToken @entity(immutable: false) {
+  id: ID!
+}
+
+type AllocationResult @entity(immutable: false) {
+  id: ID!
+  round: Round!
+  app: App!
+  voters: BigInt!
+  weight: BigDecimal!
+  weightExact: BigInt!
+  votesCast: BigDecimal!
+  votesCastExact: BigInt!
+}
+
+type AllocationVote @entity(immutable: true) {
+  id: Bytes!
+  voter: Account!
+  passport: Account
+  round: Round!
+  app: App!
+  weight: BigDecimal!
+  weightExact: BigInt!
+  qfWeight: BigDecimal!
+  qfWeightExact: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+}
+
+type StatsAllocationVote @entity(immutable: false) {
+  id: ID!
+  app: App!
+  round: Round!
+  votes: BigInt!
+  weight: BigDecimal!
+  weightExact: BigInt!
+  qfWeight: BigDecimal!
+  qfWeightExact: BigInt!
+  updatedAtBlockNumber: BigInt!
+}
+
+type Account @entity(immutable: false) {
+  id: Bytes!
+  name: String
+  ERC20balances: [ERC20Balance!]! @derivedFrom(field: "account")
+  VBDbalance: VBDBalance @derivedFrom(field: "account")
+  ERC20approvalsOwner: [ERC20Approval!]! @derivedFrom(field: "owner")
+  ERC20approvalsSpender: [ERC20Approval!]! @derivedFrom(field: "spender")
+  ERC721tokens: [ERC721Token!]! @derivedFrom(field: "owner")
+  ERC721operatorOwner: [ERC721Operator!]! @derivedFrom(field: "owner")
+  ERC721operatorOperator: [ERC721Operator!]! @derivedFrom(field: "operator")
+  proposed: [Proposal!]! @derivedFrom(field: "proposer")
+  voted: [VoteReceipt!]! @derivedFrom(field: "voter")
+  sustainability: [AccountSustainability!]! @derivedFrom(field: "account")
+  lock2EarnTerms: [Lock2EarnTerm!]! @derivedFrom(field: "owner")
+  asVeDelegateAccount: [VeDelegateAccount!]! @derivedFrom(field: "account")
+  passportDelegator: [PassportDelegation!]! @derivedFrom(field: "delegator")
+  passportDelegatee: [PassportDelegation!]! @derivedFrom(field: "delegatee")
+  passportEntities: [PassportEntityLink!]! @derivedFrom(field: "passport")
+  nodeDelegatees: [NodeDelegation!]! @derivedFrom(field: "delegatee")
+  asThorNode: [ThorNode!]! @derivedFrom(field: "owner")
+}
+
+type ERC20Balance @entity(immutable: false) {
+  id: ID!
+  token: Bytes!
+  account: Account
+  value: BigDecimal!
+  valueExact: BigInt!
+}
+
+type ERC20Approval @entity(immutable: false) {
+  id: ID!
+  token: Bytes!
+  owner: Account!
+  spender: Account!
+  value: BigDecimal!
+  valueExact: BigInt!
+}
+
+type VBDBalance @entity(immutable: false) {
+  id: ID!
+  account: Account
+  convertedB3tr: BigDecimal!
+  convertedB3trExact: BigInt!
+  value: BigDecimal!
+  valueExact: BigInt!
+  qfWeight: BigInt!
+}
+
+type ERC721Token @entity(immutable: false) {
+  id: ID!
+  collection: Bytes!
+  identifier: BigInt!
+  owner: Account!
+  approval: Account
+  uri: String
+  poolAddress: Account
+}
+
+type ERC721Operator @entity(immutable: false) {
+  id: ID!
+  collection: Bytes!
+  owner: Account!
+  operator: Account!
+  approved: Boolean!
+}
+
+type VeDelegateAccount @entity(immutable: false) {
+  id: Bytes!
+  account: Account!
+  token: ERC721Token
+  passportDelegation: PassportDelegation
+  nodeDelegation: NodeDelegation
+  asLock2EarnTerm: Lock2EarnTerm @derivedFrom(field: "veDelegateAccount")
+  lock2EarnTermId: String
+}
+
+type VeDelegateConfig @entity(immutable: false) {
+  id: ID!
+  account: Account!
+  configId: String!
+  value: BigInt!
+}
+
+type VetDomainsNames @entity(immutable: false) {
+  id: ID!
+  address: Account!
+}
+
+type Proposal @entity(immutable: false) {
+  id: ID!
+  proposalId: BigInt!
+  proposer: Account!
+  round: Round
+  descriptionUri: String
+  description: ProposalMetadata
+  canceled: Boolean!
+  queued: Boolean!
+  executed: Boolean!
+  calls: [ProposalCall!]! @derivedFrom(field: "proposal")
+  supports: [ProposalSupport!]! @derivedFrom(field: "proposal")
+  receipts: [VoteReceipt!]! @derivedFrom(field: "proposal")
+  deposits: [ProposalDeposit!]! @derivedFrom(field: "proposal")
+  depositCount: BigInt!
+  depositAmount: BigInt!
+  thresholdAmount: BigInt!
+  voterCount: BigInt!
+  votesCast: BigInt!
+  weightCast: BigInt!
+}
+
+type ProposalMetadata @entity(immutable: false) {
+  id: ID!
+  title: String
+  shortDescription: String
+  markdownDescription: String
+  type: String
+  rawJson: String
+}
+
+type ProposalCall @entity(immutable: true) {
+  id: ID!
+  proposal: Proposal!
+  index: Int!
+  target: Account!
+  value: BigDecimal!
+  valueExact: BigInt!
+  signature: String!
+  calldata: Bytes!
+}
+
+type ProposalSupport @entity(immutable: false) {
+  id: ID!
+  proposal: Proposal!
+  support: Int!
+  voter: BigInt!
+  weight: BigInt!
+  power: BigInt!
+  votes: [VoteReceipt!]! @derivedFrom(field: "support")
+}
+
+type VoteReceipt @entity(immutable: true) {
+  id: Bytes!
+  proposal: Proposal!
+  voter: Account!
+  support: ProposalSupport!
+  weight: BigInt!
+  power: BigInt!
+  reason: String!
+}
+
+type ProposalVote @entity(immutable: true) {
+  id: Bytes!
+  timestamp: BigInt!
+  proposal: Proposal!
+  voter: Account!
+  support: ProposalSupport!
+  weight: BigInt!
+  power: BigInt!
+  totalWeightCast: BigInt!
+  totalPowerCast: BigInt!
+}
+
+type ProposalDeposit @entity(immutable: true) {
+  id: Bytes!
+  depositor: Account!
+  proposal: Proposal!
+  amount: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+}
+
+type PassportDelegation @entity(immutable: false) {
+  id: ID!
+  active: Boolean!
+  pending: Boolean!
+  delegator: Account!
+  delegatee: Account!
+  timestamp: BigInt!
+}
+
+type PassportEntityLink @entity(immutable: false) {
+  id: ID!
+  active: Boolean!
+  pending: Boolean!
+  entity: Account!
+  passport: Account!
+  timestamp: BigInt!
+}
+
+type PassportWhitelist @entity(immutable: false) {
+  id: Bytes!
+  user: Account!
+  whitelistedBy: Account!
+  active: Boolean!
+}
+
+type PassportBlacklist @entity(immutable: false) {
+  id: Bytes!
+  user: Account!
+  blacklistedBy: Account!
+  active: Boolean!
+}
+
+type PassportScore @entity(immutable: true) {
+  id: Bytes!
+  user: Account!
+  passport: Account!
+  round: Round!
+  app: App!
+  score: BigInt!
+  timestamp: BigInt!
+}
+
+type UserSignal @entity(immutable: false) {
+  id: ID!
+  user: Account!
+  app: App!
+  signalCount: BigInt!
+  reason: String!
+  timestamp: BigInt!
+}
+
+type UserSignalsReset @entity(immutable: true) {
+  id: Bytes!
+  user: Account!
+  reason: String!
+  timestamp: BigInt!
+}
+
+type UserSignalsResetForApp @entity(immutable: true) {
+  id: Bytes!
+  app: App!
+  user: Account!
+  reason: String!
+  timestamp: BigInt!
+}
+
+type NodeDelegation @entity(immutable: false) {
+  id: ID!
+  active: Boolean!
+  node: ThorNode!
+  delegatee: Account!
+  timestamp: BigInt!
+}
+
+type ThorNode @entity(immutable: false) {
+  id: ID!
+  identifier: BigInt!
+  owner: Account!
+  level: Int!
+  points: Int!
+  isX: Boolean!
+  appEndorsement: AppEndorsement @derivedFrom(field: "node")
+  delegation: NodeDelegation @derivedFrom(field: "node")
+}
+
+type AppEndorsement @entity(immutable: false) {
+  id: ID!
+  active: Boolean!
+  node: ThorNode!
+  app: App!
+  timestamp: BigInt!
+}
+
+type StatsEndorsement @entity(immutable: false) {
+  id: ID!
+  nodeCount: Int!
+  points: Int!
+  delegatedPoints: Int!
+}
+
+type Lock2EarnTerm @entity(immutable: false) {
+  id: ID!
+  tokenId: BigInt!
+  owner: Account!
+  startTime: BigInt!
+  termLength: BigInt!
+  termInterval: BigInt!
+  endTime: BigInt!
+  closed: Boolean!
+  createdAt: BigInt!
+  updatedAt: BigInt!
+  amount: BigDecimal!
+  amountExact: BigInt!
+  veDelegateAccount: VeDelegateAccount
+  rewards: BigDecimal!
+  rewardsExact: BigInt!
+}
+
+type Lock2EarnStats @entity(immutable: false) {
+  id: ID!
+  totalAmount: BigDecimal!
+  totalAmountExact: BigInt!
+  activeAmount: BigDecimal!
+  activeAmountExact: BigInt!
+  closedAmount: BigDecimal!
+  closedAmountExact: BigInt!
+  termCount: BigInt!
+  activeTermCount: BigInt!
+  closedTermCount: BigInt!
+  totalRewards: BigDecimal!
+  totalRewardsExact: BigInt!
+}
+
+type CurrentRound @entity(immutable: false) {
+  id: ID!
+  roundId: BigInt!
+}
+
+type AppRegistered @entity(immutable: true) {
+  id: Bytes!
+  app: Bytes!
+  owner: Bytes!
+  name: String!
+  votingEligibility: Boolean!
+  createdAt: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+  logIndex: BigInt!
+  emitter: Bytes!
+}
+
+type AppMetadataChanged @entity(immutable: true) {
+  id: Bytes!
+  app: Bytes!
+  oldMetadataURI: String!
+  metadataURI: String!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+  logIndex: BigInt!
+  emitter: Bytes!
+}
+
+type AppMetadataDocument @entity(immutable: true) {
+  id: ID!
+  title: String
+  description: String
+  externalUrl: String
+  logoUrl: String
+  bannerUrl: String
+  rawJson: String!
+}
+
+type AppVotingEligibilityChanged @entity(immutable: true) {
+  id: Bytes!
+  app: Bytes!
+  votingEligibility: Boolean!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+  logIndex: BigInt!
+  emitter: Bytes!
+}
+
+type AppBlacklistChanged @entity(immutable: true) {
+  id: Bytes!
+  app: Bytes!
+  isBlacklisted: Boolean!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+  logIndex: BigInt!
+  emitter: Bytes!
+}
+
+type AppEndorsementChanged @entity(immutable: true) {
+  id: Bytes!
+  app: Bytes!
+  nodeId: BigInt!
+  endorsed: Boolean!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+  logIndex: BigInt!
+  emitter: Bytes!
+}
+
+type AppEndorsementStatusChanged @entity(immutable: true) {
+  id: Bytes!
+  app: Bytes!
+  endorsed: Boolean!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+  logIndex: BigInt!
+  emitter: Bytes!
+}
+
+type RoundCreatedEvent @entity(immutable: true) {
+  id: Bytes!
+  round: String!
+  roundId: BigInt!
+  creator: Bytes!
+  voteStart: BigInt!
+  voteEnd: BigInt!
+  apps: String!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+  logIndex: BigInt!
+  emitter: Bytes!
+}
+
+type AllocationVoteCastEvent @entity(immutable: true) {
+  id: Bytes!
+  voter: Bytes!
+  round: String!
+  roundId: BigInt!
+  apps: String!
+  voteWeights: String!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+  logIndex: BigInt!
+  emitter: Bytes!
+}
+
+type AppRewardTransfer @entity(immutable: true) {
+  id: Bytes!
+  app: Bytes!
+  round: String!
+  amountExact: BigInt!
+  kind: AppRewardTransferKind!
+  from: Bytes
+  to: Bytes
+  reason: String
+  proof: String
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+  logIndex: BigInt!
+  emitter: Bytes!
+}
+
+type SustainabilityProofDocument @entity(immutable: true) {
+  id: ID!
+  transfer: Bytes!
+  app: Bytes!
+  round: String!
+  account: Bytes!
+  rewardExact: BigInt!
+  proofType: String
+  proofData: String
+  description: String
+  additionalInfo: String
+  carbon: BigInt!
+  water: BigInt!
+  energy: BigInt!
+  wasteMass: BigInt!
+  plastic: BigInt!
+  timber: BigInt!
+  educationTime: BigInt!
+  treesPlanted: BigInt!
+  caloriesBurned: BigInt!
+  sleepQualityPercentage: BigInt!
+  cleanEnergyProduction: BigInt!
+  wasteItems: BigInt!
+  people: BigInt!
+  biodiversity: BigInt!
+  version: Int!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+  logIndex: BigInt!
+  emitter: Bytes!
+  rawJson: String!
+}
+
+type RoundRewardClaimed @entity(immutable: true) {
+  id: Bytes!
+  round: String!
+  cycle: BigInt!
+  voter: Bytes!
+  rewardExact: BigInt!
+  gmRewardExact: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+  logIndex: BigInt!
+  emitter: Bytes!
+}
+
+type RoundRewardVoteRegistered @entity(immutable: true) {
+  id: Bytes!
+  round: String!
+  cycle: BigInt!
+  voter: Bytes!
+  votePower: BigInt!
+  rewardWeightedVote: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+  logIndex: BigInt!
+  emitter: Bytes!
+}
+
+type RoundGMVoteRegistered @entity(immutable: true) {
+  id: Bytes!
+  round: String!
+  cycle: BigInt!
+  tokenId: BigInt!
+  level: BigInt!
+  multiplier: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+  logIndex: BigInt!
+  emitter: Bytes!
+}
+
+type AppAllocationFunded @entity(immutable: true) {
+  id: Bytes!
+  app: Bytes!
+  round: String!
+  targetRound: String
+  amountExact: BigInt!
+  recipient: Bytes
+  caller: Bytes
+  unallocatedAmount: BigInt
+  teamAllocationAmount: BigInt
+  rewardsAllocationAmount: BigInt
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+  logIndex: BigInt!
+  emitter: Bytes!
+}
+
+type AppMetricEvent @entity(immutable: true, timeseries: true) {
+  id: Int8!
+  timestamp: Timestamp!
+  app: Bytes!
+  round: String
+  rewardAmountExact: BigInt!
+  depositAmountExact: BigInt!
+  withdrawalAmountExact: BigInt!
+  distributionAmountExact: BigInt!
+  allocationAmountExact: BigInt!
+  transferCount: Int!
+}
+
+type AppDailyStats @aggregation(intervals: ["day"], source: "AppMetricEvent") {
+  id: Int8!
+  timestamp: Timestamp!
+  app: Bytes!
+  round: String
+  rewardAmountExact: BigInt! @aggregate(fn: "sum", arg: "rewardAmountExact")
+  depositAmountExact: BigInt! @aggregate(fn: "sum", arg: "depositAmountExact")
+  withdrawalAmountExact: BigInt! @aggregate(fn: "sum", arg: "withdrawalAmountExact")
+  distributionAmountExact: BigInt! @aggregate(fn: "sum", arg: "distributionAmountExact")
+  allocationAmountExact: BigInt! @aggregate(fn: "sum", arg: "allocationAmountExact")
+  transferCount: Int! @aggregate(fn: "sum", arg: "transferCount")
+}
+
+type TokenTransfer @entity(immutable: true) {
+  id: Bytes!
+  token: Bytes!
+  from: Bytes!
+  to: Bytes!
+  amountExact: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+  logIndex: BigInt!
+  emitter: Bytes!
+}
+
+type TokenApproval @entity(immutable: true) {
+  id: Bytes!
+  token: Bytes!
+  owner: Bytes!
+  spender: Bytes!
+  amountExact: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+  logIndex: BigInt!
+  emitter: Bytes!
+}
+
+type ProposalCreatedEvent @entity(immutable: true) {
+  id: Bytes!
+  proposalId: BigInt!
+  proposer: Bytes!
+  targets: [Bytes!]!
+  values: [BigInt!]!
+  signatures: [String!]!
+  calldatas: [Bytes!]!
+  descriptionURI: String!
+  roundIdVoteStart: BigInt!
+  depositThreshold: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+  logIndex: BigInt!
+  emitter: Bytes!
+}
+
+type ProposalQueuedEvent @entity(immutable: true) {
+  id: Bytes!
+  proposalId: BigInt!
+  etaSeconds: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+  logIndex: BigInt!
+  emitter: Bytes!
+}
+
+type ProposalExecutedEvent @entity(immutable: true) {
+  id: Bytes!
+  proposalId: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+  logIndex: BigInt!
+  emitter: Bytes!
+}
+
+type ProposalCanceledEvent @entity(immutable: true) {
+  id: Bytes!
+  proposalId: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+  logIndex: BigInt!
+  emitter: Bytes!
+}
+
+type ProposalVoteCastEvent @entity(immutable: true) {
+  id: Bytes!
+  proposalId: BigInt!
+  voter: Bytes!
+  support: Int!
+  weight: BigInt!
+  power: BigInt!
+  reason: String!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+  logIndex: BigInt!
+  emitter: Bytes!
+}
+
+type ProposalDepositEvent @entity(immutable: true) {
+  id: Bytes!
+  proposalId: BigInt!
+  depositor: Bytes!
+  amountExact: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+  logIndex: BigInt!
+  emitter: Bytes!
+}
+
+type ProposalMetadataDocument @entity(immutable: true) {
+  id: ID!
+  title: String
+  shortDescription: String
+  markdownDescription: String
+  proposalType: String
+  rawJson: String!
+}
+
+type VoteDelegationChangedEvent @entity(immutable: true) {
+  id: Bytes!
+  delegator: Bytes!
+  fromDelegate: Bytes!
+  toDelegate: Bytes!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+  logIndex: BigInt!
+  emitter: Bytes!
+}
+
+type VoteWeightChangedEvent @entity(immutable: true) {
+  id: Bytes!
+  delegate: Bytes!
+  previousBalance: BigInt!
+  newBalance: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+  logIndex: BigInt!
+  emitter: Bytes!
+}
+
+type PassportDelegationEvent @entity(immutable: true) {
+  id: Bytes!
+  action: String!
+  delegator: Bytes!
+  delegatee: Bytes!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+  logIndex: BigInt!
+  emitter: Bytes!
+}
+
+type PassportEntityLinkEvent @entity(immutable: true) {
+  id: Bytes!
+  action: String!
+  entity: Bytes!
+  passport: Bytes!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+  logIndex: BigInt!
+  emitter: Bytes!
+}
+
+type PassportRegisteredAction @entity(immutable: true) {
+  id: Bytes!
+  user: Bytes!
+  passport: Bytes!
+  app: Bytes!
+  round: String!
+  roundId: BigInt!
+  actionScore: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+  logIndex: BigInt!
+  emitter: Bytes!
+}
+
+type PassportListEvent @entity(immutable: true) {
+  id: Bytes!
+  list: String!
+  active: Boolean!
+  user: Bytes!
+  passport: Bytes
+  actor: Bytes!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+  logIndex: BigInt!
+  emitter: Bytes!
+}
+
+type UserSignalEvent @entity(immutable: true) {
+  id: Bytes!
+  user: Bytes!
+  signaler: Bytes!
+  app: Bytes!
+  reason: String!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+  logIndex: BigInt!
+  emitter: Bytes!
+}
+
+type UserSignalsResetEvent @entity(immutable: true) {
+  id: Bytes!
+  user: Bytes!
+  reason: String!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+  logIndex: BigInt!
+  emitter: Bytes!
+}
+
+type UserSignalsResetForAppEvent @entity(immutable: true) {
+  id: Bytes!
+  user: Bytes!
+  app: Bytes!
+  reason: String!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+  logIndex: BigInt!
+  emitter: Bytes!
+}
+
+type NftTransferEvent @entity(immutable: true) {
+  id: Bytes!
+  collection: Bytes!
+  tokenId: BigInt!
+  from: Bytes!
+  to: Bytes!
+  poolAddress: Bytes
+  level: Int
+  points: Int
+  isX: Boolean
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+  logIndex: BigInt!
+  emitter: Bytes!
+}
+
+type NftApprovalEvent @entity(immutable: true) {
+  id: Bytes!
+  collection: Bytes!
+  tokenId: BigInt!
+  owner: Bytes!
+  approved: Bytes!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+  logIndex: BigInt!
+  emitter: Bytes!
+}
+
+type NftApprovalForAllEvent @entity(immutable: true) {
+  id: Bytes!
+  collection: Bytes!
+  owner: Bytes!
+  operator: Bytes!
+  approved: Boolean!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+  logIndex: BigInt!
+  emitter: Bytes!
+}
+
+type VeDelegateConfigChangedEvent @entity(immutable: true) {
+  id: Bytes!
+  sender: Bytes!
+  configId: Bytes!
+  value: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+  logIndex: BigInt!
+  emitter: Bytes!
+}
+
+type NodeDelegatedEvent @entity(immutable: true) {
+  id: Bytes!
+  nodeId: BigInt!
+  delegatee: Bytes!
+  delegated: Boolean!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+  logIndex: BigInt!
+  emitter: Bytes!
+}
+
+type ThorNodeLevelChangedEvent @entity(immutable: true) {
+  id: Bytes!
+  tokenId: BigInt!
+  owner: Bytes!
+  fromLevel: Int!
+  toLevel: Int!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+  logIndex: BigInt!
+  emitter: Bytes!
+}
+
+type Lock2EarnTermEvent @entity(immutable: true) {
+  id: Bytes!
+  action: String!
+  tokenId: BigInt!
+  owner: Bytes!
+  amountExact: BigInt!
+  optionId: BigInt!
+  autoRenew: Boolean!
+  startTime: BigInt
+  termLength: BigInt
+  termInterval: BigInt
+  endTime: BigInt
+  veDelegatePoolTokenId: BigInt
+  veDelegatePoolAddress: Bytes
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+  logIndex: BigInt!
+  emitter: Bytes!
+}
+
+type VetDomainAddressChangedEvent @entity(immutable: true) {
+  id: Bytes!
+  node: Bytes!
+  address: Bytes!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+  logIndex: BigInt!
+  emitter: Bytes!
+}
+
+type VetDomainNameChangedEvent @entity(immutable: true) {
+  id: Bytes!
+  node: Bytes!
+  name: String!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+  logIndex: BigInt!
+  emitter: Bytes!
+}

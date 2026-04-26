@@ -1,0 +1,226 @@
+enum AppRewardTransferKind {
+  DEPOSIT
+  WITHDRAW
+  DISTRIBUTION
+}
+
+type AppRegistered @entity(immutable: true) {
+  id: Bytes!
+  app: Bytes!
+  owner: Bytes!
+  name: String!
+  votingEligibility: Boolean!
+  createdAt: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+  logIndex: BigInt!
+  emitter: Bytes!
+}
+
+type AppMetadataChanged @entity(immutable: true) {
+  id: Bytes!
+  app: Bytes!
+  oldMetadataURI: String!
+  metadataURI: String!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+  logIndex: BigInt!
+  emitter: Bytes!
+}
+
+type AppMetadataDocument @entity(immutable: true) {
+  id: ID!
+  title: String
+  description: String
+  externalUrl: String
+  logoUrl: String
+  bannerUrl: String
+  rawJson: String!
+}
+
+type AppVotingEligibilityChanged @entity(immutable: true) {
+  id: Bytes!
+  app: Bytes!
+  votingEligibility: Boolean!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+  logIndex: BigInt!
+  emitter: Bytes!
+}
+
+type AppBlacklistChanged @entity(immutable: true) {
+  id: Bytes!
+  app: Bytes!
+  isBlacklisted: Boolean!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+  logIndex: BigInt!
+  emitter: Bytes!
+}
+
+type AppEndorsementChanged @entity(immutable: true) {
+  id: Bytes!
+  app: Bytes!
+  nodeId: BigInt!
+  endorsed: Boolean!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+  logIndex: BigInt!
+  emitter: Bytes!
+}
+
+type AppEndorsementStatusChanged @entity(immutable: true) {
+  id: Bytes!
+  app: Bytes!
+  endorsed: Boolean!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+  logIndex: BigInt!
+  emitter: Bytes!
+}
+
+type RoundCreatedEvent @entity(immutable: true) {
+  id: Bytes!
+  round: String!
+  roundId: BigInt!
+  creator: Bytes!
+  voteStart: BigInt!
+  voteEnd: BigInt!
+  apps: String!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+  logIndex: BigInt!
+  emitter: Bytes!
+}
+
+type AllocationVoteCastEvent @entity(immutable: true) {
+  id: Bytes!
+  voter: Bytes!
+  round: String!
+  roundId: BigInt!
+  apps: String!
+  voteWeights: String!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+  logIndex: BigInt!
+  emitter: Bytes!
+}
+
+type AppRewardTransfer @entity(immutable: true) {
+  id: Bytes!
+  app: Bytes!
+  round: String!
+  amountExact: BigInt!
+  kind: AppRewardTransferKind!
+  from: Bytes
+  to: Bytes
+  reason: String
+  proof: String
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+  logIndex: BigInt!
+  emitter: Bytes!
+}
+
+type SustainabilityProofDocument @entity(immutable: true) {
+  id: ID!
+  transfer: Bytes!
+  app: Bytes!
+  round: String!
+  account: Bytes!
+  rewardExact: BigInt!
+  proofType: String
+  proofData: String
+  description: String
+  additionalInfo: String
+  carbon: BigInt!
+  water: BigInt!
+  energy: BigInt!
+  wasteMass: BigInt!
+  plastic: BigInt!
+  timber: BigInt!
+  educationTime: BigInt!
+  treesPlanted: BigInt!
+  caloriesBurned: BigInt!
+  sleepQualityPercentage: BigInt!
+  cleanEnergyProduction: BigInt!
+  wasteItems: BigInt!
+  people: BigInt!
+  biodiversity: BigInt!
+  version: Int!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+  logIndex: BigInt!
+  emitter: Bytes!
+  rawJson: String!
+}
+
+type RoundRewardClaimed @entity(immutable: true) {
+  id: Bytes!
+  round: String!
+  cycle: BigInt!
+  voter: Bytes!
+  rewardExact: BigInt!
+  gmRewardExact: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+  logIndex: BigInt!
+  emitter: Bytes!
+}
+
+type RoundRewardVoteRegistered @entity(immutable: true) {
+  id: Bytes!
+  round: String!
+  cycle: BigInt!
+  voter: Bytes!
+  votePower: BigInt!
+  rewardWeightedVote: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+  logIndex: BigInt!
+  emitter: Bytes!
+}
+
+type RoundGMVoteRegistered @entity(immutable: true) {
+  id: Bytes!
+  round: String!
+  cycle: BigInt!
+  tokenId: BigInt!
+  level: BigInt!
+  multiplier: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+  logIndex: BigInt!
+  emitter: Bytes!
+}
+
+type AppAllocationFunded @entity(immutable: true) {
+  id: Bytes!
+  app: Bytes!
+  round: String!
+  targetRound: String
+  amountExact: BigInt!
+  recipient: Bytes
+  caller: Bytes
+  unallocatedAmount: BigInt
+  teamAllocationAmount: BigInt
+  rewardsAllocationAmount: BigInt
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+  logIndex: BigInt!
+  emitter: Bytes!
+}

@@ -2,3 +2,7 @@ node_modules
 build
 .DS_Store
 dao-contracts
+subgraphs/v2/dao-v2-composed/source-deployments.json
+subgraphs/v2/dao-v2-composed/subgraph.yaml
+subgraphs/v2/dao-v2-composed/src/mapping.ts
+subgraphs/v2/*/generated/

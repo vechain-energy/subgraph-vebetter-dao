@@ -1,0 +1,7 @@
+{
+  "appsSource": "QmReplaceWithAppsSourceDeploymentId",
+  "rewardsSource": "QmReplaceWithRewardsSourceDeploymentId",
+  "tokensSource": "QmReplaceWithTokensSourceDeploymentId",
+  "governanceSource": "QmReplaceWithGovernanceSourceDeploymentId",
+  "identitySource": "QmReplaceWithIdentitySourceDeploymentId"
+}
