@@ -1,0 +1,159 @@
+type ProposalCreatedEvent @entity(immutable: true) {
+  id: Bytes!
+  proposalId: BigInt!
+  proposer: Bytes!
+  targets: [Bytes!]!
+  values: [BigInt!]!
+  signatures: [String!]!
+  calldatas: [Bytes!]!
+  descriptionURI: String!
+  roundIdVoteStart: BigInt!
+  depositThreshold: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+  logIndex: BigInt!
+  emitter: Bytes!
+}
+
+type ProposalQueuedEvent @entity(immutable: true) {
+  id: Bytes!
+  proposalId: BigInt!
+  etaSeconds: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+  logIndex: BigInt!
+  emitter: Bytes!
+}
+
+type ProposalExecutedEvent @entity(immutable: true) {
+  id: Bytes!
+  proposalId: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+  logIndex: BigInt!
+  emitter: Bytes!
+}
+
+type ProposalCanceledEvent @entity(immutable: true) {
+  id: Bytes!
+  proposalId: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+  logIndex: BigInt!
+  emitter: Bytes!
+}
+
+type ProposalVoteCastEvent @entity(immutable: true) {
+  id: Bytes!
+  proposalId: BigInt!
+  voter: Bytes!
+  support: Int!
+  weight: BigInt!
+  power: BigInt!
+  reason: String!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+  logIndex: BigInt!
+  emitter: Bytes!
+}
+
+type ProposalDepositEvent @entity(immutable: true) {
+  id: Bytes!
+  proposalId: BigInt!
+  depositor: Bytes!
+  amountExact: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+  logIndex: BigInt!
+  emitter: Bytes!
+}
+
+type ProposalMetadataDocument @entity(immutable: true) {
+  id: ID!
+  title: String
+  shortDescription: String
+  markdownDescription: String
+  proposalType: String
+  rawJson: String!
+}
+
+type TimelockCallScheduledEvent @entity(immutable: true) {
+  id: Bytes!
+  operationId: Bytes!
+  index: BigInt!
+  target: Bytes!
+  valueExact: BigInt!
+  data: Bytes!
+  predecessor: Bytes!
+  delay: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+  logIndex: BigInt!
+  emitter: Bytes!
+}
+
+type TimelockCallExecutedEvent @entity(immutable: true) {
+  id: Bytes!
+  operationId: Bytes!
+  index: BigInt!
+  target: Bytes!
+  valueExact: BigInt!
+  data: Bytes!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+  logIndex: BigInt!
+  emitter: Bytes!
+}
+
+type TimelockCancelledEvent @entity(immutable: true) {
+  id: Bytes!
+  operationId: Bytes!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+  logIndex: BigInt!
+  emitter: Bytes!
+}
+
+type TimelockMinDelayChangedEvent @entity(immutable: true) {
+  id: Bytes!
+  oldDuration: BigInt!
+  newDuration: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+  logIndex: BigInt!
+  emitter: Bytes!
+}
+
+type VoteDelegationChangedEvent @entity(immutable: true) {
+  id: Bytes!
+  delegator: Bytes!
+  fromDelegate: Bytes!
+  toDelegate: Bytes!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+  logIndex: BigInt!
+  emitter: Bytes!
+}
+
+type VoteWeightChangedEvent @entity(immutable: true) {
+  id: Bytes!
+  delegate: Bytes!
+  previousBalance: BigInt!
+  newBalance: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+  logIndex: BigInt!
+  emitter: Bytes!
+}

@@ -35,6 +35,16 @@ npx graph create vebetter/dao --node http://127.0.0.1:8020
 npx graph deploy vebetter/dao --ipfs http://127.0.0.1:5001 --node http://127.0.0.1:8020 subgraph.yaml --version-label 1
 ```
 
+## V2 Composition
+
+V2 source subgraphs live in `subgraphs/v2`. They do not replace this v1 endpoint.
+
+```sh
+npm run test:v2:sources
+```
+
+Deploy and compose flow is documented in [`docs/v2-composition.md`](docs/v2-composition.md).
+
 --
 
 Contributions to improve the indexing or widen the scope are very welcome!

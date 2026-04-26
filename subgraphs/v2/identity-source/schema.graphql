@@ -1,0 +1,211 @@
+type PassportDelegationEvent @entity(immutable: true) {
+  id: Bytes!
+  action: String!
+  delegator: Bytes!
+  delegatee: Bytes!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+  logIndex: BigInt!
+  emitter: Bytes!
+}
+
+type PassportEntityLinkEvent @entity(immutable: true) {
+  id: Bytes!
+  action: String!
+  entity: Bytes!
+  passport: Bytes!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+  logIndex: BigInt!
+  emitter: Bytes!
+}
+
+type PassportRegisteredAction @entity(immutable: true) {
+  id: Bytes!
+  user: Bytes!
+  passport: Bytes!
+  app: Bytes!
+  round: String!
+  roundId: BigInt!
+  actionScore: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+  logIndex: BigInt!
+  emitter: Bytes!
+}
+
+type PassportListEvent @entity(immutable: true) {
+  id: Bytes!
+  list: String!
+  active: Boolean!
+  user: Bytes!
+  passport: Bytes
+  actor: Bytes!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+  logIndex: BigInt!
+  emitter: Bytes!
+}
+
+type UserSignalEvent @entity(immutable: true) {
+  id: Bytes!
+  user: Bytes!
+  signaler: Bytes!
+  app: Bytes!
+  reason: String!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+  logIndex: BigInt!
+  emitter: Bytes!
+}
+
+type UserSignalsResetEvent @entity(immutable: true) {
+  id: Bytes!
+  user: Bytes!
+  reason: String!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+  logIndex: BigInt!
+  emitter: Bytes!
+}
+
+type UserSignalsResetForAppEvent @entity(immutable: true) {
+  id: Bytes!
+  user: Bytes!
+  app: Bytes!
+  reason: String!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+  logIndex: BigInt!
+  emitter: Bytes!
+}
+
+type NftTransferEvent @entity(immutable: true) {
+  id: Bytes!
+  collection: Bytes!
+  tokenId: BigInt!
+  from: Bytes!
+  to: Bytes!
+  poolAddress: Bytes
+  level: Int
+  points: Int
+  isX: Boolean
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+  logIndex: BigInt!
+  emitter: Bytes!
+}
+
+type NftApprovalEvent @entity(immutable: true) {
+  id: Bytes!
+  collection: Bytes!
+  tokenId: BigInt!
+  owner: Bytes!
+  approved: Bytes!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+  logIndex: BigInt!
+  emitter: Bytes!
+}
+
+type NftApprovalForAllEvent @entity(immutable: true) {
+  id: Bytes!
+  collection: Bytes!
+  owner: Bytes!
+  operator: Bytes!
+  approved: Boolean!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+  logIndex: BigInt!
+  emitter: Bytes!
+}
+
+type VeDelegateConfigChangedEvent @entity(immutable: true) {
+  id: Bytes!
+  sender: Bytes!
+  configId: Bytes!
+  value: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+  logIndex: BigInt!
+  emitter: Bytes!
+}
+
+type NodeDelegatedEvent @entity(immutable: true) {
+  id: Bytes!
+  nodeId: BigInt!
+  delegatee: Bytes!
+  delegated: Boolean!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+  logIndex: BigInt!
+  emitter: Bytes!
+}
+
+type ThorNodeLevelChangedEvent @entity(immutable: true) {
+  id: Bytes!
+  tokenId: BigInt!
+  owner: Bytes!
+  fromLevel: Int!
+  toLevel: Int!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+  logIndex: BigInt!
+  emitter: Bytes!
+}
+
+type Lock2EarnTermEvent @entity(immutable: true) {
+  id: Bytes!
+  action: String!
+  tokenId: BigInt!
+  owner: Bytes!
+  amountExact: BigInt!
+  optionId: BigInt!
+  autoRenew: Boolean!
+  startTime: BigInt
+  termLength: BigInt
+  termInterval: BigInt
+  endTime: BigInt
+  veDelegatePoolTokenId: BigInt
+  veDelegatePoolAddress: Bytes
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+  logIndex: BigInt!
+  emitter: Bytes!
+}
+
+type VetDomainAddressChangedEvent @entity(immutable: true) {
+  id: Bytes!
+  node: Bytes!
+  address: Bytes!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+  logIndex: BigInt!
+  emitter: Bytes!
+}
+
+type VetDomainNameChangedEvent @entity(immutable: true) {
+  id: Bytes!
+  node: Bytes!
+  name: String!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+  logIndex: BigInt!
+  emitter: Bytes!
+}

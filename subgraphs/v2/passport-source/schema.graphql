@@ -1,0 +1,88 @@
+type PassportDelegationEvent @entity(immutable: true) {
+  id: Bytes!
+  action: String!
+  delegator: Bytes!
+  delegatee: Bytes!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+  logIndex: BigInt!
+  emitter: Bytes!
+}
+
+type PassportEntityLinkEvent @entity(immutable: true) {
+  id: Bytes!
+  action: String!
+  entity: Bytes!
+  passport: Bytes!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+  logIndex: BigInt!
+  emitter: Bytes!
+}
+
+type PassportRegisteredAction @entity(immutable: true) {
+  id: Bytes!
+  user: Bytes!
+  passport: Bytes!
+  app: Bytes!
+  round: String!
+  roundId: BigInt!
+  actionScore: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+  logIndex: BigInt!
+  emitter: Bytes!
+}
+
+type PassportListEvent @entity(immutable: true) {
+  id: Bytes!
+  list: String!
+  active: Boolean!
+  user: Bytes!
+  passport: Bytes
+  actor: Bytes!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+  logIndex: BigInt!
+  emitter: Bytes!
+}
+
+type UserSignalEvent @entity(immutable: true) {
+  id: Bytes!
+  user: Bytes!
+  signaler: Bytes!
+  app: Bytes!
+  reason: String!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+  logIndex: BigInt!
+  emitter: Bytes!
+}
+
+type UserSignalsResetEvent @entity(immutable: true) {
+  id: Bytes!
+  user: Bytes!
+  reason: String!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+  logIndex: BigInt!
+  emitter: Bytes!
+}
+
+type UserSignalsResetForAppEvent @entity(immutable: true) {
+  id: Bytes!
+  user: Bytes!
+  app: Bytes!
+  reason: String!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+  logIndex: BigInt!
+  emitter: Bytes!
+}

@@ -1,0 +1,58 @@
+specVersion: 1.3.0
+indexerHints:
+  prune: auto
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum/contract
+    name: passport
+    network: mainnet
+    source:
+      address: "0x35a267671d8EDD607B2056A9a13E7ba7CF53c8b3"
+      abi: Passport
+      startBlock: 19820804
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      entities:
+        - PassportDelegationEvent
+        - PassportEntityLinkEvent
+        - PassportRegisteredAction
+        - PassportListEvent
+        - UserSignalEvent
+        - UserSignalsResetEvent
+        - UserSignalsResetForAppEvent
+      abis:
+        - name: Passport
+          file: ../../../abis/VeBetterDAO-ve-better-passport.json
+      eventHandlers:
+        - event: DelegationPending(indexed address,indexed address)
+          handler: handleDelegationPending
+        - event: DelegationCreated(indexed address,indexed address)
+          handler: handleDelegationCreated
+        - event: DelegationRevoked(indexed address,indexed address)
+          handler: handleDelegationRevoked
+        - event: LinkPending(indexed address,indexed address)
+          handler: handleLinkPending
+        - event: LinkCreated(indexed address,indexed address)
+          handler: handleLinkCreated
+        - event: LinkRemoved(indexed address,indexed address)
+          handler: handleLinkRemoved
+        - event: RegisteredAction(indexed address,address,indexed bytes32,indexed uint256,uint256)
+          handler: handleRegisteredAction
+        - event: UserWhitelisted(indexed address,indexed address)
+          handler: handleUserWhitelisted
+        - event: RemovedUserFromWhitelist(indexed address,indexed address,indexed address)
+          handler: handleRemovedUserFromWhitelist
+        - event: UserBlacklisted(indexed address,indexed address)
+          handler: handleUserBlacklisted
+        - event: RemovedUserFromBlacklist(indexed address,indexed address)
+          handler: handleRemovedUserFromBlacklist
+        - event: UserSignaled(indexed address,indexed address,indexed bytes32,string)
+          handler: handleUserSignaled
+        - event: UserSignalsReset(indexed address,string)
+          handler: handleUserSignalsReset
+        - event: UserSignalsResetForApp(indexed address,indexed bytes32,string)
+          handler: handleUserSignalsResetForApp
+      file: ./src/mapping.ts

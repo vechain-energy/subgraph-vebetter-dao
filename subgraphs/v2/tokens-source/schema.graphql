@@ -1,0 +1,25 @@
+type TokenTransfer @entity(immutable: true) {
+  id: Bytes!
+  token: Bytes!
+  from: Bytes!
+  to: Bytes!
+  amountExact: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+  logIndex: BigInt!
+  emitter: Bytes!
+}
+
+type TokenApproval @entity(immutable: true) {
+  id: Bytes!
+  token: Bytes!
+  owner: Bytes!
+  spender: Bytes!
+  amountExact: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+  logIndex: BigInt!
+  emitter: Bytes!
+}

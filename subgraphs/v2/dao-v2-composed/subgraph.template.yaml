@@ -1,0 +1,193 @@
+specVersion: 1.3.0
+indexerHints:
+  prune: auto
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: subgraph
+    name: appsSource
+    network: mainnet
+    source:
+      address: "__APPS_SOURCE_DEPLOYMENT__"
+      startBlock: 18868857
+    mapping:
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      file: ./src/mapping.ts
+      entities:
+        - AppRegistered
+        - AppMetadataChanged
+        - AppMetadataDocument
+        - AppVotingEligibilityChanged
+        - AppBlacklistChanged
+        - AppEndorsementChanged
+        - AppEndorsementStatusChanged
+        - RoundCreatedEvent
+      handlers:
+        - handler: handleAppRegistered
+          entity: AppRegistered
+        - handler: handleAppMetadataChanged
+          entity: AppMetadataChanged
+        - handler: handleAppMetadataDocument
+          entity: AppMetadataDocument
+        - handler: handleAppVotingEligibilityChanged
+          entity: AppVotingEligibilityChanged
+        - handler: handleAppBlacklistChanged
+          entity: AppBlacklistChanged
+        - handler: handleAppEndorsementChanged
+          entity: AppEndorsementChanged
+        - handler: handleAppEndorsementStatusChanged
+          entity: AppEndorsementStatusChanged
+        - handler: handleRoundCreated
+          entity: RoundCreatedEvent
+  - kind: subgraph
+    name: rewardsSource
+    network: mainnet
+    source:
+      address: "__REWARDS_SOURCE_DEPLOYMENT__"
+      startBlock: 18868859
+    mapping:
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      file: ./src/mapping.ts
+      entities:
+        - AllocationVoteCastEvent
+        - AppRewardTransfer
+        - SustainabilityProofDocument
+        - RoundRewardClaimed
+        - RoundRewardVoteRegistered
+        - RoundGMVoteRegistered
+        - AppAllocationFunded
+        - AppMetricEvent
+      handlers:
+        - handler: handleAllocationVoteCast
+          entity: AllocationVoteCastEvent
+        - handler: handleAppRewardTransfer
+          entity: AppRewardTransfer
+        - handler: handleSustainabilityProofDocument
+          entity: SustainabilityProofDocument
+        - handler: handleRoundRewardClaimed
+          entity: RoundRewardClaimed
+        - handler: handleRoundRewardVoteRegistered
+          entity: RoundRewardVoteRegistered
+        - handler: handleRoundGMVoteRegistered
+          entity: RoundGMVoteRegistered
+        - handler: handleAppAllocationFunded
+          entity: AppAllocationFunded
+  - kind: subgraph
+    name: tokensSource
+    network: mainnet
+    source:
+      address: "__TOKENS_SOURCE_DEPLOYMENT__"
+      startBlock: 18868849
+    mapping:
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      file: ./src/mapping.ts
+      entities:
+        - TokenTransfer
+        - TokenApproval
+      handlers:
+        - handler: handleTokenTransfer
+          entity: TokenTransfer
+        - handler: handleTokenApproval
+          entity: TokenApproval
+  - kind: subgraph
+    name: governanceSource
+    network: mainnet
+    source:
+      address: "__GOVERNANCE_SOURCE_DEPLOYMENT__"
+      startBlock: 18868851
+    mapping:
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      file: ./src/mapping.ts
+      entities:
+        - ProposalCreatedEvent
+        - ProposalQueuedEvent
+        - ProposalExecutedEvent
+        - ProposalCanceledEvent
+        - ProposalVoteCastEvent
+        - ProposalDepositEvent
+        - ProposalMetadataDocument
+        - VoteDelegationChangedEvent
+        - VoteWeightChangedEvent
+      handlers:
+        - handler: handleProposalCreated
+          entity: ProposalCreatedEvent
+        - handler: handleProposalQueued
+          entity: ProposalQueuedEvent
+        - handler: handleProposalExecuted
+          entity: ProposalExecutedEvent
+        - handler: handleProposalCanceled
+          entity: ProposalCanceledEvent
+        - handler: handleProposalVoteCast
+          entity: ProposalVoteCastEvent
+        - handler: handleProposalDeposit
+          entity: ProposalDepositEvent
+        - handler: handleProposalMetadataDocument
+          entity: ProposalMetadataDocument
+        - handler: handleVoteDelegationChanged
+          entity: VoteDelegationChangedEvent
+        - handler: handleVoteWeightChanged
+          entity: VoteWeightChangedEvent
+  - kind: subgraph
+    name: identitySource
+    network: mainnet
+    source:
+      address: "__IDENTITY_SOURCE_DEPLOYMENT__"
+      startBlock: 1314209
+    mapping:
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      file: ./src/mapping.ts
+      entities:
+        - PassportDelegationEvent
+        - PassportEntityLinkEvent
+        - PassportRegisteredAction
+        - PassportListEvent
+        - UserSignalEvent
+        - UserSignalsResetEvent
+        - UserSignalsResetForAppEvent
+        - NftTransferEvent
+        - NftApprovalEvent
+        - NftApprovalForAllEvent
+        - VeDelegateConfigChangedEvent
+        - NodeDelegatedEvent
+        - ThorNodeLevelChangedEvent
+        - Lock2EarnTermEvent
+        - VetDomainAddressChangedEvent
+        - VetDomainNameChangedEvent
+      handlers:
+        - handler: handlePassportDelegation
+          entity: PassportDelegationEvent
+        - handler: handlePassportEntityLink
+          entity: PassportEntityLinkEvent
+        - handler: handlePassportRegisteredAction
+          entity: PassportRegisteredAction
+        - handler: handlePassportList
+          entity: PassportListEvent
+        - handler: handleUserSignal
+          entity: UserSignalEvent
+        - handler: handleUserSignalsReset
+          entity: UserSignalsResetEvent
+        - handler: handleUserSignalsResetForApp
+          entity: UserSignalsResetForAppEvent
+        - handler: handleNftTransfer
+          entity: NftTransferEvent
+        - handler: handleNftApproval
+          entity: NftApprovalEvent
+        - handler: handleNftApprovalForAll
+          entity: NftApprovalForAllEvent
+        - handler: handleVeDelegateConfigChanged
+          entity: VeDelegateConfigChangedEvent
+        - handler: handleNodeDelegated
+          entity: NodeDelegatedEvent
+        - handler: handleThorNodeLevelChanged
+          entity: ThorNodeLevelChangedEvent
+        - handler: handleLock2EarnTerm
+          entity: Lock2EarnTermEvent
+        - handler: handleVetDomainAddressChanged
+          entity: VetDomainAddressChangedEvent
+        - handler: handleVetDomainNameChanged
+          entity: VetDomainNameChangedEvent
